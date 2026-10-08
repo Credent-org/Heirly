@@ -177,7 +177,7 @@ class SorobanEventWatcher {
 
     // Also dispatch to window for global listeners
     try {
-      const customEvent = new CustomEvent(`spoovault:stellar:${topicName}`, {
+      const customEvent = new CustomEvent(`heirly:stellar:${topicName}`, {
         detail: event,
       });
       window.dispatchEvent(customEvent);

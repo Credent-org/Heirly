@@ -15,7 +15,7 @@ import { cryptoWorkerService } from "./cryptoWorker.service";
  *  2. Re-encrypt every document share envelope to the new public key
  *     (off-chain, CPU-intensive work runs in a Web Worker).
  *  3. Revoke the old key on-chain and atomically rotate to the new key
- *     (`revokeKey` on SpooVault.sol / `revoke_key` on the Soroban contract).
+ *     (`revokeKey` on Heirly.sol / `revoke_key` on the Soroban contract).
  *     The old key is permanently blacklisted: it can never be re-registered.
  *  4. Persist the new keypair in the local client keyring.
  *

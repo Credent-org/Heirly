@@ -11,7 +11,7 @@
     "coverageEnabled": true,
     "coverageFormats": [],
     "revertReporterEnabled": false,
-    "targetContracts": ["SpooVaultFuzz"],
+    "targetContracts": ["HeirlyFuzz"],
     "predeployedContracts": {},
     "targetContractsBalances": [],
     "constructorArgs": {},
@@ -71,7 +71,7 @@
   "compilation": {
     "platform": "crytic-compile",
     "platformConfig": {
-      "target": "../harness/SpooVaultFuzz.sol",
+      "target": "../harness/HeirlyFuzz.sol",
       "solcVersion": "",
       "exportDirectory": "",
       "args": [

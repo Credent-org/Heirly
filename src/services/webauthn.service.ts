@@ -35,7 +35,7 @@ export class WebAuthnError extends Error {
 export const PRF_SALT_LENGTH = 32;
 export const PRF_OUTPUT_LENGTH = 32;
 
-const PRF_HKDF_INFO = new TextEncoder().encode("spoovault-keyring-passkey-v1");
+const PRF_HKDF_INFO = new TextEncoder().encode("heirly-keyring-passkey-v1");
 const PRF_PAYLOAD_VERSION = "prf-aes256gcm-v1";
 
 /** @internal */

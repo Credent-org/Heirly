@@ -54,7 +54,7 @@ class MemoryStorage {
 // here needs a DOM, only `window.localStorage` and bare `localStorage`.
 beforeEach(() => {
   const storage = new MemoryStorage();
-  storage.setItem("spoovault-ecosystem", "stellar");
+  storage.setItem("heirly-ecosystem", "stellar");
   (globalThis as any).localStorage = storage;
   (globalThis as any).window = { localStorage: storage };
 
@@ -190,7 +190,7 @@ describe("Stellar-ecosystem access cache", () => {
       },
     ]);
     (globalThis as any).localStorage.setItem(
-      "spoovault-stellar-mock-requests",
+      "heirly-stellar-mock-requests",
       JSON.stringify([{ documentId: 9004, requester: ACCOUNT, status: 1 }])
     );
 

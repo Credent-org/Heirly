@@ -40,7 +40,7 @@ describe("Helper Utilities", () => {
 
   describe("encryptData & decryptData", () => {
     it("should encrypt and decrypt plaintext using AES key", () => {
-      const secretMessage = "SpooVault-Enterprise-Document-Payload";
+      const secretMessage = "Heirly-Enterprise-Document-Payload";
       const secretKey = "super-secret-encryption-key-32b";
 
       const encrypted = encryptData(secretMessage, secretKey);

@@ -4,13 +4,13 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/utils/Strings.sol";
 
 /// @dev Linked library for guardian rotation and PSS share refresh.
-/// External functions are DELEGATECALL'd from SpooVault to stay under EIP-170.
+/// External functions are DELEGATECALL'd from Heirly to stay under EIP-170.
 /// Proposal, invite, and reshare windows use wall-clock expiry the same way
-/// the original SpooVault entry points did; miners cannot rewrite executed
+/// the original Heirly entry points did; miners cannot rewrite executed
 /// state with timestamp drift alone.
 // slither-disable-start timestamp
-library SpooVaultAdminLogic {
-    // Packed to match SpooVault storage layout on main: creator+id+isActive
+library HeirlyAdminLogic {
+    // Packed to match Heirly storage layout on main: creator+id+isActive
     // share slot 0; approvalThreshold+createdAt pack together. Dynamic fields
     // keep their own slots. External getVault still widens to uint256.
     struct Vault {

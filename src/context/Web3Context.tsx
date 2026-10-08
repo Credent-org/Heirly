@@ -106,7 +106,7 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
 
   const [ecosystem, setEcosystemState] = useState<"avalanche" | "stellar">(() => {
     if (typeof window !== "undefined") {
-      const stored = window.localStorage.getItem("spoovault-ecosystem");
+      const stored = window.localStorage.getItem("heirly-ecosystem");
       if (stored === "stellar") return "stellar";
     }
     return "avalanche";
@@ -121,7 +121,7 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
   const setEcosystem = (eco: "avalanche" | "stellar") => {
     setEcosystemState(eco);
     if (typeof window !== "undefined") {
-      window.localStorage.setItem("spoovault-ecosystem", eco);
+      window.localStorage.setItem("heirly-ecosystem", eco);
       document.documentElement.setAttribute("data-ecosystem", eco);
     }
     resetAutoConnectGuard();

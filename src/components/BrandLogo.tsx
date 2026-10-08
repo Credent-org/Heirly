@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const SpooVaultFallback = ({
+const HeirlyFallback = ({
   className = "w-6 h-6",
 }: {
   className?: string;
@@ -54,12 +54,12 @@ const SpooVaultFallback = ({
 
 const BrandLogo = ({
   className = "w-6 h-6",
-  alt = "SpooVault logo",
+  alt = "Heirly logo",
 }: {
   className?: string;
   alt?: string;
 }) => {
-  const [src, setSrc] = useState("/spoovault-logo.png");
+  const [src, setSrc] = useState("/heirly-logo.png");
   const [useFallback, setUseFallback] = useState(false);
 
   if (!useFallback) {
@@ -70,8 +70,8 @@ const BrandLogo = ({
         className={`${className} object-contain`}
         decoding="async"
         onError={() => {
-          if (src !== "/spoovault-logo.svg") {
-            setSrc("/spoovault-logo.svg");
+          if (src !== "/heirly-logo.svg") {
+            setSrc("/heirly-logo.svg");
             return;
           }
           setUseFallback(true);
@@ -80,7 +80,7 @@ const BrandLogo = ({
     );
   }
 
-  return <SpooVaultFallback className={className} />;
+  return <HeirlyFallback className={className} />;
 };
 
 export default BrandLogo;

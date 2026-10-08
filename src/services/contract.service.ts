@@ -378,7 +378,7 @@ const chunkArray = <T,>(items: T[], size: number): T[][] => {
   return chunks;
 };
 
-const EVENT_LOG_CACHE_PREFIX = "spoovault-event-log-cache";
+const EVENT_LOG_CACHE_PREFIX = "heirly-event-log-cache";
 const EVENT_LOG_CACHE_VERSION = 1;
 
 type ParsedLogEntry = { log: ethers.Log; parsed: ethers.LogDescription };
@@ -1540,7 +1540,7 @@ const signKeeperAuthorization = async (
 
   const nonce = await contract.keeperAuthNonces(vaultId);
   const domain = {
-    name: "SpooVault",
+    name: "Heirly",
     version: "1",
     chainId: getConfiguredChainId(),
     verifyingContract: getContractAddress(),
@@ -1627,7 +1627,7 @@ const signGuardianDelegation = async (
   }
 
   const domain = {
-    name: "SpooVault",
+    name: "Heirly",
     version: "1",
     chainId: getConfiguredChainId(),
     verifyingContract: getContractAddress(),
@@ -2044,7 +2044,7 @@ const getRecentActivity = async (limit = 5): Promise<ActivityEvent[]> => {
 
 const getEcosystem = (): "avalanche" | "stellar" => {
   if (typeof window === "undefined") return "avalanche";
-  return (window.localStorage.getItem("spoovault-ecosystem") as "avalanche" | "stellar") || "avalanche";
+  return (window.localStorage.getItem("heirly-ecosystem") as "avalanche" | "stellar") || "avalanche";
 };
 
 // ---------------------------------------------------------------------------
@@ -2308,7 +2308,7 @@ const proxiedHasActiveAccess = async (documentId: number, user: string): Promise
         if (vault?.guardians.some(g => g.toLowerCase() === account.toLowerCase())) return true;
 
         try {
-          const requestsRaw = localStorage.getItem("spoovault-stellar-mock-requests");
+          const requestsRaw = localStorage.getItem("heirly-stellar-mock-requests");
           if (requestsRaw) {
             const requests = JSON.parse(requestsRaw) as any[];
             return requests.some(
@@ -2342,7 +2342,7 @@ const proxiedGetLatestRequestsForUser = async (
 ): Promise<Record<number, AccessRequestData | null>> => {
   if (getEcosystem() === "stellar") {
     try {
-      const requestsRaw = localStorage.getItem("spoovault-stellar-mock-requests");
+      const requestsRaw = localStorage.getItem("heirly-stellar-mock-requests");
       const requests = requestsRaw ? (JSON.parse(requestsRaw) as any[]) : [];
       const res: Record<number, AccessRequestData | null> = {};
       for (const id of documentIds) {

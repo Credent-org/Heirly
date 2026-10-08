@@ -1,5 +1,5 @@
 [package]
-name = "spoovault_stellar_upgrade_fixture"
+name = "heirly_stellar_upgrade_fixture"
 version = "0.1.0"
 edition = "2021"
 publish = false
@@ -8,7 +8,7 @@ publish = false
 # used exclusively as the "new version" Wasm blob in
 # `contracts-stellar/src/test.rs`'s `upgrade_contract` integration test (see
 # `contracts-stellar/upgrade_fixture/README.md`). It is never deployed and
-# is not part of the SpooVault product surface.
+# is not part of the Heirly product surface.
 
 [lib]
 crate-type = ["cdylib"]

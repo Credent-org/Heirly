@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import "../interfaces/IVRFCoordinatorV2Plus.sol";
 
 /// @dev Linked library for Chainlink VRF v2.5 emergency-unlock jitter.
-/// External functions are DELEGATECALL'd from SpooVault so the main contract
+/// External functions are DELEGATECALL'd from Heirly so the main contract
 /// stays under the EIP-170 24,576-byte runtime cap.
 library EmergencyVrfLogic {
     uint256 internal constant EMERGENCY_UNLOCK_BASE_DELAY = 10 minutes;

@@ -1,10 +1,10 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { deploySpooVault } = require("./helpers/deploySpooVault.cjs");
+const { deployHeirly } = require("./helpers/deployHeirly.cjs");
 const { time } = require("@nomicfoundation/hardhat-network-helpers");
 
-describe("SpooVault Guardian Rotation & Threshold Adjustment (Multi-Stage Governance)", function () {
-  let spooVault;
+describe("Heirly Guardian Rotation & Threshold Adjustment (Multi-Stage Governance)", function () {
+  let heirly;
   let owner;
   let guardian1;
   let guardian2;
@@ -16,11 +16,11 @@ describe("SpooVault Guardian Rotation & Threshold Adjustment (Multi-Stage Govern
     [owner, guardian1, guardian2, guardian3, beneficiary] =
       await ethers.getSigners();
 
-    spooVault = await deploySpooVault();
+    heirly = await deployHeirly();
 
     // Create a vault with 4 guardians total (owner + 3 external), threshold = 3
     const guardians = [guardian1.address, guardian2.address, guardian3.address];
-    const tx = await spooVault
+    const tx = await heirly
       .connect(owner)
       .createVault(
         "Guardian Rotation Test Vault",
@@ -32,93 +32,93 @@ describe("SpooVault Guardian Rotation & Threshold Adjustment (Multi-Stage Govern
     vaultId = 1;
 
     // Accept guardian invites
-    await spooVault.connect(guardian1).acceptGuardianInvite(vaultId);
-    await spooVault.connect(guardian2).acceptGuardianInvite(vaultId);
-    await spooVault.connect(guardian3).acceptGuardianInvite(vaultId);
+    await heirly.connect(guardian1).acceptGuardianInvite(vaultId);
+    await heirly.connect(guardian2).acceptGuardianInvite(vaultId);
+    await heirly.connect(guardian3).acceptGuardianInvite(vaultId);
   });
 
   describe("Proposal Creation", function () {
     it("should allow a guardian to propose removal of another guardian", async function () {
-      const tx = spooVault
+      const tx = heirly
         .connect(owner)
         .proposeGuardianRemoval(vaultId, guardian1.address);
       await expect(tx)
-        .to.emit(spooVault, "GuardianRemovalProposed")
+        .to.emit(heirly, "GuardianRemovalProposed")
         .withArgs(vaultId, guardian1.address, owner.address);
     });
 
     it("should revert if non-guardian tries to propose removal", async function () {
       await expect(
-        spooVault
+        heirly
           .connect(beneficiary)
           .proposeGuardianRemoval(vaultId, guardian1.address)
-      ).to.be.revertedWithCustomError(spooVault, "OnlyGuardian");
+      ).to.be.revertedWithCustomError(heirly, "OnlyGuardian");
     });
 
     it("should revert if trying to remove non-existent guardian", async function () {
       await expect(
-        spooVault
+        heirly
           .connect(owner)
           .proposeGuardianRemoval(vaultId, beneficiary.address)
-      ).to.be.revertedWithCustomError(spooVault, "GuardianNotExists");
+      ).to.be.revertedWithCustomError(heirly, "GuardianNotExists");
     });
 
     it("should allow a guardian to propose threshold update", async function () {
       const newThreshold = 2;
-      const tx = spooVault
+      const tx = heirly
         .connect(owner)
         .proposeThresholdUpdate(vaultId, newThreshold);
 
       await expect(tx)
-        .to.emit(spooVault, "ThresholdUpdateProposed")
+        .to.emit(heirly, "ThresholdUpdateProposed")
         .withArgs(vaultId, newThreshold, owner.address);
     });
 
     it("should revert if new threshold is zero", async function () {
       await expect(
-        spooVault.connect(owner).proposeThresholdUpdate(vaultId, 0)
-      ).to.be.revertedWithCustomError(spooVault, "InvalidNewThreshold");
+        heirly.connect(owner).proposeThresholdUpdate(vaultId, 0)
+      ).to.be.revertedWithCustomError(heirly, "InvalidNewThreshold");
     });
 
     it("should revert if new threshold exceeds guardian count", async function () {
       await expect(
-        spooVault.connect(owner).proposeThresholdUpdate(vaultId, 5)
-      ).to.be.revertedWithCustomError(spooVault, "InvalidNewThreshold");
+        heirly.connect(owner).proposeThresholdUpdate(vaultId, 5)
+      ).to.be.revertedWithCustomError(heirly, "InvalidNewThreshold");
     });
   });
 
   describe("Voting & Approvals", function () {
     it("should allow guardians to approve removal", async function () {
-      await spooVault
+      await heirly
         .connect(owner)
         .proposeGuardianRemoval(vaultId, guardian1.address);
 
-      const tx = spooVault
+      const tx = heirly
         .connect(guardian2)
         .approveGuardianRemoval(vaultId, guardian1.address);
 
       await expect(tx)
-        .to.emit(spooVault, "GuardianRemovalApproved")
+        .to.emit(heirly, "GuardianRemovalApproved")
         .withArgs(vaultId, guardian1.address, guardian2.address);
     });
 
     it("should revert if trying to approve removal twice", async function () {
-      await spooVault
+      await heirly
         .connect(owner)
         .proposeGuardianRemoval(vaultId, guardian1.address);
-      await spooVault
+      await heirly
         .connect(guardian2)
         .approveGuardianRemoval(vaultId, guardian1.address);
 
       await expect(
-        spooVault
+        heirly
           .connect(guardian2)
           .approveGuardianRemoval(vaultId, guardian1.address)
-      ).to.be.revertedWithCustomError(spooVault, "ApprovalAlreadyGiven");
+      ).to.be.revertedWithCustomError(heirly, "ApprovalAlreadyGiven");
     });
 
     it("should revert if approval is after proposal expiration", async function () {
-      await spooVault
+      await heirly
         .connect(owner)
         .proposeGuardianRemoval(vaultId, guardian1.address);
 
@@ -126,24 +126,24 @@ describe("SpooVault Guardian Rotation & Threshold Adjustment (Multi-Stage Govern
       await time.increase(8 * 24 * 60 * 60);
 
       await expect(
-        spooVault
+        heirly
           .connect(guardian2)
           .approveGuardianRemoval(vaultId, guardian1.address)
-      ).to.be.revertedWithCustomError(spooVault, "ProposalExpired");
+      ).to.be.revertedWithCustomError(heirly, "ProposalExpired");
     });
 
     it("should allow guardians to approve threshold update", async function () {
       const newThreshold = 2;
-      await spooVault
+      await heirly
         .connect(owner)
         .proposeThresholdUpdate(vaultId, newThreshold);
 
-      const tx = spooVault
+      const tx = heirly
         .connect(guardian2)
         .approveThresholdUpdate(vaultId, newThreshold);
 
       await expect(tx)
-        .to.emit(spooVault, "ThresholdUpdateApproved")
+        .to.emit(heirly, "ThresholdUpdateApproved")
         .withArgs(vaultId, newThreshold, guardian2.address);
     });
   });
@@ -151,138 +151,138 @@ describe("SpooVault Guardian Rotation & Threshold Adjustment (Multi-Stage Govern
   describe("Timelock Queueing & Quorum Check", function () {
     it("should revert queueing if approvals do not meet ceil(K/2)+1 quorum", async function () {
       // 4 guardians: ceil(4/2) + 1 = 3 approvals required
-      await spooVault
+      await heirly
         .connect(owner)
         .proposeGuardianRemoval(vaultId, guardian1.address);
 
       // Only 2 approvals (owner + guardian2)
-      await spooVault
+      await heirly
         .connect(owner)
         .approveGuardianRemoval(vaultId, guardian1.address);
-      await spooVault
+      await heirly
         .connect(guardian2)
         .approveGuardianRemoval(vaultId, guardian1.address);
 
       // Try to queue with only 2 approvals -> should revert
       await expect(
-        spooVault
+        heirly
           .connect(owner)
           .queueVaultReconfiguration(vaultId, guardian1.address, 0)
       ).to.be.revertedWithCustomError(
-        spooVault,
+        heirly,
         "InsufficientApprovalsForExecution"
       );
     });
 
     it("should allow queueing once ceil(K/2)+1 quorum approvals are met", async function () {
-      await spooVault
+      await heirly
         .connect(owner)
         .proposeGuardianRemoval(vaultId, guardian1.address);
 
       // Get 3 approvals out of 4 (ceil(4/2)+1 = 3)
-      await spooVault
+      await heirly
         .connect(owner)
         .approveGuardianRemoval(vaultId, guardian1.address);
-      await spooVault
+      await heirly
         .connect(guardian2)
         .approveGuardianRemoval(vaultId, guardian1.address);
-      await spooVault
+      await heirly
         .connect(guardian3)
         .approveGuardianRemoval(vaultId, guardian1.address);
 
       // Queue reconfiguration
-      const tx = spooVault
+      const tx = heirly
         .connect(owner)
         .queueVaultReconfiguration(vaultId, guardian1.address, 0);
 
-      await expect(tx).to.emit(spooVault, "VaultReconfigurationQueued");
+      await expect(tx).to.emit(heirly, "VaultReconfigurationQueued");
     });
 
     it("should revert if non-guardian attempts to queue reconfiguration", async function () {
-      await spooVault
+      await heirly
         .connect(owner)
         .proposeGuardianRemoval(vaultId, guardian1.address);
-      await spooVault
+      await heirly
         .connect(owner)
         .approveGuardianRemoval(vaultId, guardian1.address);
-      await spooVault
+      await heirly
         .connect(guardian2)
         .approveGuardianRemoval(vaultId, guardian1.address);
-      await spooVault
+      await heirly
         .connect(guardian3)
         .approveGuardianRemoval(vaultId, guardian1.address);
 
       await expect(
-        spooVault
+        heirly
           .connect(beneficiary)
           .queueVaultReconfiguration(vaultId, guardian1.address, 0)
-      ).to.be.revertedWithCustomError(spooVault, "OnlyGuardian");
+      ).to.be.revertedWithCustomError(heirly, "OnlyGuardian");
     });
 
     it("should revert if queueing already-queued proposal", async function () {
-      await spooVault
+      await heirly
         .connect(owner)
         .proposeGuardianRemoval(vaultId, guardian1.address);
-      await spooVault
+      await heirly
         .connect(owner)
         .approveGuardianRemoval(vaultId, guardian1.address);
-      await spooVault
+      await heirly
         .connect(guardian2)
         .approveGuardianRemoval(vaultId, guardian1.address);
-      await spooVault
+      await heirly
         .connect(guardian3)
         .approveGuardianRemoval(vaultId, guardian1.address);
 
-      await spooVault
+      await heirly
         .connect(owner)
         .queueVaultReconfiguration(vaultId, guardian1.address, 0);
 
       await expect(
-        spooVault
+        heirly
           .connect(owner)
           .queueVaultReconfiguration(vaultId, guardian1.address, 0)
-      ).to.be.revertedWithCustomError(spooVault, "ProposalAlreadyQueued");
+      ).to.be.revertedWithCustomError(heirly, "ProposalAlreadyQueued");
     });
   });
 
   describe("Timelock Delay & Execution", function () {
     it("should revert execution if proposal was never queued", async function () {
-      await spooVault
+      await heirly
         .connect(owner)
         .proposeGuardianRemoval(vaultId, guardian1.address);
-      await spooVault
+      await heirly
         .connect(owner)
         .approveGuardianRemoval(vaultId, guardian1.address);
-      await spooVault
+      await heirly
         .connect(guardian2)
         .approveGuardianRemoval(vaultId, guardian1.address);
-      await spooVault
+      await heirly
         .connect(guardian3)
         .approveGuardianRemoval(vaultId, guardian1.address);
 
       // Attempt to execute directly without queueing
       await expect(
-        spooVault
+        heirly
           .connect(owner)
           .executeVaultReconfiguration(vaultId, guardian1.address, 3)
-      ).to.be.revertedWithCustomError(spooVault, "ProposalNotQueued");
+      ).to.be.revertedWithCustomError(heirly, "ProposalNotQueued");
     });
 
     it("should revert execution if 24-hour timelock has not elapsed", async function () {
-      await spooVault
+      await heirly
         .connect(owner)
         .proposeGuardianRemoval(vaultId, guardian1.address);
-      await spooVault
+      await heirly
         .connect(owner)
         .approveGuardianRemoval(vaultId, guardian1.address);
-      await spooVault
+      await heirly
         .connect(guardian2)
         .approveGuardianRemoval(vaultId, guardian1.address);
-      await spooVault
+      await heirly
         .connect(guardian3)
         .approveGuardianRemoval(vaultId, guardian1.address);
 
-      await spooVault
+      await heirly
         .connect(owner)
         .queueVaultReconfiguration(vaultId, guardian1.address, 0);
 
@@ -290,70 +290,70 @@ describe("SpooVault Guardian Rotation & Threshold Adjustment (Multi-Stage Govern
       await time.increase(12 * 60 * 60);
 
       await expect(
-        spooVault
+        heirly
           .connect(owner)
           .executeVaultReconfiguration(vaultId, guardian1.address, 3)
-      ).to.be.revertedWithCustomError(spooVault, "TimelockNotElapsed");
+      ).to.be.revertedWithCustomError(heirly, "TimelockNotElapsed");
     });
 
     it("should execute guardian removal after 24-hour timelock delay has elapsed", async function () {
-      await spooVault
+      await heirly
         .connect(owner)
         .proposeGuardianRemoval(vaultId, guardian1.address);
-      await spooVault
+      await heirly
         .connect(owner)
         .approveGuardianRemoval(vaultId, guardian1.address);
-      await spooVault
+      await heirly
         .connect(guardian2)
         .approveGuardianRemoval(vaultId, guardian1.address);
-      await spooVault
+      await heirly
         .connect(guardian3)
         .approveGuardianRemoval(vaultId, guardian1.address);
 
-      await spooVault
+      await heirly
         .connect(owner)
         .queueVaultReconfiguration(vaultId, guardian1.address, 0);
 
       // Fast forward 24 hours
       await time.increase(24 * 60 * 60);
 
-      const tx = spooVault
+      const tx = heirly
         .connect(owner)
         .executeVaultReconfiguration(vaultId, guardian1.address, 3);
 
       await expect(tx)
-        .to.emit(spooVault, "VaultReconfigurationExecuted")
-        .to.emit(spooVault, "GuardianRemoved")
+        .to.emit(heirly, "VaultReconfigurationExecuted")
+        .to.emit(heirly, "GuardianRemoved")
         .withArgs(vaultId, guardian1.address);
 
-      expect(await spooVault.isGuardian(vaultId, guardian1.address)).to.equal(
+      expect(await heirly.isGuardian(vaultId, guardian1.address)).to.equal(
         false
       );
     });
 
     it("should execute threshold update after 24-hour timelock delay has elapsed", async function () {
       const newThreshold = 2;
-      await spooVault
+      await heirly
         .connect(owner)
         .proposeThresholdUpdate(vaultId, newThreshold);
-      await spooVault
+      await heirly
         .connect(owner)
         .approveThresholdUpdate(vaultId, newThreshold);
-      await spooVault
+      await heirly
         .connect(guardian2)
         .approveThresholdUpdate(vaultId, newThreshold);
-      await spooVault
+      await heirly
         .connect(guardian3)
         .approveThresholdUpdate(vaultId, newThreshold);
 
-      await spooVault
+      await heirly
         .connect(owner)
         .queueVaultReconfiguration(vaultId, ethers.ZeroAddress, newThreshold);
 
       // Fast forward 24 hours
       await time.increase(24 * 60 * 60);
 
-      const tx = spooVault
+      const tx = heirly
         .connect(owner)
         .executeVaultReconfiguration(
           vaultId,
@@ -361,39 +361,39 @@ describe("SpooVault Guardian Rotation & Threshold Adjustment (Multi-Stage Govern
           newThreshold
         );
 
-      await expect(tx).to.emit(spooVault, "VaultReconfigurationExecuted");
+      await expect(tx).to.emit(heirly, "VaultReconfigurationExecuted");
 
-      const vault = await spooVault.vaults(vaultId);
+      const vault = await heirly.vaults(vaultId);
       expect(vault.approvalThreshold).to.equal(newThreshold);
     });
   });
 
   describe("Emergency Cancel / Veto by Vault Creator", function () {
     it("should allow vault creator to veto malicious reconfiguration proposal during timelock", async function () {
-      await spooVault
+      await heirly
         .connect(guardian1)
         .proposeGuardianRemoval(vaultId, owner.address);
-      await spooVault
+      await heirly
         .connect(guardian1)
         .approveGuardianRemoval(vaultId, owner.address);
-      await spooVault
+      await heirly
         .connect(guardian2)
         .approveGuardianRemoval(vaultId, owner.address);
-      await spooVault
+      await heirly
         .connect(guardian3)
         .approveGuardianRemoval(vaultId, owner.address);
 
-      await spooVault
+      await heirly
         .connect(guardian1)
         .queueVaultReconfiguration(vaultId, owner.address, 0);
 
       // Creator vetoes during timelock
-      const tx = spooVault
+      const tx = heirly
         .connect(owner)
         .cancelVaultReconfiguration(vaultId, owner.address, 0);
 
       await expect(tx)
-        .to.emit(spooVault, "VaultReconfigurationCanceled")
+        .to.emit(heirly, "VaultReconfigurationCanceled")
         .withArgs(vaultId, owner.address, 0, owner.address);
 
       // Fast forward past timelock
@@ -401,35 +401,35 @@ describe("SpooVault Guardian Rotation & Threshold Adjustment (Multi-Stage Govern
 
       // Execution attempt must revert
       await expect(
-        spooVault
+        heirly
           .connect(guardian1)
           .executeVaultReconfiguration(vaultId, owner.address, 3)
-      ).to.be.revertedWithCustomError(spooVault, "ProposalVetoed");
+      ).to.be.revertedWithCustomError(heirly, "ProposalVetoed");
     });
 
     it("should revert if non-creator attempts to cancel/veto proposal", async function () {
-      await spooVault
+      await heirly
         .connect(owner)
         .proposeGuardianRemoval(vaultId, guardian1.address);
-      await spooVault
+      await heirly
         .connect(owner)
         .approveGuardianRemoval(vaultId, guardian1.address);
-      await spooVault
+      await heirly
         .connect(guardian2)
         .approveGuardianRemoval(vaultId, guardian1.address);
-      await spooVault
+      await heirly
         .connect(guardian3)
         .approveGuardianRemoval(vaultId, guardian1.address);
 
-      await spooVault
+      await heirly
         .connect(owner)
         .queueVaultReconfiguration(vaultId, guardian1.address, 0);
 
       await expect(
-        spooVault
+        heirly
           .connect(guardian1)
           .cancelVaultReconfiguration(vaultId, guardian1.address, 0)
-      ).to.be.revertedWithCustomError(spooVault, "OnlyVaultCreator");
+      ).to.be.revertedWithCustomError(heirly, "OnlyVaultCreator");
     });
   });
 
@@ -438,37 +438,37 @@ describe("SpooVault Guardian Rotation & Threshold Adjustment (Multi-Stage Govern
       const newThreshold = 2;
 
       // Propose both changes
-      await spooVault
+      await heirly
         .connect(owner)
         .proposeGuardianRemoval(vaultId, guardian1.address);
-      await spooVault
+      await heirly
         .connect(owner)
         .proposeThresholdUpdate(vaultId, newThreshold);
 
       // Approve removal (need 3 out of 4)
-      await spooVault
+      await heirly
         .connect(owner)
         .approveGuardianRemoval(vaultId, guardian1.address);
-      await spooVault
+      await heirly
         .connect(guardian2)
         .approveGuardianRemoval(vaultId, guardian1.address);
-      await spooVault
+      await heirly
         .connect(guardian3)
         .approveGuardianRemoval(vaultId, guardian1.address);
 
       // Approve threshold (need 3 out of 4)
-      await spooVault
+      await heirly
         .connect(owner)
         .approveThresholdUpdate(vaultId, newThreshold);
-      await spooVault
+      await heirly
         .connect(guardian2)
         .approveThresholdUpdate(vaultId, newThreshold);
-      await spooVault
+      await heirly
         .connect(guardian3)
         .approveThresholdUpdate(vaultId, newThreshold);
 
       // Queue both changes
-      await spooVault
+      await heirly
         .connect(owner)
         .queueVaultReconfiguration(vaultId, guardian1.address, newThreshold);
 
@@ -476,44 +476,44 @@ describe("SpooVault Guardian Rotation & Threshold Adjustment (Multi-Stage Govern
       await time.increase(24 * 60 * 60);
 
       // Execute both
-      const tx = spooVault
+      const tx = heirly
         .connect(owner)
         .executeVaultReconfiguration(vaultId, guardian1.address, newThreshold);
 
-      await expect(tx).to.emit(spooVault, "VaultReconfigurationExecuted");
+      await expect(tx).to.emit(heirly, "VaultReconfigurationExecuted");
 
       // Verify both changes applied
-      const vault = await spooVault.vaults(vaultId);
+      const vault = await heirly.vaults(vaultId);
       expect(vault.approvalThreshold).to.equal(newThreshold);
-      expect(await spooVault.isGuardian(vaultId, guardian1.address)).to.equal(
+      expect(await heirly.isGuardian(vaultId, guardian1.address)).to.equal(
         false
       );
     });
 
     it("should revert if new threshold exceeds remaining guardians after removal", async function () {
-      await spooVault
+      await heirly
         .connect(owner)
         .proposeGuardianRemoval(vaultId, guardian1.address);
-      await spooVault.connect(owner).proposeThresholdUpdate(vaultId, 4);
+      await heirly.connect(owner).proposeThresholdUpdate(vaultId, 4);
 
       // Approve removal
-      await spooVault
+      await heirly
         .connect(owner)
         .approveGuardianRemoval(vaultId, guardian1.address);
-      await spooVault
+      await heirly
         .connect(guardian2)
         .approveGuardianRemoval(vaultId, guardian1.address);
-      await spooVault
+      await heirly
         .connect(guardian3)
         .approveGuardianRemoval(vaultId, guardian1.address);
 
       // Approve threshold
-      await spooVault.connect(owner).approveThresholdUpdate(vaultId, 4);
-      await spooVault.connect(guardian2).approveThresholdUpdate(vaultId, 4);
-      await spooVault.connect(guardian3).approveThresholdUpdate(vaultId, 4);
+      await heirly.connect(owner).approveThresholdUpdate(vaultId, 4);
+      await heirly.connect(guardian2).approveThresholdUpdate(vaultId, 4);
+      await heirly.connect(guardian3).approveThresholdUpdate(vaultId, 4);
 
       // Queue both
-      await spooVault
+      await heirly
         .connect(owner)
         .queueVaultReconfiguration(vaultId, guardian1.address, 4);
 
@@ -522,44 +522,44 @@ describe("SpooVault Guardian Rotation & Threshold Adjustment (Multi-Stage Govern
 
       // Execution should fail due to invalid threshold
       await expect(
-        spooVault
+        heirly
           .connect(owner)
           .executeVaultReconfiguration(vaultId, guardian1.address, 4)
-      ).to.be.revertedWithCustomError(spooVault, "InvalidNewThreshold");
+      ).to.be.revertedWithCustomError(heirly, "InvalidNewThreshold");
     });
   });
 
   describe("Access Control", function () {
     it("should prevent non-guardian from proposing removal", async function () {
       await expect(
-        spooVault
+        heirly
           .connect(beneficiary)
           .proposeGuardianRemoval(vaultId, guardian1.address)
-      ).to.be.revertedWithCustomError(spooVault, "OnlyGuardian");
+      ).to.be.revertedWithCustomError(heirly, "OnlyGuardian");
     });
 
     it("should prevent non-guardian from approving removal", async function () {
-      await spooVault
+      await heirly
         .connect(owner)
         .proposeGuardianRemoval(vaultId, guardian1.address);
       await expect(
-        spooVault
+        heirly
           .connect(beneficiary)
           .approveGuardianRemoval(vaultId, guardian1.address)
-      ).to.be.revertedWithCustomError(spooVault, "OnlyGuardian");
+      ).to.be.revertedWithCustomError(heirly, "OnlyGuardian");
     });
 
     it("should prevent non-guardian from proposing threshold update", async function () {
       await expect(
-        spooVault.connect(beneficiary).proposeThresholdUpdate(vaultId, 2)
-      ).to.be.revertedWithCustomError(spooVault, "OnlyGuardian");
+        heirly.connect(beneficiary).proposeThresholdUpdate(vaultId, 2)
+      ).to.be.revertedWithCustomError(heirly, "OnlyGuardian");
     });
 
     it("should prevent non-guardian from approving threshold update", async function () {
-      await spooVault.connect(owner).proposeThresholdUpdate(vaultId, 2);
+      await heirly.connect(owner).proposeThresholdUpdate(vaultId, 2);
       await expect(
-        spooVault.connect(beneficiary).approveThresholdUpdate(vaultId, 2)
-      ).to.be.revertedWithCustomError(spooVault, "OnlyGuardian");
+        heirly.connect(beneficiary).approveThresholdUpdate(vaultId, 2)
+      ).to.be.revertedWithCustomError(heirly, "OnlyGuardian");
     });
   });
 });

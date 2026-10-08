@@ -1,6 +1,6 @@
 # Troubleshooting Common Integration Issues
 
-Answers to typical development issues when running SpooVault.
+Answers to typical development issues when running Heirly.
 
 ## Common Failures
 

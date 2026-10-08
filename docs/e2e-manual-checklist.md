@@ -1,4 +1,4 @@
-# SpooVault End-to-End Manual Checklist
+# Heirly End-to-End Manual Checklist
 
 Use 3 wallets for full validation:
 

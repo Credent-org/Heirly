@@ -40,7 +40,7 @@ library BLSVerifier {
     ) internal pure returns (bytes32) {
         return keccak256(
             abi.encodePacked(
-                "SPOOVAULT_ACCESS_APPROVAL_V1",
+                "HEIRLY_ACCESS_APPROVAL_V1",
                 requestId,
                 vaultId,
                 documentId,
@@ -65,7 +65,7 @@ library BLSVerifier {
         }
 
         bytes32 popDigest = keccak256(
-            abi.encodePacked("BLS_POP_SPOOVAULT_V1", blsPublicKey)
+            abi.encodePacked("BLS_POP_HEIRLY_V1", blsPublicKey)
         );
         return BLS12381.verifyAggregated(blsPublicKey, proofOfPossession, popDigest);
     }

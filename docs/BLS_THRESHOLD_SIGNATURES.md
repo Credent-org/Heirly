@@ -2,7 +2,7 @@
 
 ## 1. Executive Summary
 
-SpooVault implements **BLS12-381 Threshold Signature Aggregation** for guardian-governed vaults and document access approvals. By leveraging the algebraic properties of the BLS12-381 pairing-friendly elliptic curve, $K$-of-$N$ guardians aggregate their partial approval signatures off-chain into a **single 96-byte signature** and a **single 48-byte aggregated public key**.
+Heirly implements **BLS12-381 Threshold Signature Aggregation** for guardian-governed vaults and document access approvals. By leveraging the algebraic properties of the BLS12-381 pairing-friendly elliptic curve, $K$-of-$N$ guardians aggregate their partial approval signatures off-chain into a **single 96-byte signature** and a **single 48-byte aggregated public key**.
 
 This aggregated signature is verified on-chain in a **single pairing check**, reducing verification complexity from $O(K)$ sequential ECDSA/Ed25519 signature checks to $O(1)$ and reducing on-chain gas consumption for $K=10$ approvals by **>70%**.
 
@@ -35,7 +35,7 @@ To prevent rogue-key attacks (where an attacker crafts a malicious public key $P
 1. **Private Key**: $sk_i \stackrel{R}{\leftarrow} \mathbb{F}_r$ (or derived deterministically via BIP-39 + PBKDF2).
 2. **Public Key**: $PK_i = sk_i \cdot G_1 \in \mathbb{G}_1$ (48 bytes compressed).
 3. **Proof of Possession**:
-   $$H_{PoP}(PK_i) = \text{HashToCurve}_{\mathbb{G}_2}(PK_i, \text{DST} = \text{"BLS\_POP\_SPOOVAULT\_V1"})$$
+   $$H_{PoP}(PK_i) = \text{HashToCurve}_{\mathbb{G}_2}(PK_i, \text{DST} = \text{"BLS\_POP\_HEIRLY\_V1"})$$
    $$PoP_i = sk_i \cdot H_{PoP}(PK_i) \in \mathbb{G}_2 \text{ (96 bytes compressed)}$$
 4. **On-Chain PoP Verification**:
    $$e(PK_i, H_{PoP}(PK_i)) \stackrel{?}{=} e(G_1, PoP_i) \iff e(-PK_i, H_{PoP}(PK_i)) \cdot e(G_1, PoP_i) = 1$$
@@ -44,8 +44,8 @@ To prevent rogue-key attacks (where an attacker crafts a malicious public key $P
 When a beneficiary submits an access request for Document $D$ in Vault $V$ with Request ID $R$:
 
 1. **Canonical Approval Message**:
-   $$M = \text{abi.encodePacked}("SPOOVAULT\_ACCESS\_APPROVAL\_V1", R, V, D, \text{beneficiary}, \text{chainId})$$
-   $$H_M = \text{HashToCurve}_{\mathbb{G}_2}(M, \text{DST} = \text{"BLS\_SIG\_BLS12381G2\_XMD:SHA-256\_SSWU\_RO\_SPOOVAULT\_V1"})$$
+   $$M = \text{abi.encodePacked}("HEIRLY\_ACCESS\_APPROVAL\_V1", R, V, D, \text{beneficiary}, \text{chainId})$$
+   $$H_M = \text{HashToCurve}_{\mathbb{G}_2}(M, \text{DST} = \text{"BLS\_SIG\_BLS12381G2\_XMD:SHA-256\_SSWU\_RO\_HEIRLY\_V1"})$$
 2. **Guardian Partial Signatures**:
    Each guardian $i \in \{1, \dots, K\}$ generates:
    $$\sigma_i = sk_i \cdot H_M \in \mathbb{G}_2 \text{ (96 bytes)}$$
@@ -78,7 +78,7 @@ $$e(PK_{agg}, H_M) \stackrel{?}{=} e(G_1, \sigma_{agg}) \iff e(PK_{agg}, H_M) \c
                                       v                               v
                         +---------------------------+   +---------------------------+
                         |  EVM / Avalanche Fuji     |   |  Stellar / Soroban        |
-                        |  - SpooVault.sol          |   |  - lib.rs                 |
+                        |  - Heirly.sol          |   |  - lib.rs                 |
                         |  - BLSVerifier.sol        |   |  - bls.rs                 |
                         |  - BLS12381.sol           |   |                           |
                         |  - 1 Pairing Check        |   |  - 1-Tx Batch Approval    |

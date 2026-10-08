@@ -110,8 +110,8 @@ export interface HybridPrivateKeys {
   pqcPrivateKey: string;
 }
 
-const HYBRID_HKDF_INFO = stringToUint8Array("spoovault-hybrid-kem-v1");
-const HYBRID_HKDF_SALT = stringToUint8Array("spoovault-hybrid-salt-v1");
+const HYBRID_HKDF_INFO = stringToUint8Array("heirly-hybrid-kem-v1");
+const HYBRID_HKDF_SALT = stringToUint8Array("heirly-hybrid-salt-v1");
 
 const getWebCrypto = (): Crypto => {
   const cryptoObj =

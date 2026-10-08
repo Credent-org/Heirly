@@ -2,7 +2,7 @@
 
 ## Overview
 
-SpooVault implements Private Information Retrieval (PIR) principles to prevent IPFS gateway nodes from correlating beneficiary IP addresses with specific vault document CIDs. This addresses the surveillance risk where public IPFS gateways log requester IP addresses and requested CIDs, allowing network entities to correlate beneficiary identities with specific vault documents.
+Heirly implements Private Information Retrieval (PIR) principles to prevent IPFS gateway nodes from correlating beneficiary IP addresses with specific vault document CIDs. This addresses the surveillance risk where public IPFS gateways log requester IP addresses and requested CIDs, allowing network entities to correlate beneficiary identities with specific vault documents.
 
 ## Threat Model
 

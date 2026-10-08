@@ -1,6 +1,6 @@
 # Testing Guide
 
-SpooVault ships two smart contracts — `contracts/SpooVault.sol` (Avalanche EVM)
+Heirly ships two smart contracts — `contracts/Heirly.sol` (Avalanche EVM)
 and `contracts-stellar/` (Stellar Soroban) — plus a React/Vite frontend. This
 guide covers the full test pyramid for the contracts, from deterministic unit
 tests up through the property-based and fuzz testing added for
@@ -15,8 +15,8 @@ with Echidna, Medusa, cargo-fuzz, and proptest).
 | EVM contract tests | `npm run test:contracts` | Hardhat unit/scenario tests in `test/*.cjs` |
 | Soroban contract tests | `npm run test:stellar` | Deterministic scenarios (`src/test.rs`) **and** the property-based fuzz suite (`src/fuzz_test.rs`) |
 | Soroban coverage | `npm run test:stellar:coverage` | `cargo-tarpaulin`, see [CONTRIBUTING.md](../CONTRIBUTING.md) |
-| Echidna | see below | Property fuzzing of `SpooVault.sol` |
-| Medusa | see below | Invariant fuzzing of `SpooVault.sol` (same harness as Echidna) |
+| Echidna | see below | Property fuzzing of `Heirly.sol` |
+| Medusa | see below | Invariant fuzzing of `Heirly.sol` (same harness as Echidna) |
 | cargo-fuzz | see below | Coverage-guided fuzzing of the Soroban contract's call state machine |
 | Smoke check | `npm run test:smoke` | End-to-end build/deploy sanity check |
 | E2E | `npx playwright test` (see `e2e/README.md`) | Browser + wallet flows |
@@ -41,8 +41,8 @@ as a minimal failing sequence instead of a one-off manual repro.
 
 ## EVM: Echidna & Medusa (`fuzz/`)
 
-Both fuzzers drive the same harness contract, `fuzz/harness/SpooVaultFuzz.sol`,
-which composes an internal `SpooVault` instance (rather than inheriting it) so
+Both fuzzers drive the same harness contract, `fuzz/harness/HeirlyFuzz.sol`,
+which composes an internal `Heirly` instance (rather than inheriting it) so
 the fuzzer can only reach mutating entry points through the harness's
 `fuzz_*` wrapper functions. This keeps the harness's own shadow accounting
 (minted/burned tokens, approval counts) exact. A second tiny contract,
@@ -77,7 +77,7 @@ curl -sL -o solc-static-linux https://github.com/ethereum/solidity/releases/down
 chmod +x solc-static-linux
 docker run --rm -v "$PWD":/src -w /src --entrypoint echidna-test \
   trailofbits/echidna:v2.2.3 \
-  /src/fuzz/harness/SpooVaultFuzz.sol --contract SpooVaultFuzz \
+  /src/fuzz/harness/HeirlyFuzz.sol --contract HeirlyFuzz \
   --config /src/fuzz/echidna/config.yaml --test-mode property
 ```
 

@@ -46,9 +46,9 @@ interface ServiceWorkerScopeLike {
 
 const swSelf = self as unknown as ServiceWorkerScopeLike;
 
-const SHELL_CACHE = "spoovault-shell-v1";
-const ASSET_CACHE = "spoovault-assets-v1";
-const IPFS_CACHE = "spoovault-ipfs-v1";
+const SHELL_CACHE = "heirly-shell-v1";
+const ASSET_CACHE = "heirly-assets-v1";
+const IPFS_CACHE = "heirly-ipfs-v1";
 
 const KNOWN_CACHES = new Set([SHELL_CACHE, ASSET_CACHE, IPFS_CACHE]);
 

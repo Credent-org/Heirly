@@ -33,7 +33,7 @@ const resetIpfsEnv = (): void => {
   delete testEnv().VITE_PINATA_API_KEY;
   delete testEnv().VITE_PINATA_API_SECRET;
   delete testEnv().VITE_IPFS_PROXY_URL;
-  delete testEnv().VITE_SPOOVUALT_PROXY_SECRET;
+  delete testEnv().VITE_HEIRLY_PROXY_SECRET;
 };
 
 const loadService = async (): Promise<IpfsModule> => {
@@ -74,7 +74,7 @@ describe("IpfsService", () => {
 
     it("returns true when VITE_IPFS_PROXY_URL and PROXY_SECRET are present", async () => {
       testEnv().VITE_IPFS_PROXY_URL = "http://localhost:3001";
-      testEnv().VITE_SPOOVUALT_PROXY_SECRET = "proxy-secret";
+      testEnv().VITE_HEIRLY_PROXY_SECRET = "proxy-secret";
       const { ipfsService } = await loadService();
       expect(ipfsService.isConfigured()).toBe(true);
     });
@@ -156,7 +156,7 @@ describe("IpfsService", () => {
 
     it("uploads via proxy with HMAC signature headers", async () => {
       testEnv().VITE_IPFS_PROXY_URL = "http://localhost:3001";
-      testEnv().VITE_SPOOVUALT_PROXY_SECRET = "test-proxy-secret";
+      testEnv().VITE_HEIRLY_PROXY_SECRET = "test-proxy-secret";
       postMock.mockResolvedValueOnce({
         data: { IpfsHash: "QmProxyUploadHash", PinSize: 999 },
       });
@@ -171,7 +171,7 @@ describe("IpfsService", () => {
         expect.any(FormData),
         expect.objectContaining({
           headers: expect.objectContaining({
-            "X-SpooVault-Signature": expect.stringContaining("t="),
+            "X-Heirly-Signature": expect.stringContaining("t="),
           }),
         })
       );
@@ -239,7 +239,7 @@ describe("IpfsService", () => {
 
     it("unpins via proxy with signed DELETE request", async () => {
       testEnv().VITE_IPFS_PROXY_URL = "http://localhost:3001";
-      testEnv().VITE_SPOOVUALT_PROXY_SECRET = "test-proxy-secret";
+      testEnv().VITE_HEIRLY_PROXY_SECRET = "test-proxy-secret";
       deleteMock.mockResolvedValueOnce({
         data: { message: "Unpinned successfully" },
         status: 200,
@@ -252,7 +252,7 @@ describe("IpfsService", () => {
         "http://localhost:3001/api/ipfs/unpin/QmHashToUnpinProxy",
         expect.objectContaining({
           headers: expect.objectContaining({
-            "X-SpooVault-Signature": expect.stringContaining("t="),
+            "X-Heirly-Signature": expect.stringContaining("t="),
           }),
           timeout: 30000,
         })

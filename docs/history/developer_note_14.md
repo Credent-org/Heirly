@@ -1,6 +1,6 @@
 # Hosting Deployment to Firebase & Testnets
 
-SpooVault is built for serverless hosting environments.
+Heirly is built for serverless hosting environments.
 
 ## Frontend Deployment (Firebase Hosting)
 

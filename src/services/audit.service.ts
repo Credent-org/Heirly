@@ -80,7 +80,7 @@ class AuditService {
 
     const a = document.createElement("a");
     a.href = url;
-    a.download = `SpooVault_Audit_Certificate_Vault_${cert.vaultId}.json`;
+    a.download = `Heirly_Audit_Certificate_Vault_${cert.vaultId}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -115,7 +115,7 @@ class AuditService {
 
     const a = document.createElement("a");
     a.href = url;
-    a.download = `SpooVault_Activity_Log_Vault_${vaultId}.csv`;
+    a.download = `Heirly_Activity_Log_Vault_${vaultId}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

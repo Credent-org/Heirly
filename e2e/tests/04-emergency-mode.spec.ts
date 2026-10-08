@@ -73,7 +73,7 @@ async function increaseTime(provider: JsonRpcProvider, seconds: number) {
   await provider.send("evm_mine", []);
 }
 
-test.describe("SpooVault — emergency mode & post-death document release (EVM contract E2E)", () => {
+test.describe("Heirly — emergency mode & post-death document release (EVM contract E2E)", () => {
   test("emergency mode trigger enables EMERGENCY_ONLY document release", async () => {
     const provider = new JsonRpcProvider(ANVIL_RPC_URL);
     const deployer = new Wallet(privateKeyForIndex(0), provider);

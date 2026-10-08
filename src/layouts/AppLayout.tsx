@@ -50,7 +50,7 @@ const AppLayout = () => {
   useEffect(() => {
     const readProfile = () => {
       try {
-        const stored = localStorage.getItem("spoovault-profile");
+        const stored = localStorage.getItem("heirly-profile");
         if (stored) {
           const parsed = JSON.parse(stored) as { nickname?: string };
           setNickname(parsed.nickname ?? "");
@@ -66,19 +66,19 @@ const AppLayout = () => {
 
     const handleProfileUpdate = () => readProfile();
     const handleStorage = (event: StorageEvent) => {
-      if (event.key === "spoovault-profile") {
+      if (event.key === "heirly-profile") {
         readProfile();
       }
     };
 
     window.addEventListener(
-      "spoovault-profile-updated",
+      "heirly-profile-updated",
       handleProfileUpdate as EventListener
     );
     window.addEventListener("storage", handleStorage);
     return () => {
       window.removeEventListener(
-        "spoovault-profile-updated",
+        "heirly-profile-updated",
         handleProfileUpdate as EventListener
       );
       window.removeEventListener("storage", handleStorage);
@@ -203,7 +203,7 @@ const AppLayout = () => {
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem("spoovault-desktop-sidebar-expanded");
+      const stored = localStorage.getItem("heirly-desktop-sidebar-expanded");
       if (stored !== null) {
         setDesktopSidebarExpanded(stored === "1");
       }
@@ -215,7 +215,7 @@ const AppLayout = () => {
   useEffect(() => {
     try {
       localStorage.setItem(
-        "spoovault-desktop-sidebar-expanded",
+        "heirly-desktop-sidebar-expanded",
         desktopSidebarExpanded ? "1" : "0"
       );
     } catch {
@@ -414,9 +414,9 @@ const AppLayout = () => {
           <div className="flex-1 min-w-0 p-3 flex flex-col">
             <div className="mb-3 flex items-center gap-2">
               <div className="flex-1 min-w-0 rounded-2xl border border-gray-800/80 bg-gray-900/60 px-3 py-3">
-                <p className="text-sm font-semibold truncate">SpooVault</p>
+                <p className="text-sm font-semibold truncate">Heirly</p>
                 <p className="text-xs text-gray-400 truncate">
-                  spoovault.web.app
+                  heirly.web.app
                 </p>
               </div>
               <button
@@ -643,7 +643,7 @@ const AppLayout = () => {
             </div>
             <div className="min-w-0">
               <p className="text-[15px] font-semibold leading-none truncate">
-                SpooVault
+                Heirly
               </p>
               <p className="text-[11px] text-gray-400 mt-1 truncate">
                 Family Access App

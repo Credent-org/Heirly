@@ -1,7 +1,7 @@
 This file addresses the STRIDE matrix requirement with 15+ attack vectors.
 
 ```markdown
-# Spoo-Vault Cryptographic Threat Model (STRIDE)
+# Heirly Cryptographic Threat Model (STRIDE)
 
 | ID | Threat Category | Threat Vector | Mitigation |
 |:---|:--- |:--- |:--- |
@@ -16,7 +16,7 @@ This file addresses the STRIDE matrix requirement with 15+ attack vectors.
 | 9 | **Information Disclosure** | Side-channel attacks on ECIES | Implementation of constant-time cryptographic primitives. |
 | 10 | **Denial of Service** | Relayer endpoint flooding | Rate limiting and CAPTCHA integration on frontend API. |
 | 11 | **Denial of Service** | IPFS pinning service or public gateway failure (HTTP 429 / timeout) | Redundant pinning; document downloads race Pinata, Infura, Cloudflare, and ipfs.io with a per-gateway circuit breaker. |
-| 12 | **Information Disclosure** | Unauthenticated Pinata proxy (`Access-Control-Allow-Origin: *`) leaking JWT-backed pin API | CORS allowlist plus `X-SpooVault-Signature` HMAC; unsigned requests return 403 Forbidden. |
+| 12 | **Information Disclosure** | Unauthenticated Pinata proxy (`Access-Control-Allow-Origin: *`) leaking JWT-backed pin API | CORS allowlist plus `X-Heirly-Signature` HMAC; unsigned requests return 403 Forbidden. |
 | 13 | **Denial of Service** | Gas price spikes blocking recovery | Relayer gas-tank logic with dynamic fee estimation. |
 | 14 | **Elevation of Privilege** | Admin key compromise (EVM) | Transition to decentralized governance (DAO) or 48-hour Timelock. |
 | 15 | **Elevation of Privilege** | Unauthorized Relayer access | Role-Based Access Control (RBAC) within the Relayer network. |
@@ -26,5 +26,5 @@ This file addresses the STRIDE matrix requirement with 15+ attack vectors.
 | 19 | **Denial of Service / Repudiation** | Compromised or malicious keeper spamming/withholding heartbeats | Delegations are scoped to a single keeper address and a bounded `expiresAt`/`expires_at`; the owner can call `revokeKeeper`/`revoke_keeper` at any time, and heartbeats remain available directly from the owner's own wallet (`proveLife`/`prove_life`) regardless of keeper state. |
 
 ## Formal Security Guarantees
-- **Non-Custodial**: Neither Spoo-Vault nor the Relayer ever possesses a full recovery key.
+- **Non-Custodial**: Neither Heirly nor the Relayer ever possesses a full recovery key.
 - **Privacy-First**: No PII (Personally Identifiable Information) is stored on-chain or in IPFS.

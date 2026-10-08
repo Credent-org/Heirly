@@ -1,5 +1,5 @@
 /**
- * SpooVault Web3 Keeper Heartbeat Relay (Soroban / Stellar)
+ * Heirly Web3 Keeper Heartbeat Relay (Soroban / Stellar)
  *
  * Reference implementation of the off-chain half of the Soroban keeper
  * delegation flow: a Chainlink Automation "custom logic" upkeep or a Gelato
@@ -28,10 +28,10 @@
  *       already registered locally as KEEPER_STELLAR_IDENTITY, or
  *       provided as a secret key via KEEPER_STELLAR_SECRET (imported once).
  *   - Set in .env or the environment:
- *       SPOOVAULT_CONTRACT_ID=<deployed contract id>
+ *       HEIRLY_CONTRACT_ID=<deployed contract id>
  *       SOROBAN_RPC_URL=<rpc url>              (default: http://localhost:8000)
  *       SOROBAN_NETWORK_PASSPHRASE=<passphrase> (default: Standalone Network ; February 2017)
- *       KEEPER_STELLAR_IDENTITY=<local `stellar keys` identity name> (default: spoovault-keeper)
+ *       KEEPER_STELLAR_IDENTITY=<local `stellar keys` identity name> (default: heirly-keeper)
  *       KEEPER_STELLAR_SECRET=<S...secret key>  (optional; imports/overwrites the identity above)
  *
  * Usage:
@@ -61,12 +61,12 @@ if (existsSync(envPath)) {
   }
 }
 
-const CONTRACT_ID = process.env.SPOOVAULT_CONTRACT_ID;
+const CONTRACT_ID = process.env.HEIRLY_CONTRACT_ID;
 const RPC_URL = process.env.SOROBAN_RPC_URL || "http://localhost:8000";
 const NETWORK_PASSPHRASE =
   process.env.SOROBAN_NETWORK_PASSPHRASE || "Standalone Network ; February 2017";
-const IDENTITY = process.env.KEEPER_STELLAR_IDENTITY || "spoovault-keeper";
-const NETWORK = "spoovault-keeper-relay";
+const IDENTITY = process.env.KEEPER_STELLAR_IDENTITY || "heirly-keeper";
+const NETWORK = "heirly-keeper-relay";
 
 function runStellar(args, opts = {}) {
   return execFileSync("stellar", args, { encoding: "utf8", ...opts }).trim();
@@ -153,7 +153,7 @@ async function main() {
     process.exit(1);
   }
   if (!CONTRACT_ID) {
-    console.error("SPOOVAULT_CONTRACT_ID is not set in .env");
+    console.error("HEIRLY_CONTRACT_ID is not set in .env");
     process.exit(1);
   }
 

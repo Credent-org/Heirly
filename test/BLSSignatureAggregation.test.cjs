@@ -1,9 +1,9 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { deploySpooVault } = require("./helpers/deploySpooVault.cjs");
+const { deployHeirly } = require("./helpers/deployHeirly.cjs");
 
-describe("SpooVault Threshold BLS Signature Aggregation", function () {
-  let spooVault;
+describe("Heirly Threshold BLS Signature Aggregation", function () {
+  let heirly;
   let owner;
   let guardian1;
   let guardian2;
@@ -32,7 +32,7 @@ describe("SpooVault Threshold BLS Signature Aggregation", function () {
     [owner, guardian1, guardian2, guardian3, guardian4, requester, stranger] =
       await ethers.getSigners();
 
-    spooVault = await deploySpooVault(owner);
+    heirly = await deployHeirly(owner);
 
     // Create a vault with owner + 4 external guardians (5 total), approval threshold = 3
     const guardians = [
@@ -41,47 +41,47 @@ describe("SpooVault Threshold BLS Signature Aggregation", function () {
       guardian3.address,
       guardian4.address,
     ];
-    const tx = await spooVault
+    const tx = await heirly
       .connect(owner)
       .createVault("BLS Threshold Vault", "Vault for testing BLS signature aggregation", guardians, 3);
     await tx.wait();
     vaultId = 1;
 
     // Accept guardian invites
-    await spooVault.connect(guardian1).acceptGuardianInvite(vaultId);
-    await spooVault.connect(guardian2).acceptGuardianInvite(vaultId);
-    await spooVault.connect(guardian3).acceptGuardianInvite(vaultId);
-    await spooVault.connect(guardian4).acceptGuardianInvite(vaultId);
+    await heirly.connect(guardian1).acceptGuardianInvite(vaultId);
+    await heirly.connect(guardian2).acceptGuardianInvite(vaultId);
+    await heirly.connect(guardian3).acceptGuardianInvite(vaultId);
+    await heirly.connect(guardian4).acceptGuardianInvite(vaultId);
 
     // Register BLS keys with Proof of Possession for all guardians
-    await spooVault.connect(owner).registerGuardianBLSKey(vaultId, mockG1Key(1), mockG2Sig(1));
-    await spooVault.connect(guardian1).registerGuardianBLSKey(vaultId, mockG1Key(2), mockG2Sig(2));
-    await spooVault.connect(guardian2).registerGuardianBLSKey(vaultId, mockG1Key(3), mockG2Sig(3));
-    await spooVault.connect(guardian3).registerGuardianBLSKey(vaultId, mockG1Key(4), mockG2Sig(4));
-    await spooVault.connect(guardian4).registerGuardianBLSKey(vaultId, mockG1Key(5), mockG2Sig(5));
+    await heirly.connect(owner).registerGuardianBLSKey(vaultId, mockG1Key(1), mockG2Sig(1));
+    await heirly.connect(guardian1).registerGuardianBLSKey(vaultId, mockG1Key(2), mockG2Sig(2));
+    await heirly.connect(guardian2).registerGuardianBLSKey(vaultId, mockG1Key(3), mockG2Sig(3));
+    await heirly.connect(guardian3).registerGuardianBLSKey(vaultId, mockG1Key(4), mockG2Sig(4));
+    await heirly.connect(guardian4).registerGuardianBLSKey(vaultId, mockG1Key(5), mockG2Sig(5));
 
     // Upload document
-    const docTx = await spooVault
+    const docTx = await heirly
       .connect(owner)
       .addDocument(vaultId, "encrypted-metadata-bls", "QmBLSTestHash123456789", 0);
     await docTx.wait();
     documentId = 1;
 
     // Mint vault access NFT to requester
-    const mintTx = await spooVault
+    const mintTx = await heirly
       .connect(owner)
       .mintAccessToken(vaultId, requester.address, "ipfs://nft-pass-uri");
     await mintTx.wait();
 
     // Requester requests access
-    const reqTx = await spooVault.connect(requester).requestAccess(documentId);
+    const reqTx = await heirly.connect(requester).requestAccess(documentId);
     await reqTx.wait();
     requestId = 1;
   });
 
   describe("Guardian BLS Key Registration & PoP", function () {
     it("should successfully register and retrieve guardian BLS key and PoP", async function () {
-      const keyInfo = await spooVault.getGuardianBLSKey(vaultId, guardian1.address);
+      const keyInfo = await heirly.getGuardianBLSKey(vaultId, guardian1.address);
       expect(keyInfo[0]).to.equal(mockG1Key(2));
       expect(keyInfo[1]).to.equal(mockG2Sig(2));
       expect(keyInfo[2]).to.be.true; // isRegistered
@@ -90,25 +90,25 @@ describe("SpooVault Threshold BLS Signature Aggregation", function () {
     it("should emit GuardianBLSKeyRegistered event on registration", async function () {
       const key = mockG1Key(42);
       const pop = mockG2Sig(42);
-      await expect(spooVault.connect(guardian1).registerGuardianBLSKey(vaultId, key, pop))
-        .to.emit(spooVault, "GuardianBLSKeyRegistered")
+      await expect(heirly.connect(guardian1).registerGuardianBLSKey(vaultId, key, pop))
+        .to.emit(heirly, "GuardianBLSKeyRegistered")
         .withArgs(vaultId, guardian1.address, key);
     });
 
     it("should revert if non-guardian tries to register BLS key", async function () {
       await expect(
-        spooVault.connect(stranger).registerGuardianBLSKey(vaultId, mockG1Key(99), mockG2Sig(99))
-      ).to.be.revertedWithCustomError(spooVault, "OnlyGuardian");
+        heirly.connect(stranger).registerGuardianBLSKey(vaultId, mockG1Key(99), mockG2Sig(99))
+      ).to.be.revertedWithCustomError(heirly, "OnlyGuardian");
     });
 
     it("should revert if BLS public key or PoP length is invalid", async function () {
       await expect(
-        spooVault.connect(guardian1).registerGuardianBLSKey(vaultId, "0x1234", mockG2Sig(1))
-      ).to.be.revertedWithCustomError(spooVault, "InvalidBLSKeyLength");
+        heirly.connect(guardian1).registerGuardianBLSKey(vaultId, "0x1234", mockG2Sig(1))
+      ).to.be.revertedWithCustomError(heirly, "InvalidBLSKeyLength");
 
       await expect(
-        spooVault.connect(guardian1).registerGuardianBLSKey(vaultId, mockG1Key(1), "0xabcd")
-      ).to.be.revertedWithCustomError(spooVault, "InvalidBLSKeyLength");
+        heirly.connect(guardian1).registerGuardianBLSKey(vaultId, mockG1Key(1), "0xabcd")
+      ).to.be.revertedWithCustomError(heirly, "InvalidBLSKeyLength");
     });
   });
 
@@ -119,24 +119,24 @@ describe("SpooVault Threshold BLS Signature Aggregation", function () {
       const aggregatedPk = mockG1Key(99);
       const shares = ["share_for_beneficiary_1", "share_for_beneficiary_2", "share_for_beneficiary_3"];
 
-      const tx = await spooVault
+      const tx = await heirly
         .connect(stranger) // Anyone/relayer can submit the pre-aggregated payload!
         .approveAccessBLS(requestId, participatingGuardians, aggregatedSig, aggregatedPk, shares);
 
       await expect(tx)
-        .to.emit(spooVault, "BLSAccessApproved")
+        .to.emit(heirly, "BLSAccessApproved")
         .withArgs(requestId, vaultId, 3, aggregatedSig);
 
       // Verify request is approved
-      const req = await spooVault.accessRequests(requestId);
+      const req = await heirly.accessRequests(requestId);
       expect(req.status).to.equal(1); // APPROVED
 
       // Verify beneficiary has active access
-      const hasAccess = await spooVault.hasActiveAccess(documentId, requester.address);
+      const hasAccess = await heirly.hasActiveAccess(documentId, requester.address);
       expect(hasAccess).to.be.true;
 
       // Verify beneficiary shares were saved
-      const share0 = await spooVault.getBeneficiaryKeyShare(requestId, participatingGuardians[0]);
+      const share0 = await heirly.getBeneficiaryKeyShare(requestId, participatingGuardians[0]);
       expect(share0).to.equal("share_for_beneficiary_1");
     });
 
@@ -147,8 +147,8 @@ describe("SpooVault Threshold BLS Signature Aggregation", function () {
       const shares = ["share_1", "share_2"];
 
       await expect(
-        spooVault.approveAccessBLS(requestId, underThresholdGuardians, aggregatedSig, aggregatedPk, shares)
-      ).to.be.revertedWithCustomError(spooVault, "ThresholdNotMetBLS");
+        heirly.approveAccessBLS(requestId, underThresholdGuardians, aggregatedSig, aggregatedPk, shares)
+      ).to.be.revertedWithCustomError(heirly, "ThresholdNotMetBLS");
     });
 
     it("should reject batch approval if requester attempts to self-approve", async function () {
@@ -159,7 +159,7 @@ describe("SpooVault Threshold BLS Signature Aggregation", function () {
 
       // First make requester a guardian to test the guard
       await expect(
-        spooVault.approveAccessBLS(requestId, selfApproveSet, aggregatedSig, aggregatedPk, [])
+        heirly.approveAccessBLS(requestId, selfApproveSet, aggregatedSig, aggregatedPk, [])
       ).to.be.reverted;
     });
 
@@ -169,8 +169,8 @@ describe("SpooVault Threshold BLS Signature Aggregation", function () {
       const aggregatedPk = mockG1Key(99);
 
       await expect(
-        spooVault.approveAccessBLS(requestId, duplicateSet, aggregatedSig, aggregatedPk, [])
-      ).to.be.revertedWithCustomError(spooVault, "DuplicateGuardianBLS");
+        heirly.approveAccessBLS(requestId, duplicateSet, aggregatedSig, aggregatedPk, [])
+      ).to.be.revertedWithCustomError(heirly, "DuplicateGuardianBLS");
     });
 
     it("should reject batch approval if any guardian in the set has not registered BLS key", async function () {
@@ -181,8 +181,8 @@ describe("SpooVault Threshold BLS Signature Aggregation", function () {
       const aggregatedPk = mockG1Key(99);
 
       await expect(
-        spooVault.approveAccessBLS(requestId, unregSet, aggregatedSig, aggregatedPk, [])
-      ).to.be.revertedWithCustomError(spooVault, "OnlyGuardian");
+        heirly.approveAccessBLS(requestId, unregSet, aggregatedSig, aggregatedPk, [])
+      ).to.be.revertedWithCustomError(heirly, "OnlyGuardian");
     });
   });
 });

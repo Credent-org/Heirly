@@ -5,10 +5,10 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "./ISpooVault.sol";
+import "./IHeirly.sol";
 import "./IERC6551Registry.sol";
 import "./libraries/EmergencyVrfLogic.sol";
-import "./libraries/SpooVaultAdminLogic.sol";
+import "./libraries/HeirlyAdminLogic.sol";
 import "./libs/FHEEngine.sol";
 import "./libs/BLSVerifier.sol";
 
@@ -33,13 +33,13 @@ abstract contract ReentrancyGuardTransient {
 }
 
 /**
- * @title SpooVault
+ * @title Heirly
  * @dev NFT-powered multi-signature encrypted document vault.
- *      Implements {ISpooVault} so third-party DApps can discover and query
+ *      Implements {IHeirly} so third-party DApps can discover and query
  *      document access delegations through a standardized, ERC-165 discoverable
  *      interface.
  */
-contract SpooVault is ERC721, ISpooVault, ReentrancyGuardTransient, EIP712 {
+contract Heirly is ERC721, IHeirly, ReentrancyGuardTransient, EIP712 {
     using Strings for uint256;
     uint256 private _tokenIdCounter;
     uint256 private _vaultIdCounter;
@@ -71,7 +71,7 @@ contract SpooVault is ERC721, ISpooVault, ReentrancyGuardTransient, EIP712 {
 
     // Document packing: id+vaultId share a slot; uploadedBy+uploadedAt+
     // requiredAccess pack together. Structs Vault / GuardianInvite live in
-    // SpooVaultAdminLogic with the same packed widths so linked-library
+    // HeirlyAdminLogic with the same packed widths so linked-library
     // storage matches this contract.
     struct Document {
         uint64 id;
@@ -95,7 +95,7 @@ contract SpooVault is ERC721, ISpooVault, ReentrancyGuardTransient, EIP712 {
 
     // VaultReleaseState packs into a single slot aside from `targetBlocks`,
     // which occupies its own slot. GuardianInvite packing lives on
-    // SpooVaultAdminLogic.GuardianInvite.
+    // HeirlyAdminLogic.GuardianInvite.
     struct VaultReleaseState {
         bool emergencyMode;
         uint40 inactivityPeriod;
@@ -212,13 +212,13 @@ contract SpooVault is ERC721, ISpooVault, ReentrancyGuardTransient, EIP712 {
     // vaultId => guardianAddress => GuardianBLSKeyInfo
     mapping(uint256 => mapping(address => GuardianBLSKeyInfo)) public guardianBLSKeys;
 
-    mapping(uint256 => SpooVaultAdminLogic.Vault) public vaults;
+    mapping(uint256 => HeirlyAdminLogic.Vault) public vaults;
     mapping(uint256 => Document) public documents;
     mapping(uint256 => AccessRequest) public accessRequests;
     mapping(uint256 => mapping(address => bool)) public isGuardian;
     mapping(uint256 => mapping(address => bool)) public hasAccess;
     mapping(uint256 => mapping(address => AccessLevel)) public userAccessLevel;
-    mapping(address => mapping(uint256 => SpooVaultAdminLogic.GuardianInvite)) public guardianInvites;
+    mapping(address => mapping(uint256 => HeirlyAdminLogic.GuardianInvite)) public guardianInvites;
     mapping(address => uint256[]) public userInviteVaultIds;
     mapping(uint256 => mapping(address => bool)) public hasApprovedRequest;
     mapping(uint256 => mapping(address => uint256)) public latestRequestId;
@@ -317,8 +317,8 @@ contract SpooVault is ERC721, ISpooVault, ReentrancyGuardTransient, EIP712 {
     address private immutable _vrfDeployer;
 
     // Guardian rotation and threshold adjustment governance
-    mapping(uint256 => mapping(address => SpooVaultAdminLogic.GuardianRemovalProposal)) public guardianRemovalProposals;
-    mapping(uint256 => mapping(uint256 => SpooVaultAdminLogic.ThresholdUpdateProposal)) public thresholdUpdateProposals;
+    mapping(uint256 => mapping(address => HeirlyAdminLogic.GuardianRemovalProposal)) public guardianRemovalProposals;
+    mapping(uint256 => mapping(uint256 => HeirlyAdminLogic.ThresholdUpdateProposal)) public thresholdUpdateProposals;
     mapping(uint256 => mapping(address => mapping(address => bool))) public hasApprovedRemoval;
     mapping(uint256 => mapping(uint256 => mapping(address => bool))) public hasApprovedThreshold;
 
@@ -347,7 +347,7 @@ contract SpooVault is ERC721, ISpooVault, ReentrancyGuardTransient, EIP712 {
     // guardian then updates S_j' = S_j + sum_i h_i(j). The master secret
     // S(0) is preserved while all old shares become useless.
     // ------------------------------------------------------------------
-    mapping(uint256 => SpooVaultAdminLogic.ReshareSession) public reshareSessions;
+    mapping(uint256 => HeirlyAdminLogic.ReshareSession) public reshareSessions;
     // documentId => current share epoch (increments on every successful refresh)
     mapping(uint256 => uint256) public shareEpoch;
     // documentId => epoch => guardian => commitments[0..degree] where
@@ -485,7 +485,7 @@ contract SpooVault is ERC721, ISpooVault, ReentrancyGuardTransient, EIP712 {
         return fheBeneficiaryShares[requestId][guardian];
     }
 
-    constructor() ERC721("SpooVault Access Token", "SPVT") EIP712("SpooVault", "1") {
+    constructor() ERC721("Heirly Access Token", "HRLY") EIP712("Heirly", "1") {
         _vrfDeployer = msg.sender;
     }
 
@@ -537,7 +537,7 @@ contract SpooVault is ERC721, ISpooVault, ReentrancyGuardTransient, EIP712 {
         _vaultIdCounter += 1;
         uint256 vaultId = _vaultIdCounter;
 
-        SpooVaultAdminLogic.Vault storage newVault = vaults[vaultId];
+        HeirlyAdminLogic.Vault storage newVault = vaults[vaultId];
         newVault.id = uint64(vaultId);
         newVault.creator = msg.sender;
         newVault.name = name;
@@ -566,7 +566,7 @@ contract SpooVault is ERC721, ISpooVault, ReentrancyGuardTransient, EIP712 {
             if (guardianInvites[guardian][vaultId].expiresAt == 0) {
                 userInviteVaultIds[guardian].push(vaultId);
             }
-            guardianInvites[guardian][vaultId] = SpooVaultAdminLogic.GuardianInvite({
+            guardianInvites[guardian][vaultId] = HeirlyAdminLogic.GuardianInvite({
                 guardian: guardian,
                 vaultId: uint64(vaultId),
                 accepted: false,
@@ -641,7 +641,7 @@ contract SpooVault is ERC721, ISpooVault, ReentrancyGuardTransient, EIP712 {
         if (!vaults[vaultId].isActive) revert VaultNotActive();
         if (isGuardian[vaultId][msg.sender]) revert AlreadyGuardian();
 
-        SpooVaultAdminLogic.GuardianInvite storage invite = guardianInvites[msg.sender][vaultId];
+        HeirlyAdminLogic.GuardianInvite storage invite = guardianInvites[msg.sender][vaultId];
 
         if (invite.guardian == address(0)) revert NoValidInvite();
         if (invite.accepted) revert NoValidInvite();
@@ -941,7 +941,7 @@ contract SpooVault is ERC721, ISpooVault, ReentrancyGuardTransient, EIP712 {
 
     /// @notice Returns the stable cross-chain identifier for an EVM vault.
     function getVaultGID(uint256 vaultId) public view returns (string memory) {
-        return SpooVaultAdminLogic.vaultGidString(vaultId);
+        return HeirlyAdminLogic.vaultGidString(vaultId);
     }
 
     /**
@@ -1135,7 +1135,7 @@ contract SpooVault is ERC721, ISpooVault, ReentrancyGuardTransient, EIP712 {
      * Requires majority consensus (>50%) of guardians to approve before execution.
      */
     function proposeGuardianRemoval(uint256 vaultId, address guardianToRemove) external nonReentrant {
-        SpooVaultAdminLogic.proposeGuardianRemoval(
+        HeirlyAdminLogic.proposeGuardianRemoval(
             vaults,
             isGuardian,
             guardianRemovalProposals,
@@ -1145,7 +1145,7 @@ contract SpooVault is ERC721, ISpooVault, ReentrancyGuardTransient, EIP712 {
     }
 
     function approveGuardianRemoval(uint256 vaultId, address guardianToRemove) external nonReentrant {
-        SpooVaultAdminLogic.approveGuardianRemoval(
+        HeirlyAdminLogic.approveGuardianRemoval(
             vaults,
             isGuardian,
             guardianRemovalProposals,
@@ -1156,7 +1156,7 @@ contract SpooVault is ERC721, ISpooVault, ReentrancyGuardTransient, EIP712 {
     }
 
     function proposeThresholdUpdate(uint256 vaultId, uint256 newThreshold) external nonReentrant {
-        SpooVaultAdminLogic.proposeThresholdUpdate(
+        HeirlyAdminLogic.proposeThresholdUpdate(
             vaults,
             isGuardian,
             thresholdUpdateProposals,
@@ -1166,7 +1166,7 @@ contract SpooVault is ERC721, ISpooVault, ReentrancyGuardTransient, EIP712 {
     }
 
     function approveThresholdUpdate(uint256 vaultId, uint256 newThreshold) external nonReentrant {
-        SpooVaultAdminLogic.approveThresholdUpdate(
+        HeirlyAdminLogic.approveThresholdUpdate(
             vaults,
             isGuardian,
             thresholdUpdateProposals,
@@ -1181,7 +1181,7 @@ contract SpooVault is ERC721, ISpooVault, ReentrancyGuardTransient, EIP712 {
         address guardianToRemove,
         uint256 newThreshold
     ) external nonReentrant {
-        SpooVaultAdminLogic.queueVaultReconfiguration(
+        HeirlyAdminLogic.queueVaultReconfiguration(
             vaults,
             isGuardian,
             guardianRemovalProposals,
@@ -1197,7 +1197,7 @@ contract SpooVault is ERC721, ISpooVault, ReentrancyGuardTransient, EIP712 {
         address guardianToRemove,
         uint256 newThreshold
     ) external nonReentrant {
-        SpooVaultAdminLogic.cancelVaultReconfiguration(
+        HeirlyAdminLogic.cancelVaultReconfiguration(
             vaults,
             guardianRemovalProposals,
             thresholdUpdateProposals,
@@ -1212,7 +1212,7 @@ contract SpooVault is ERC721, ISpooVault, ReentrancyGuardTransient, EIP712 {
         address guardianToRemove,
         uint256 newThreshold
     ) external nonReentrant {
-        SpooVaultAdminLogic.executeVaultReconfiguration(
+        HeirlyAdminLogic.executeVaultReconfiguration(
             vaults,
             isGuardian,
             guardianRemovalProposals,
@@ -1224,7 +1224,7 @@ contract SpooVault is ERC721, ISpooVault, ReentrancyGuardTransient, EIP712 {
     }
 
     function startShareRefresh(uint256 documentId, uint256 duration) external {
-        SpooVaultAdminLogic.startShareRefresh(
+        HeirlyAdminLogic.startShareRefresh(
             documents[documentId].id,
             documents[documentId].vaultId,
             duration,
@@ -1236,7 +1236,7 @@ contract SpooVault is ERC721, ISpooVault, ReentrancyGuardTransient, EIP712 {
     }
 
     function submitZeroShareCommitment(uint256 documentId, bytes32[] calldata commitments) external {
-        SpooVaultAdminLogic.submitZeroShareCommitment(
+        HeirlyAdminLogic.submitZeroShareCommitment(
             documents[documentId].id,
             documents[documentId].vaultId,
             documentId,
@@ -1304,7 +1304,7 @@ contract SpooVault is ERC721, ISpooVault, ReentrancyGuardTransient, EIP712 {
         bytes32[] memory newCommitments
     ) internal {
         if (documents[documentId].id == 0) revert DocumentNotExist();
-        SpooVaultAdminLogic.ReshareSession storage session = reshareSessions[documentId];
+        HeirlyAdminLogic.ReshareSession storage session = reshareSessions[documentId];
         if (!session.active) revert ReshareSessionNotActive();
 
         uint256 vaultId = documents[documentId].vaultId;
@@ -1394,7 +1394,7 @@ contract SpooVault is ERC721, ISpooVault, ReentrancyGuardTransient, EIP712 {
         uint256 submittedCount,
         bool active
     ) {
-        SpooVaultAdminLogic.ReshareSession storage session = reshareSessions[documentId];
+        HeirlyAdminLogic.ReshareSession storage session = reshareSessions[documentId];
         return (session.startedAt, session.deadline, session.submittedCount, session.active);
     }
 
@@ -2035,7 +2035,7 @@ contract SpooVault is ERC721, ISpooVault, ReentrancyGuardTransient, EIP712 {
         bool isActive,
         uint256 createdAt
     ) {
-        SpooVaultAdminLogic.Vault storage vault = vaults[vaultId];
+        HeirlyAdminLogic.Vault storage vault = vaults[vaultId];
         return (
             vault.id,
             vault.creator,
@@ -2051,8 +2051,8 @@ contract SpooVault is ERC721, ISpooVault, ReentrancyGuardTransient, EIP712 {
     /**
      * @dev Get user's pending invites.
      */
-    function getPendingInvites(address user) external view nonReentrantView returns (SpooVaultAdminLogic.GuardianInvite[] memory) {
-        return SpooVaultAdminLogic.pendingInvites(user, userInviteVaultIds, guardianInvites);
+    function getPendingInvites(address user) external view nonReentrantView returns (HeirlyAdminLogic.GuardianInvite[] memory) {
+        return HeirlyAdminLogic.pendingInvites(user, userInviteVaultIds, guardianInvites);
     }
 
     /**
@@ -2113,11 +2113,11 @@ contract SpooVault is ERC721, ISpooVault, ReentrancyGuardTransient, EIP712 {
 
     /**
      * @dev ERC-165 interface detection.
-     *      Returns true for the {ISpooVault} interface id in addition to the
+     *      Returns true for the {IHeirly} interface id in addition to the
      *      standard ERC-165 and ERC-721 identifiers provided by {ERC721}.
      */
-    function supportsInterface(bytes4 interfaceId) public view override(ERC721, ISpooVault) returns (bool) {
-        return interfaceId == type(ISpooVault).interfaceId || super.supportsInterface(interfaceId);
+    function supportsInterface(bytes4 interfaceId) public view override(ERC721, IHeirly) returns (bool) {
+        return interfaceId == type(IHeirly).interfaceId || super.supportsInterface(interfaceId);
     }
 
     /**

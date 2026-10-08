@@ -82,7 +82,7 @@ let lastKnownState: QueueState = {
 
 export const getEcosystem = (): OfflineNetwork => {
   if (typeof window === "undefined") return "avalanche";
-  const stored = window.localStorage.getItem("spoovault-ecosystem");
+  const stored = window.localStorage.getItem("heirly-ecosystem");
   return stored === "stellar" ? "stellar" : "avalanche";
 };
 

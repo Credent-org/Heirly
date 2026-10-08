@@ -50,7 +50,7 @@ const BASELINE_FORMAT_VERSION = 2;
 
 /**
  * @typedef {Object} GasEntry
- * @property {string} name  Fully-qualified name, e.g. `SpooVault.deposit`.
+ * @property {string} name  Fully-qualified name, e.g. `Heirly.deposit`.
  * @property {number} avg   Average gas consumed.
  * @property {number} min   Minimum gas consumed.
  * @property {number} max   Maximum gas consumed.
@@ -136,7 +136,7 @@ export function loadBaseline(rawText) {
  *      first column merges the contract and method, the contract name is
  *      emitted on its own row (rest of the row empty) and each method is
  *      indented underneath it. Numbers use thousands separators.
- *        |  SpooVault                       ·                 ·                 ·                 ·                 ·       |
+ *        |  Heirly                       ·                 ·                 ·                 ·                 ·       |
  *        |      createVault                 ·        398,587  ·        707,597  ·        635,133  ·            51  ·     -  |
  *
  *  (B) Legacy — a 7 column layout: Contract, Method, Min, Max, Avg, # calls,

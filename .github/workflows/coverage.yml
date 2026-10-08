@@ -90,7 +90,7 @@ jobs:
 
       # Surfaces the headline line-coverage number in the workflow run
       # summary so reviewers don't have to download the artifact just to see
-      # the percentage. SpooVault's PR policy targets >=90% line/branch
+      # the percentage. Heirly's PR policy targets >=90% line/branch
       # coverage on new or modified contract code; this step reports the
       # current number rather than gating on it, since enforcing a hard
       # --fail-under threshold here would need a coverage baseline agreed on
@@ -105,7 +105,7 @@ jobs:
             {
               echo "### Soroban Contract Coverage: ${PCT}%"
               echo ""
-              echo "Target: >= 90% line coverage per SpooVault PR requirements."
+              echo "Target: >= 90% line coverage per Heirly PR requirements."
               echo ""
               echo "Full HTML/XML reports are attached as the \`soroban-coverage-report\` artifact."
             } >> "$GITHUB_STEP_SUMMARY"

@@ -43,7 +43,7 @@ jobs:
         continue-on-error: true
         run: HEADLESS=true npx @synthetixio/synpress@4.1.2 e2e/wallet-setup
 
-      - name: Run E2E suite (Anvil + SpooVault + MetaMask)
+      - name: Run E2E suite (Anvil + Heirly + MetaMask)
         continue-on-error: true
         run: |
           set -euo pipefail

@@ -1,6 +1,6 @@
 # Project Development Roadmap & Future Soroban Tasks
 
-Future goals for SpooVault development.
+Future goals for Heirly development.
 
 ## Roadmap Goals
 

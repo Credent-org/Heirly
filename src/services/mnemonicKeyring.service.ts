@@ -172,7 +172,7 @@ export function mnemonicToShares(mnemonic: string, opts: ShareOptions = {}): str
   const slip = Slip39.fromArray(masterSecret, {
     passphrase,
     threshold: 1, // one group…
-    groups: [[threshold, count, "spoovault master keyring"]], // …of threshold-of-count members
+    groups: [[threshold, count, "heirly master keyring"]], // …of threshold-of-count members
   });
   return slip.fromPath("r/0").mnemonics;
 }

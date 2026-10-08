@@ -1,26 +1,26 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { deploySpooVault } = require("./helpers/deploySpooVault.cjs");
+const { deployHeirly } = require("./helpers/deployHeirly.cjs");
 
 describe("Re-Entrancy Guard Hardening (EIP-1153 Transient Storage)", function () {
-  let spooVault;
+  let heirly;
   let owner, guardian, user;
 
   beforeEach(async function () {
     [owner, guardian, user] = await ethers.getSigners();
 
-    spooVault = await deploySpooVault(owner);
+    heirly = await deployHeirly(owner);
   });
 
   async function setupVaultAndDocument() {
-    const tx1 = await spooVault
+    const tx1 = await heirly
       .connect(owner)
       .createVault("Test Vault", "Desc", [guardian.address], 1);
     await tx1.wait();
 
-    await spooVault.connect(guardian).acceptGuardianInvite(1);
+    await heirly.connect(guardian).acceptGuardianInvite(1);
 
-    const tx2 = await spooVault
+    const tx2 = await heirly
       .connect(owner)
       .addDocument(1, "encrypted-meta", "QmHash", 0);
     await tx2.wait();
@@ -33,7 +33,7 @@ describe("Re-Entrancy Guard Hardening (EIP-1153 Transient Storage)", function ()
       const { vaultId, documentId } = await setupVaultAndDocument();
 
       const Attacker = await ethers.getContractFactory("ReEntrancyAttacker");
-      const attacker = await Attacker.deploy(await spooVault.getAddress());
+      const attacker = await Attacker.deploy(await heirly.getAddress());
       await attacker.waitForDeployment();
 
       // Set the document ID the attacker will try to read during the callback.
@@ -46,7 +46,7 @@ describe("Re-Entrancy Guard Hardening (EIP-1153 Transient Storage)", function ()
       // Inside the callback, the attacker tries to call hasActiveAccess.
       // The nonReentrantView guard should block this.
       await expect(
-        spooVault
+        heirly
           .connect(guardian)
           .mintAccessToken(vaultId, await attacker.getAddress(), "https://uri")
       ).to.be.revertedWith("ReentrancyGuard: reentrant view call");
@@ -58,15 +58,15 @@ describe("Re-Entrancy Guard Hardening (EIP-1153 Transient Storage)", function ()
       const { documentId } = await setupVaultAndDocument();
 
       // Before granting access — should return false
-      const result1 = await spooVault.hasActiveAccess(documentId, user.address);
+      const result1 = await heirly.hasActiveAccess(documentId, user.address);
       expect(result1).to.equal(false);
 
       // checkAccess should return ACCESS_DENIED (1)
-      const code = await spooVault.checkAccess(documentId, user.address);
+      const code = await heirly.checkAccess(documentId, user.address);
       expect(code).to.equal(1);
 
       // getPendingInvites should return empty array for user with no invites
-      const invites = await spooVault.getPendingInvites(user.address);
+      const invites = await heirly.getPendingInvites(user.address);
       expect(invites.length).to.equal(0);
     });
 
@@ -74,16 +74,16 @@ describe("Re-Entrancy Guard Hardening (EIP-1153 Transient Storage)", function ()
       const { vaultId } = await setupVaultAndDocument();
 
       // Mint a token to user
-      await spooVault
+      await heirly
         .connect(guardian)
         .mintAccessToken(vaultId, user.address, "https://uri");
 
       // getTokenVault should return the vault ID for token 1
-      const tokenVault = await spooVault.getTokenVault(1);
+      const tokenVault = await heirly.getTokenVault(1);
       expect(tokenVault).to.equal(vaultId);
 
       // hasVaultToken should return true for the user
-      const hasToken = await spooVault.hasVaultToken(user.address, vaultId);
+      const hasToken = await heirly.hasVaultToken(user.address, vaultId);
       expect(hasToken).to.equal(true);
     });
   });
@@ -94,7 +94,7 @@ describe("Re-Entrancy Guard Hardening (EIP-1153 Transient Storage)", function ()
 
       let totalGas = 0n;
       for (let i = 0; i < 10; i++) {
-        const tx = await spooVault
+        const tx = await heirly
           .connect(guardian)
           .mintAccessToken(vaultId, user.address, `https://uri/${i}`);
         const receipt = await tx.wait();

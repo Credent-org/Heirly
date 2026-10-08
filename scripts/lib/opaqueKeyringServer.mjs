@@ -3,13 +3,13 @@ import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import * as opaque from "@serenity-kit/opaque";
 
-export const OPAQUE_SERVER_ID = "spoovault-keyring-v1";
+export const OPAQUE_SERVER_ID = "heirly-keyring-v1";
 export const DEFAULT_SESSION_TTL_MS = 60_000;
 export const DEFAULT_TOKEN_TTL_MS = 15 * 60_000;
 export const DEFAULT_RATE_LIMIT_WINDOW_MS = 60_000;
 export const DEFAULT_RATE_LIMIT_ATTEMPTS = 5;
 
-const STORE_VERSION = "spoovault-opaque-credential-store-v1";
+const STORE_VERSION = "heirly-opaque-credential-store-v1";
 const ACCOUNT_PATTERN = /^[a-zA-Z0-9:._-]{3,128}$/;
 const OPAQUE_VALUE_PATTERN = /^[A-Za-z0-9_-]+$/;
 

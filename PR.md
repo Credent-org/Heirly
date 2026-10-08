@@ -2,23 +2,23 @@
 
 ## Summary
 
-Closes #161 by adding a runnable, automated end-to-end test suite for SpooVault's
+Closes #161 by adding a runnable, automated end-to-end test suite for Heirly's
 wallet-connected flows. The suite drives the dApp against real local chains:
 
 - **EVM** — a local **Anvil** node (chain-id `43113`) with the freshly deployed
-  `SpooVault.sol` contract, exercised through the real **MetaMask** extension
+  `Heirly.sol` contract, exercised through the real **MetaMask** extension
   using **Synpress v4** (Playwright + MetaMask).
 - **Stellar** — a **Soroban standalone** network (`stellar/quickstart`) with the
-  `spoovault_stellar` contract built, deployed, and exercised end-to-end via the
+  `heirly_stellar` contract built, deployed, and exercised end-to-end via the
   `stellar` CLI.
 
 ## Approach
 
-- `e2e/wallet-setup/spoovault.setup.ts` — one-time MetaMask onboarding
+- `e2e/wallet-setup/heirly.setup.ts` — one-time MetaMask onboarding
   (import seed, register the local Anvil network, import the guardian account)
   cached by Synpress so the whole suite reuses a single browser profile.
 - `e2e/support/test-with-metamask.ts` — shared Synpress + MetaMask test instance.
-- `e2e/scripts/deploy-anvil.mjs` — deploys `SpooVault` to Anvil and writes
+- `e2e/scripts/deploy-anvil.mjs` — deploys `Heirly` to Anvil and writes
   `e2e/.env.e2e` with `VITE_CONTRACT_ADDRESS` / RPC / chain-id so the app is
   built against controlled on-chain state.
 - `e2e/tests/01-connect-wallet.spec.ts` — connects MetaMask and asserts the dApp

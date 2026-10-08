@@ -3,7 +3,7 @@
  *
  * Wire format (version 1):
  *   Header (16 bytes):
- *     magic[4]      = "SVSC" (SpooVault Streaming Crypto)
+ *     magic[4]      = "HYSC" (Heirly Streaming Crypto)
  *     version[1]    = 0x01
  *     flags[1]      = 0x00
  *     chunkSize[4]  = uint32 BE plaintext chunk size (default 65536)
@@ -19,7 +19,7 @@
 
 import { ipfsService } from "./ipfs.service";
 
-export const STREAMING_CRYPTO_MAGIC = new Uint8Array([0x53, 0x56, 0x53, 0x43]); // "SVSC"
+export const STREAMING_CRYPTO_MAGIC = new Uint8Array([0x48, 0x59, 0x53, 0x43]); // "HYSC"
 export const STREAMING_CRYPTO_VERSION = 1;
 export const STREAMING_CHUNK_SIZE = 64 * 1024;
 export const STREAMING_HEADER_SIZE = 16;
@@ -179,7 +179,7 @@ function parseHeader(header: Uint8Array): { chunkSize: number } {
     throw new Error("Truncated streaming crypto header");
   }
   if (!isStreamingEncryptedPrefix(header)) {
-    throw new Error("Not a SpooVault streaming ciphertext (missing SVSC magic)");
+    throw new Error("Not a Heirly streaming ciphertext (missing HYSC magic)");
   }
   if (header[4] !== STREAMING_CRYPTO_VERSION) {
     throw new Error(`Unsupported streaming crypto version: ${header[4]}`);
@@ -464,7 +464,7 @@ export async function uploadEncryptedStreamToIpfs(
   });
 
   const result = await ipfsService.uploadStream(encryptedStream, {
-    filename: options.filename ?? "document.svsc",
+    filename: options.filename ?? "document.hysc",
     metadata: options.metadata,
     signal: options.signal,
     contentType: "application/octet-stream",

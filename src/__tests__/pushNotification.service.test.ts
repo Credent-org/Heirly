@@ -19,12 +19,12 @@ const testEnv = (): Record<string, string | undefined> =>
 
 const resetEnv = (): void => {
   delete testEnv().VITE_PUSH_NOTIFICATION_PROXY_URL;
-  delete testEnv().VITE_SPOOVUALT_PROXY_SECRET;
+  delete testEnv().VITE_HEIRLY_PROXY_SECRET;
 };
 
 const configureEnv = (): void => {
   testEnv().VITE_PUSH_NOTIFICATION_PROXY_URL = "https://proxy.example.com";
-  testEnv().VITE_SPOOVUALT_PROXY_SECRET = "test-secret";
+  testEnv().VITE_HEIRLY_PROXY_SECRET = "test-secret";
 };
 
 const loadService = async (): Promise<PushNotificationModule> => {
@@ -98,7 +98,7 @@ describe("pushNotificationService", () => {
       expect(url).toBe("https://proxy.example.com/api/notifications/emergency-mode");
       expect(init.method).toBe("POST");
       expect(init.headers["Content-Type"]).toBe("application/json");
-      expect(init.headers["X-SpooVault-Signature"]).toMatch(/^t=\d+,v1=[0-9a-f]{64}$/);
+      expect(init.headers["X-Heirly-Signature"]).toMatch(/^t=\d+,v1=[0-9a-f]{64}$/);
       expect(JSON.parse(init.body)).toEqual({
         vaultId: 1,
         beneficiary: BENEFICIARY,

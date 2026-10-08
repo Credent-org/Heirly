@@ -86,7 +86,7 @@ describe("SorobanEventIndexer", () => {
       }));
       
       const globalListener = vi.fn();
-      window.addEventListener("spoovault:soroban:event", globalListener);
+      window.addEventListener("heirly:soroban:event", globalListener);
       
       const indexer = new SorobanEventIndexer();
       indexer.start("https://rpc.example", "contract");
@@ -97,7 +97,7 @@ describe("SorobanEventIndexer", () => {
       const customEvent = globalListener.mock.calls[0][0] as CustomEvent;
       expect(customEvent.detail.topic).toBe("VaultCreated");
       
-      window.removeEventListener("spoovault:soroban:event", globalListener);
+      window.removeEventListener("heirly:soroban:event", globalListener);
       indexer.stop();
     });
 

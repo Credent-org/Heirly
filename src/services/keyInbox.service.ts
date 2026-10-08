@@ -11,12 +11,12 @@ const PINATA_API_SECRET = import.meta.env.VITE_PINATA_API_SECRET;
 const IPFS_GATEWAY =
   import.meta.env.VITE_IPFS_GATEWAY || "https://gateway.pinata.cloud/ipfs/";
 
-const ENVELOPE_NAME = "spoovault-beneficiary-key-envelope";
+const ENVELOPE_NAME = "heirly-beneficiary-key-envelope";
 
 export interface KeyEnvelopePayload {
   version: number;
   type: "beneficiary_key_envelope";
-  app: "SpooVault";
+  app: "Heirly";
   contract: string;
   chainId: number;
   vaultId: number;
@@ -39,7 +39,7 @@ interface PinRow {
 const IPFS_PROXY_URL =
   (import.meta.env.VITE_IPFS_PROXY_URL as string | undefined)?.trim() || "";
 const PROXY_SECRET =
-  (import.meta.env.VITE_SPOOVUALT_PROXY_SECRET as string | undefined)?.trim() ||
+  (import.meta.env.VITE_HEIRLY_PROXY_SECRET as string | undefined)?.trim() ||
   "";
 
 const isConfigured = (): boolean => {

@@ -1,10 +1,10 @@
-export const SYNC_TAG = "spoovault-action-sync";
+export const SYNC_TAG = "heirly-action-sync";
 
-export const MSG_REGISTER_SYNC = "spoovault/register-sync";
-export const MSG_REPLAY_QUEUE = "spoovault/replay-queue";
-export const MSG_SYNC_STATUS = "spoovault/sync-status";
+export const MSG_REGISTER_SYNC = "heirly/register-sync";
+export const MSG_REPLAY_QUEUE = "heirly/replay-queue";
+export const MSG_SYNC_STATUS = "heirly/sync-status";
 
-export interface SpoovaultWorkerMessage {
+export interface HeirlyWorkerMessage {
   type: string;
   supported?: boolean;
 }

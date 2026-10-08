@@ -11,7 +11,7 @@ const repoRoot = resolve(__dirname, "..", "..");
 /**
  * Minimal ABI covering only the functions exercised by the multi-guardian
  * access-approval E2E. This keeps the test independent of the Hardhat build
- * output while still driving the *deployed* SpooVault contract on the local
+ * output while still driving the *deployed* Heirly contract on the local
  * Anvil network.
  */
 const ABI = [
@@ -45,7 +45,7 @@ function firstArg(parsed: any, name: string): any {
   return undefined;
 }
 
-test.describe("SpooVault — multi-guardian access approval (EVM contract E2E)", () => {
+test.describe("Heirly — multi-guardian access approval (EVM contract E2E)", () => {
   test("guardian accepts invite, beneficiary requests and is granted access", async () => {
     const provider = new JsonRpcProvider(ANVIL_RPC_URL);
     // NonceManager keeps local nonce state: the automining node mines a block

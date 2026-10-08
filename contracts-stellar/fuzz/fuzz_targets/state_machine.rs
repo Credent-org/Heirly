@@ -28,8 +28,8 @@ use soroban_sdk::testutils::{Address as _, EnvTestConfig};
 // generates), and shadowing it with soroban_sdk's own `Vec` type made the
 // macro try to derive soroban `Val` conversions for `Action` instead.
 use soroban_sdk::{vec, Address, Env, String, Vec as SorobanVec};
-use spoovault_stellar::{
-    AccessLevel, ReleaseCondition, RequestStatus, SpooVaultStellar, SpooVaultStellarClient,
+use heirly_stellar::{
+    AccessLevel, ReleaseCondition, RequestStatus, HeirlyStellar, HeirlyStellarClient,
 };
 
 #[derive(Arbitrary, Debug, Clone)]
@@ -74,8 +74,8 @@ fn run(actions: std::vec::Vec<Action>) {
     let env = Env::new_with_config(EnvTestConfig {
         capture_snapshot_at_drop: false,
     });
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
     env.mock_all_auths();
     // See src/fuzz_test.rs: a single Env's budget is cumulative across every
     // call made against it, so a long sequence can hit a hard-to-catch host

@@ -33,7 +33,7 @@ const DEFAULT_LIGHTHOUSE_GATEWAY = "https://gateway.lighthouse.storage/ipfs/";
 const DEFAULT_ARWEAVE_NODE = "https://node2.irys.xyz";
 const DEFAULT_ARWEAVE_GATEWAY = "https://arweave.net/";
 
-export const BACKUP_REFS_STORAGE_KEY = "spoovault-storage-backup-refs-v1";
+export const BACKUP_REFS_STORAGE_KEY = "heirly-storage-backup-refs-v1";
 
 export type FetchLike = (
   input: string,
@@ -530,7 +530,7 @@ export const createStorageProviderService = (
     }
 
     const { bytes } = await resolveCiphertext(opts);
-    const filename = opts.filename || "document.svsc";
+    const filename = opts.filename || "document.hysc";
 
     for (const provider of providers) {
       try {

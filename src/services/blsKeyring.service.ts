@@ -29,7 +29,7 @@ interface StoredBLSKey {
   isActive: boolean;
 }
 
-interface SpooVaultBLSDBSchema extends DBSchema {
+interface HeirlyBLSDBSchema extends DBSchema {
   keys: {
     key: number;
     value: StoredBLSKey;
@@ -41,16 +41,16 @@ interface SpooVaultBLSDBSchema extends DBSchema {
 
 export class BLSKeyringService {
   private static instance: BLSKeyringService;
-  private dbPromise: Promise<IDBPDatabase<SpooVaultBLSDBSchema> | null> | null = null;
+  private dbPromise: Promise<IDBPDatabase<HeirlyBLSDBSchema> | null> | null = null;
   private activeKey: BLSKeyPair | null = null;
   private memoryFallback: Map<string, StoredBLSKey> = new Map();
 
   private constructor() {}
 
-  private async getDb(): Promise<IDBPDatabase<SpooVaultBLSDBSchema> | null> {
+  private async getDb(): Promise<IDBPDatabase<HeirlyBLSDBSchema> | null> {
     if (typeof globalThis.indexedDB === 'undefined') return null;
     if (!this.dbPromise) {
-      this.dbPromise = openDB<SpooVaultBLSDBSchema>('SpooVaultBLSDB', 1, {
+      this.dbPromise = openDB<HeirlyBLSDBSchema>('HeirlyBLSDB', 1, {
         upgrade(db) {
           const store = db.createObjectStore('keys', { keyPath: 'id', autoIncrement: true });
           store.createIndex('guardianAddress', 'guardianAddress', { unique: true });

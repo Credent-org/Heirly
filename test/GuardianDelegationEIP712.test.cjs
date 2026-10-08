@@ -1,9 +1,9 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { deploySpooVault } = require("./helpers/deploySpooVault.cjs");
+const { deployHeirly } = require("./helpers/deployHeirly.cjs");
 
-describe("SpooVault EIP-712 Guardian Delegation (#101)", function () {
-  let spooVault;
+describe("Heirly EIP-712 Guardian Delegation (#101)", function () {
+  let heirly;
   let owner;
   let guardian;
   let delegate;
@@ -20,16 +20,16 @@ describe("SpooVault EIP-712 Guardian Delegation (#101)", function () {
   beforeEach(async function () {
     [owner, guardian, delegate, beneficiary, otherUser] = await ethers.getSigners();
 
-    spooVault = await deploySpooVault(owner);
+    heirly = await deployHeirly(owner);
 
-    const spooVaultAddress = await spooVault.getAddress();
+    const heirlyAddress = await heirly.getAddress();
     const network = await ethers.provider.getNetwork();
 
     domain = {
-      name: "SpooVault",
+      name: "Heirly",
       version: "1",
       chainId: network.chainId,
-      verifyingContract: spooVaultAddress,
+      verifyingContract: heirlyAddress,
     };
 
     types = {
@@ -44,15 +44,15 @@ describe("SpooVault EIP-712 Guardian Delegation (#101)", function () {
 
     // Setup: Create vault with owner + guardian (threshold = 2)
     const guardians = [guardian.address];
-    await spooVault.connect(owner).createVault("Secure Vault", "EIP712 delegation testing", guardians, 2);
+    await heirly.connect(owner).createVault("Secure Vault", "EIP712 delegation testing", guardians, 2);
     // Guardian accepts invite
-    await spooVault.connect(guardian).acceptGuardianInvite(1);
+    await heirly.connect(guardian).acceptGuardianInvite(1);
 
     // Add document
-    await spooVault.connect(owner).addDocument(1, "encrypted-metadata", "QmDocumentIpfsHash", 0);
+    await heirly.connect(owner).addDocument(1, "encrypted-metadata", "QmDocumentIpfsHash", 0);
 
     // Mint access token for beneficiary
-    await spooVault.connect(owner).mintAccessToken(1, beneficiary.address, "https://spoovault.io/nft/1");
+    await heirly.connect(owner).mintAccessToken(1, beneficiary.address, "https://heirly.io/nft/1");
   });
 
   describe("EIP-712 signature verification (verifyDelegation)", function () {
@@ -70,7 +70,7 @@ describe("SpooVault EIP-712 Guardian Delegation (#101)", function () {
       };
 
       const signature = await guardian.signTypedData(domain, types, value);
-      const isValid = await spooVault.verifyDelegation(
+      const isValid = await heirly.verifyDelegation(
         guardian.address,
         delegate.address,
         1,
@@ -96,7 +96,7 @@ describe("SpooVault EIP-712 Guardian Delegation (#101)", function () {
       };
 
       const signature = await guardian.signTypedData(domain, types, value);
-      const isValid = await spooVault.verifyDelegation(
+      const isValid = await heirly.verifyDelegation(
         guardian.address,
         delegate.address,
         1,
@@ -122,7 +122,7 @@ describe("SpooVault EIP-712 Guardian Delegation (#101)", function () {
       };
 
       const signature = await otherUser.signTypedData(domain, types, value);
-      const isValid = await spooVault.verifyDelegation(
+      const isValid = await heirly.verifyDelegation(
         otherUser.address,
         delegate.address,
         1,
@@ -148,7 +148,7 @@ describe("SpooVault EIP-712 Guardian Delegation (#101)", function () {
       };
 
       const signature = await guardian.signTypedData(domain, types, value);
-      const isValid = await spooVault.verifyDelegation(
+      const isValid = await heirly.verifyDelegation(
         guardian.address,
         otherUser.address, // Mismatched delegate
         1,
@@ -164,13 +164,13 @@ describe("SpooVault EIP-712 Guardian Delegation (#101)", function () {
   describe("On-Chain Nonce Revocation Registry (revokeDelegation)", function () {
     it("allows a guardian to revoke a delegation nonce", async function () {
       const nonce = 201;
-      expect(await spooVault.revokedNonces(guardian.address, nonce)).to.equal(false);
+      expect(await heirly.revokedNonces(guardian.address, nonce)).to.equal(false);
 
-      await expect(spooVault.connect(guardian).revokeDelegation(nonce))
-        .to.emit(spooVault, "DelegationRevoked")
+      await expect(heirly.connect(guardian).revokeDelegation(nonce))
+        .to.emit(heirly, "DelegationRevoked")
         .withArgs(guardian.address, nonce);
 
-      expect(await spooVault.revokedNonces(guardian.address, nonce)).to.equal(true);
+      expect(await heirly.revokedNonces(guardian.address, nonce)).to.equal(true);
     });
 
     it("causes verifyDelegation to return false for revoked nonces", async function () {
@@ -190,7 +190,7 @@ describe("SpooVault EIP-712 Guardian Delegation (#101)", function () {
 
       // Verify valid before revocation
       expect(
-        await spooVault.verifyDelegation(
+        await heirly.verifyDelegation(
           guardian.address,
           delegate.address,
           1,
@@ -201,11 +201,11 @@ describe("SpooVault EIP-712 Guardian Delegation (#101)", function () {
       ).to.equal(true);
 
       // Revoke nonce
-      await spooVault.connect(guardian).revokeDelegation(nonce);
+      await heirly.connect(guardian).revokeDelegation(nonce);
 
       // Verify invalid after revocation
       expect(
-        await spooVault.verifyDelegation(
+        await heirly.verifyDelegation(
           guardian.address,
           delegate.address,
           1,
@@ -222,7 +222,7 @@ describe("SpooVault EIP-712 Guardian Delegation (#101)", function () {
 
     beforeEach(async function () {
       // Beneficiary requests access
-      await spooVault.connect(beneficiary).requestAccess(1);
+      await heirly.connect(beneficiary).requestAccess(1);
       requestId = 1;
     });
 
@@ -243,7 +243,7 @@ describe("SpooVault EIP-712 Guardian Delegation (#101)", function () {
 
       // Delegate approves on behalf of guardian
       await expect(
-        spooVault
+        heirly
           .connect(delegate)
           ["approveAccessDelegated(uint256,address,uint256,uint256,bytes)"](
             requestId,
@@ -253,12 +253,12 @@ describe("SpooVault EIP-712 Guardian Delegation (#101)", function () {
             signature
           )
       )
-        .to.emit(spooVault, "AccessApproved")
+        .to.emit(heirly, "AccessApproved")
         .withArgs(requestId, guardian.address)
-        .and.to.emit(spooVault, "DelegatedApprovalSubmitted")
+        .and.to.emit(heirly, "DelegatedApprovalSubmitted")
         .withArgs(requestId, guardian.address, delegate.address);
 
-      expect(await spooVault.hasApprovedRequest(requestId, guardian.address)).to.equal(true);
+      expect(await heirly.hasApprovedRequest(requestId, guardian.address)).to.equal(true);
     });
 
     it("allows delegate to submit approval with encrypted share for beneficiary", async function () {
@@ -278,7 +278,7 @@ describe("SpooVault EIP-712 Guardian Delegation (#101)", function () {
       const signature = await guardian.signTypedData(domain, types, value);
 
       await expect(
-        spooVault
+        heirly
           .connect(delegate)
           ["approveAccessDelegated(uint256,address,uint256,uint256,bytes,string)"](
             requestId,
@@ -289,10 +289,10 @@ describe("SpooVault EIP-712 Guardian Delegation (#101)", function () {
             share
           )
       )
-        .to.emit(spooVault, "ShareSubmittedForBeneficiary")
+        .to.emit(heirly, "ShareSubmittedForBeneficiary")
         .withArgs(requestId, guardian.address, share);
 
-      expect(await spooVault.beneficiaryKeyShares(requestId, guardian.address)).to.equal(share);
+      expect(await heirly.beneficiaryKeyShares(requestId, guardian.address)).to.equal(share);
     });
 
     it("reverts with DelegationInvalidOrExpired if delegation is expired", async function () {
@@ -311,7 +311,7 @@ describe("SpooVault EIP-712 Guardian Delegation (#101)", function () {
       const signature = await guardian.signTypedData(domain, types, value);
 
       await expect(
-        spooVault
+        heirly
           .connect(delegate)
           ["approveAccessDelegated(uint256,address,uint256,uint256,bytes)"](
             requestId,
@@ -320,7 +320,7 @@ describe("SpooVault EIP-712 Guardian Delegation (#101)", function () {
             nonce,
             signature
           )
-      ).to.be.revertedWithCustomError(spooVault, "DelegationInvalidOrExpired");
+      ).to.be.revertedWithCustomError(heirly, "DelegationInvalidOrExpired");
     });
 
     it("reverts with DelegationInvalidOrExpired if nonce is revoked", async function () {
@@ -339,10 +339,10 @@ describe("SpooVault EIP-712 Guardian Delegation (#101)", function () {
       const signature = await guardian.signTypedData(domain, types, value);
 
       // Guardian revokes nonce
-      await spooVault.connect(guardian).revokeDelegation(nonce);
+      await heirly.connect(guardian).revokeDelegation(nonce);
 
       await expect(
-        spooVault
+        heirly
           .connect(delegate)
           ["approveAccessDelegated(uint256,address,uint256,uint256,bytes)"](
             requestId,
@@ -351,7 +351,7 @@ describe("SpooVault EIP-712 Guardian Delegation (#101)", function () {
             nonce,
             signature
           )
-      ).to.be.revertedWithCustomError(spooVault, "DelegationInvalidOrExpired");
+      ).to.be.revertedWithCustomError(heirly, "DelegationInvalidOrExpired");
     });
 
     it("reverts if a non-delegate caller attempts to use the delegation", async function () {
@@ -371,7 +371,7 @@ describe("SpooVault EIP-712 Guardian Delegation (#101)", function () {
 
       // otherUser attempts to use delegate's signature
       await expect(
-        spooVault
+        heirly
           .connect(otherUser)
           ["approveAccessDelegated(uint256,address,uint256,uint256,bytes)"](
             requestId,
@@ -380,7 +380,7 @@ describe("SpooVault EIP-712 Guardian Delegation (#101)", function () {
             nonce,
             signature
           )
-      ).to.be.revertedWithCustomError(spooVault, "DelegationInvalidOrExpired");
+      ).to.be.revertedWithCustomError(heirly, "DelegationInvalidOrExpired");
     });
 
     it("completes quorum when delegated approval meets threshold and grants access", async function () {
@@ -399,11 +399,11 @@ describe("SpooVault EIP-712 Guardian Delegation (#101)", function () {
       const signature = await guardian.signTypedData(domain, types, value);
 
       // 1. Owner approves directly (1 approval)
-      await spooVault.connect(owner).approveAccess(requestId);
+      await heirly.connect(owner).approveAccess(requestId);
 
       // 2. Delegate approves for guardian (2nd approval, reaches threshold of 2)
       await expect(
-        spooVault
+        heirly
           .connect(delegate)
           ["approveAccessDelegated(uint256,address,uint256,uint256,bytes)"](
             requestId,
@@ -413,10 +413,10 @@ describe("SpooVault EIP-712 Guardian Delegation (#101)", function () {
             signature
           )
       )
-        .to.emit(spooVault, "AccessGranted")
+        .to.emit(heirly, "AccessGranted")
         .withArgs(requestId, 1, beneficiary.address);
 
-      expect(await spooVault.hasActiveAccess(1, beneficiary.address)).to.equal(true);
+      expect(await heirly.hasActiveAccess(1, beneficiary.address)).to.equal(true);
     });
   });
 });

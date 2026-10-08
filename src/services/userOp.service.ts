@@ -32,7 +32,7 @@ export interface UserOperationOverrides {
 export interface GaslessApprovalConfig {
   entryPointAddress: string;
   paymasterAddress: string;
-  spooVaultAddress: string;
+  heirlyAddress: string;
   chainId: number | bigint;
   bundlerRpcUrl?: string;
 }
@@ -44,7 +44,7 @@ export const DEFAULT_PRE_VERIFICATION_GAS = 50000n;
 export const DEFAULT_MAX_FEE_PER_GAS = 25000000000n; // 25 nAVAX / gwei
 export const DEFAULT_MAX_PRIORITY_FEE_PER_GAS = 1500000000n; // 1.5 nAVAX / gwei
 
-const spooVaultInterface = new ethers.Interface([
+const heirlyInterface = new ethers.Interface([
   "function acceptGuardianInvite(uint256 vaultId) external",
   "function approveAccess(uint256 requestId) external",
   "function approveAccess(uint256 requestId, string encryptedShareForBeneficiary) external",
@@ -56,26 +56,26 @@ const smartAccountInterface = new ethers.Interface([
 ]);
 
 /**
- * Builds the raw ABI-encoded calldata for calling `approveAccess` on SpooVault.
+ * Builds the raw ABI-encoded calldata for calling `approveAccess` on Heirly.
  */
 export function buildApproveAccessCallData(
   requestId: number,
   encryptedShare?: string
 ): string {
   if (encryptedShare && encryptedShare.trim().length > 0) {
-    return spooVaultInterface.encodeFunctionData("approveAccess(uint256,string)", [
+    return heirlyInterface.encodeFunctionData("approveAccess(uint256,string)", [
       requestId,
       encryptedShare,
     ]);
   }
-  return spooVaultInterface.encodeFunctionData("approveAccess(uint256)", [requestId]);
+  return heirlyInterface.encodeFunctionData("approveAccess(uint256)", [requestId]);
 }
 
 /**
- * Builds the raw ABI-encoded calldata for calling `acceptGuardianInvite` on SpooVault.
+ * Builds the raw ABI-encoded calldata for calling `acceptGuardianInvite` on Heirly.
  */
 export function buildAcceptGuardianInviteCallData(vaultId: number): string {
-  return spooVaultInterface.encodeFunctionData("acceptGuardianInvite", [vaultId]);
+  return heirlyInterface.encodeFunctionData("acceptGuardianInvite", [vaultId]);
 }
 
 /**
@@ -179,7 +179,7 @@ export async function signUserOp(
 }
 
 /**
- * Creates an unsigned UserOperation for a gasless action sponsored by SpooPaymaster.
+ * Creates an unsigned UserOperation for a gasless action sponsored by HeirlyPaymaster.
  */
 export function buildGaslessUserOp(params: {
   sender: string;
@@ -226,7 +226,7 @@ export async function buildGaslessApproveAccess(params: {
   requestId: number;
   encryptedShare?: string;
   paymasterAddress: string;
-  spooVaultAddress: string;
+  heirlyAddress: string;
   entryPointAddress: string;
   chainId: number | bigint;
   signer: ethers.Signer;
@@ -240,7 +240,7 @@ export async function buildGaslessApproveAccess(params: {
   );
   const unsignedOp = buildGaslessUserOp({
     sender: params.guardianAccount,
-    target: params.spooVaultAddress,
+    target: params.heirlyAddress,
     innerCallData,
     paymasterAddress: params.paymasterAddress,
     vaultId: params.vaultId,
@@ -263,7 +263,7 @@ export async function buildGaslessAcceptInvite(params: {
   guardianAccount: string;
   vaultId: number;
   paymasterAddress: string;
-  spooVaultAddress: string;
+  heirlyAddress: string;
   entryPointAddress: string;
   chainId: number | bigint;
   signer: ethers.Signer;
@@ -273,7 +273,7 @@ export async function buildGaslessAcceptInvite(params: {
   const innerCallData = buildAcceptGuardianInviteCallData(params.vaultId);
   const unsignedOp = buildGaslessUserOp({
     sender: params.guardianAccount,
-    target: params.spooVaultAddress,
+    target: params.heirlyAddress,
     innerCallData,
     paymasterAddress: params.paymasterAddress,
     vaultId: params.vaultId,

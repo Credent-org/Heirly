@@ -72,7 +72,7 @@ export interface PendingActionRecord {
   network: OfflineNetwork;
 }
 
-interface SpooVaultDBSchema extends DBSchema {
+interface HeirlyDBSchema extends DBSchema {
   vaults: {
     key: string;
     value: CachedVault;
@@ -102,7 +102,7 @@ interface SpooVaultDBSchema extends DBSchema {
 const entityKey = (...parts: Array<string | number>): string =>
   parts.map((part) => String(part).toLowerCase()).join("::");
 
-let dbInstancePromise: Promise<IDBPDatabase<SpooVaultDBSchema>> | null = null;
+let dbInstancePromise: Promise<IDBPDatabase<HeirlyDBSchema>> | null = null;
 let injectedFactory: IDBFactory | null = null;
 
 const memoryVaults = new Map<string, CachedVault>();
@@ -119,12 +119,12 @@ const resolveFactory = (): IDBFactory | undefined => {
     : undefined;
 };
 
-const getDb = async (): Promise<IDBPDatabase<SpooVaultDBSchema> | null> => {
+const getDb = async (): Promise<IDBPDatabase<HeirlyDBSchema> | null> => {
   const factory = resolveFactory();
   if (!factory) return null;
 
   if (!dbInstancePromise) {
-    dbInstancePromise = openDB<SpooVaultDBSchema>("spoovault-offline", 1, {
+    dbInstancePromise = openDB<HeirlyDBSchema>("heirly-offline", 1, {
       upgrade(db) {
         const vaultsStore = db.createObjectStore("vaults", { keyPath: "key" });
         vaultsStore.createIndex("account+network", ["account", "network"]);

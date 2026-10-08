@@ -9,7 +9,7 @@ export interface TelemetryEntry {
   metadata?: Record<string, unknown>;
 }
 
-const STORAGE_KEY = "spoovault-telemetry-log";
+const STORAGE_KEY = "heirly-telemetry-log";
 const MAX_STORED_EVENTS = 120;
 
 const getWebhookUrl = (): string => {

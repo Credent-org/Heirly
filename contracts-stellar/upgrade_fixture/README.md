@@ -5,7 +5,7 @@ contract used exclusively as the "new version" Wasm blob by the
 `upgrade_contract` integration test in `contracts-stellar/src/test.rs`
 (imported there via `soroban_sdk::contractimport!`).
 
-It is never deployed and is not part of the SpooVault product surface. CI
+It is never deployed and is not part of the Heirly product surface. CI
 builds it to `wasm32-unknown-unknown` before running the main crate's test
 suite with `--features upgrade-tests`, since `contractimport!` reads the
 compiled `.wasm` file at compile time. Local `cargo test` (and `npm run test:stellar`)

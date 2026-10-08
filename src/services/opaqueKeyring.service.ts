@@ -1,8 +1,8 @@
-export const OPAQUE_ENVELOPE_VERSION = "spoovault-opaque-rfc9807-v1" as const;
+export const OPAQUE_ENVELOPE_VERSION = "heirly-opaque-rfc9807-v1" as const;
 
-const OPAQUE_SERVER_ID = "spoovault-keyring-v1";
-const OPAQUE_KDF_INFO = "spoovault opaque export key wrap v1";
-const OPAQUE_AAD_PREFIX = "spoovault-keyring-private-key-v1";
+const OPAQUE_SERVER_ID = "heirly-keyring-v1";
+const OPAQUE_KDF_INFO = "heirly opaque export key wrap v1";
+const OPAQUE_AAD_PREFIX = "heirly-keyring-private-key-v1";
 
 export interface OpaqueKeyringEnvelope {
   version: typeof OPAQUE_ENVELOPE_VERSION;

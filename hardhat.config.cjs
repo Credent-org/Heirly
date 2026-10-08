@@ -20,7 +20,7 @@ module.exports = {
       },
       // Dropping the CBOR metadata hash from deployed bytecode buys back size
       // margin against the EIP-170 24,576-byte contract-size limit at zero
-      // gas/behavior cost — SpooVault.sol otherwise compiles to within a few
+      // gas/behavior cost — Heirly.sol otherwise compiles to within a few
       // bytes of that cap.
       metadata: {
         bytecodeHash: "none",

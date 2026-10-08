@@ -2,21 +2,21 @@
 pragma solidity ^0.8.20;
 
 /**
- * @title ISpooVault
- * @dev Standardized, consumer-facing interface for the SpooVault document-access
+ * @title IHeirly
+ * @dev Standardized, consumer-facing interface for the Heirly document-access
  *      protocol. Third-party DeFi protocols, inheritance platforms, DAOs and
- *      general DApps can integrate with SpooVault without hardcoding
+ *      general DApps can integrate with Heirly without hardcoding
  *      implementation-specific ABI details by depending only on this interface.
  *
  *      The interface is ERC-165 discoverable: a contract/wallet can call
- *      `supportsInterface(type(ISpooVault).interfaceId)` to confirm that a
- *      candidate address implements the SpooVault access protocol before
+ *      `supportsInterface(type(IHeirly).interfaceId)` to confirm that a
+ *      candidate address implements the Heirly access protocol before
  *      issuing cross-contract calls.
  *
  *      All functions in this interface are `view`/`pure` so that consumers can
  *      perform gas-free, read-only access delegation checks.
  */
-interface ISpooVault {
+interface IHeirly {
     /**
      * @dev Emitted when a guardian registers their BLS12-381 public key and Proof of Possession.
      */
@@ -51,7 +51,7 @@ interface ISpooVault {
     /**
      * @dev Returns true if `interfaceId` is supported by the implementing
      *      contract (ERC-165). Implementations MUST return true for
-     *      `type(ISpooVault).interfaceId` and for the standard ERC-165
+     *      `type(IHeirly).interfaceId` and for the standard ERC-165
      *      (`0x01ffc9a7`) and ERC-721 (`0x80ac58cd`) identifiers.
      * @param interfaceId The 4-byte interface identifier being queried.
      * @return bool True if the interface is supported.

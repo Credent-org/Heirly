@@ -1,13 +1,13 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { deploySpooVault } = require("./helpers/deploySpooVault.cjs");
+const { deployHeirly } = require("./helpers/deployHeirly.cjs");
 const { time } = require("@nomicfoundation/hardhat-network-helpers");
 
 const ONE_DAY = 24 * 60 * 60;
 const REQUEST_TTL = 3 * ONE_DAY;
 
-describe("SpooVault Self-Approval Guard", function () {
-  let spooVault;
+describe("Heirly Self-Approval Guard", function () {
+  let heirly;
   let owner;
   let guardian1;
   let guardian2;
@@ -18,11 +18,11 @@ describe("SpooVault Self-Approval Guard", function () {
     [owner, guardian1, guardian2, beneficiary, outsider] =
       await ethers.getSigners();
 
-    spooVault = await deploySpooVault();
+    heirly = await deployHeirly();
   });
 
   async function createVault(threshold, guardians) {
-    const tx = await spooVault
+    const tx = await heirly
       .connect(owner)
       .createVault(
         "Self-Approval Test Vault",
@@ -36,12 +36,12 @@ describe("SpooVault Self-Approval Guard", function () {
 
   async function acceptInvites(vaultId, guardians) {
     for (const guardian of guardians) {
-      await spooVault.connect(guardian).acceptGuardianInvite(vaultId);
+      await heirly.connect(guardian).acceptGuardianInvite(vaultId);
     }
   }
 
   async function addDocument(vaultId) {
-    return spooVault.connect(owner).addDocument(
+    return heirly.connect(owner).addDocument(
       vaultId,
       "encrypted-metadata",
       "QmTestHash",
@@ -50,14 +50,14 @@ describe("SpooVault Self-Approval Guard", function () {
   }
 
   async function mintToken(vaultId, to) {
-    const tx = await spooVault
+    const tx = await heirly
       .connect(owner)
       .mintAccessToken(vaultId, to, "https://token.uri");
     const receipt = await tx.wait();
     const evt = receipt.logs
       .map((log) => {
         try {
-          return spooVault.interface.parseLog(log);
+          return heirly.interface.parseLog(log);
         } catch {
           return null;
         }
@@ -67,12 +67,12 @@ describe("SpooVault Self-Approval Guard", function () {
   }
 
   async function requestAndWaitForRequest(documentId, requester) {
-    const tx = await spooVault.connect(requester).requestAccess(documentId);
+    const tx = await heirly.connect(requester).requestAccess(documentId);
     const receipt = await tx.wait();
     const evt = receipt.logs
       .map((log) => {
         try {
-          return spooVault.interface.parseLog(log);
+          return heirly.interface.parseLog(log);
         } catch {
           return null;
         }
@@ -93,15 +93,15 @@ describe("SpooVault Self-Approval Guard", function () {
       const requestId = await requestAndWaitForRequest(1, guardian1);
 
       // guardian1 becomes a guardian and tries to approve their own request
-      await spooVault.connect(guardian1).acceptGuardianInvite(vaultId);
+      await heirly.connect(guardian1).acceptGuardianInvite(vaultId);
 
       await expect(
-        spooVault.connect(guardian1).approveAccess(requestId)
-      ).to.be.revertedWithCustomError(spooVault, "CannotSelfApproveAccess");
+        heirly.connect(guardian1).approveAccess(requestId)
+      ).to.be.revertedWithCustomError(heirly, "CannotSelfApproveAccess");
 
-      const request = await spooVault.accessRequests(requestId);
+      const request = await heirly.accessRequests(requestId);
       expect(request[3]).to.equal(0); // RequestStatus.PENDING
-      expect(await spooVault.hasActiveAccess(1, guardian1.address)).to.equal(
+      expect(await heirly.hasActiveAccess(1, guardian1.address)).to.equal(
         true
       ); // guardian blanket access
     });
@@ -112,19 +112,19 @@ describe("SpooVault Self-Approval Guard", function () {
       await mintToken(vaultId, guardian1.address);
 
       const requestId = await requestAndWaitForRequest(1, guardian1);
-      await spooVault.connect(guardian1).acceptGuardianInvite(vaultId);
+      await heirly.connect(guardian1).acceptGuardianInvite(vaultId);
 
       await expect(
-        spooVault
+        heirly
           .connect(guardian1)
           ["approveAccess(uint256,string)"](
             requestId,
             "encrypted-share-for-self"
           )
-      ).to.be.revertedWithCustomError(spooVault, "CannotSelfApproveAccess");
+      ).to.be.revertedWithCustomError(heirly, "CannotSelfApproveAccess");
 
       expect(
-        await spooVault.getBeneficiaryKeyShare(requestId, guardian1.address)
+        await heirly.getBeneficiaryKeyShare(requestId, guardian1.address)
       ).to.equal("");
     });
 
@@ -137,35 +137,35 @@ describe("SpooVault Self-Approval Guard", function () {
       await mintToken(vaultId, guardian1.address);
 
       const requestId = await requestAndWaitForRequest(1, guardian1);
-      await spooVault.connect(guardian1).acceptGuardianInvite(vaultId);
-      await spooVault.connect(guardian2).acceptGuardianInvite(vaultId);
+      await heirly.connect(guardian1).acceptGuardianInvite(vaultId);
+      await heirly.connect(guardian2).acceptGuardianInvite(vaultId);
 
       // A single external approval cannot reach the threshold of 2
-      await spooVault.connect(owner).approveAccess(requestId);
-      let request = await spooVault.accessRequests(requestId);
+      await heirly.connect(owner).approveAccess(requestId);
+      let request = await heirly.accessRequests(requestId);
       expect(request[3]).to.equal(0); // still PENDING
       expect(
-        await spooVault.hasApprovedRequest(requestId, owner.address)
+        await heirly.hasApprovedRequest(requestId, owner.address)
       ).to.equal(true);
 
       // Second distinct approval (guardian2) reaches quorum: both != requester
-      await expect(spooVault.connect(guardian2).approveAccess(requestId))
-        .to.emit(spooVault, "AccessGranted")
+      await expect(heirly.connect(guardian2).approveAccess(requestId))
+        .to.emit(heirly, "AccessGranted")
         .withArgs(requestId, 1, guardian1.address);
 
-      request = await spooVault.accessRequests(requestId);
+      request = await heirly.accessRequests(requestId);
       expect(request[3]).to.equal(1); // RequestStatus.APPROVED
       expect(
-        await spooVault.hasApprovedRequest(requestId, owner.address)
+        await heirly.hasApprovedRequest(requestId, owner.address)
       ).to.equal(true);
       expect(
-        await spooVault.hasApprovedRequest(requestId, guardian2.address)
+        await heirly.hasApprovedRequest(requestId, guardian2.address)
       ).to.equal(true);
       // The requester's self-vote never counted toward quorum
       expect(
-        await spooVault.hasApprovedRequest(requestId, guardian1.address)
+        await heirly.hasApprovedRequest(requestId, guardian1.address)
       ).to.equal(false);
-      expect(await spooVault.hasActiveAccess(1, guardian1.address)).to.equal(
+      expect(await heirly.hasActiveAccess(1, guardian1.address)).to.equal(
         true
       );
     });
@@ -180,15 +180,15 @@ describe("SpooVault Self-Approval Guard", function () {
 
       const requestId = await requestAndWaitForRequest(1, beneficiary);
 
-      await expect(spooVault.connect(guardian1).approveAccess(requestId))
-        .to.emit(spooVault, "AccessApproved")
+      await expect(heirly.connect(guardian1).approveAccess(requestId))
+        .to.emit(heirly, "AccessApproved")
         .withArgs(requestId, guardian1.address)
-        .to.emit(spooVault, "AccessGranted")
+        .to.emit(heirly, "AccessGranted")
         .withArgs(requestId, 1, beneficiary.address);
 
-      const request = await spooVault.accessRequests(requestId);
+      const request = await heirly.accessRequests(requestId);
       expect(request[3]).to.equal(1); // RequestStatus.APPROVED
-      expect(await spooVault.hasActiveAccess(1, beneficiary.address)).to.equal(
+      expect(await heirly.hasActiveAccess(1, beneficiary.address)).to.equal(
         true
       );
     });
@@ -200,8 +200,8 @@ describe("SpooVault Self-Approval Guard", function () {
 
       const requestId = await requestAndWaitForRequest(1, beneficiary);
 
-      await expect(spooVault.connect(owner).approveAccess(requestId))
-        .to.emit(spooVault, "AccessGranted")
+      await expect(heirly.connect(owner).approveAccess(requestId))
+        .to.emit(heirly, "AccessGranted")
         .withArgs(requestId, 1, beneficiary.address);
     });
 
@@ -215,15 +215,15 @@ describe("SpooVault Self-Approval Guard", function () {
       const share = "ecies-encrypted-share-payload";
 
       await expect(
-        spooVault
+        heirly
           .connect(guardian1)
           ["approveAccess(uint256,string)"](requestId, share)
       )
-        .to.emit(spooVault, "ShareSubmittedForBeneficiary")
+        .to.emit(heirly, "ShareSubmittedForBeneficiary")
         .withArgs(requestId, guardian1.address, share);
 
       expect(
-        await spooVault.getBeneficiaryKeyShare(requestId, guardian1.address)
+        await heirly.getBeneficiaryKeyShare(requestId, guardian1.address)
       ).to.equal(share);
     });
   });
@@ -239,11 +239,11 @@ describe("SpooVault Self-Approval Guard", function () {
       await mintToken(vaultId, beneficiary.address);
 
       const requestId = await requestAndWaitForRequest(1, beneficiary);
-      await spooVault.connect(guardian1).approveAccess(requestId);
+      await heirly.connect(guardian1).approveAccess(requestId);
 
       await expect(
-        spooVault.connect(guardian1).approveAccess(requestId)
-      ).to.be.revertedWithCustomError(spooVault, "AlreadyApproved");
+        heirly.connect(guardian1).approveAccess(requestId)
+      ).to.be.revertedWithCustomError(heirly, "AlreadyApproved");
     });
 
     it("reverts when a non-guardian approves", async function () {
@@ -254,16 +254,16 @@ describe("SpooVault Self-Approval Guard", function () {
       const requestId = await requestAndWaitForRequest(1, beneficiary);
 
       await expect(
-        spooVault.connect(outsider).approveAccess(requestId)
-      ).to.be.revertedWithCustomError(spooVault, "OnlyGuardian");
+        heirly.connect(outsider).approveAccess(requestId)
+      ).to.be.revertedWithCustomError(heirly, "OnlyGuardian");
     });
 
     it("reverts for a non-existent request", async function () {
       await createVault(1, [guardian1.address]);
 
       await expect(
-        spooVault.connect(guardian1).approveAccess(999)
-      ).to.be.revertedWithCustomError(spooVault, "RequestNotExist");
+        heirly.connect(guardian1).approveAccess(999)
+      ).to.be.revertedWithCustomError(heirly, "RequestNotExist");
     });
 
     it("reverts when approving an already-finalized request", async function () {
@@ -273,12 +273,12 @@ describe("SpooVault Self-Approval Guard", function () {
       await mintToken(vaultId, beneficiary.address);
 
       const requestId = await requestAndWaitForRequest(1, beneficiary);
-      await spooVault.connect(guardian1).approveAccess(requestId);
+      await heirly.connect(guardian1).approveAccess(requestId);
 
       // A different guardian hits the status check, not AlreadyApproved
       await expect(
-        spooVault.connect(owner).approveAccess(requestId)
-      ).to.be.revertedWithCustomError(spooVault, "RequestNotPending");
+        heirly.connect(owner).approveAccess(requestId)
+      ).to.be.revertedWithCustomError(heirly, "RequestNotPending");
     });
 
     it("reverts when approving an expired request", async function () {
@@ -291,8 +291,8 @@ describe("SpooVault Self-Approval Guard", function () {
       await time.increase(REQUEST_TTL + 1);
 
       await expect(
-        spooVault.connect(guardian1).approveAccess(requestId)
-      ).to.be.revertedWithCustomError(spooVault, "RequestExpired");
+        heirly.connect(guardian1).approveAccess(requestId)
+      ).to.be.revertedWithCustomError(heirly, "RequestExpired");
     });
 
     it("rejects the request if the requester dropped their NFT before quorum", async function () {
@@ -302,13 +302,13 @@ describe("SpooVault Self-Approval Guard", function () {
       const tokenId = await mintToken(vaultId, beneficiary.address);
 
       const requestId = await requestAndWaitForRequest(1, beneficiary);
-      await spooVault.connect(beneficiary).burnAccessToken(tokenId);
+      await heirly.connect(beneficiary).burnAccessToken(tokenId);
 
-      await spooVault.connect(guardian1).approveAccess(requestId);
+      await heirly.connect(guardian1).approveAccess(requestId);
 
-      const request = await spooVault.accessRequests(requestId);
+      const request = await heirly.accessRequests(requestId);
       expect(request[3]).to.equal(2); // RequestStatus.REJECTED
-      expect(await spooVault.hasActiveAccess(1, beneficiary.address)).to.equal(
+      expect(await heirly.hasActiveAccess(1, beneficiary.address)).to.equal(
         false
       );
     });
@@ -319,8 +319,8 @@ describe("SpooVault Self-Approval Guard", function () {
       await addDocument(vaultId);
 
       await expect(
-        spooVault.connect(guardian1).requestAccess(1)
-      ).to.be.revertedWithCustomError(spooVault, "AlreadyHasAccess");
+        heirly.connect(guardian1).requestAccess(1)
+      ).to.be.revertedWithCustomError(heirly, "AlreadyHasAccess");
     });
   });
 });

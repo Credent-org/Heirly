@@ -1,5 +1,5 @@
 /**
- * Post-quantum ML-KEM-768 (FIPS 203 / Kyber) primitives for SpooVault.
+ * Post-quantum ML-KEM-768 (FIPS 203 / Kyber) primitives for Heirly.
  *
  * Uses the `mlkem` TypeScript implementation (browser / Node compatible).
  * The issue referenced `@libertrai/kyber-ts`, which is not published on npm;

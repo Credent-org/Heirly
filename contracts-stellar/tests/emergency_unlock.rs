@@ -1,20 +1,20 @@
 //! Emergency unlock / Soroban PRNG tests compiled as an integration crate
 //! so they do not depend on `upgrade_fixture` Wasm (`contractimport!` in
 //! `src/test.rs`).
-use spoovault_stellar::{
-    AccessLevel, ReleaseCondition, SpooVaultStellar, SpooVaultStellarClient,
+use heirly_stellar::{
+    AccessLevel, ReleaseCondition, HeirlyStellar, HeirlyStellarClient,
 };
 use soroban_sdk::{
     testutils::{Address as _, Ledger as _},
     vec, Address, Env, String,
 };
 
-fn client(env: &Env) -> SpooVaultStellarClient<'_> {
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    SpooVaultStellarClient::new(env, &contract_id)
+fn client(env: &Env) -> HeirlyStellarClient<'_> {
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    HeirlyStellarClient::new(env, &contract_id)
 }
 
-fn setup_emergency_doc(env: &Env, client: &SpooVaultStellarClient) -> (Address, Address, u64, u64) {
+fn setup_emergency_doc(env: &Env, client: &HeirlyStellarClient) -> (Address, Address, u64, u64) {
     let creator = Address::generate(env);
     let g1 = Address::generate(env);
     let requester = Address::generate(env);

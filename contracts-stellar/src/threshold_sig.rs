@@ -9,7 +9,7 @@ use soroban_sdk::{
 };
 
 /// Byte prefix for domain-separated threshold signature payloads.
-pub const THRESHOLD_PREFIX: &[u8] = b"SpooVaultThresholdSig";
+pub const THRESHOLD_PREFIX: &[u8] = b"HeirlyThresholdSig";
 
 /// Lifetime constants for persistent storage of used nonces (~30 days = 518,400 ledgers)
 pub const NONCE_LIFETIME_THRESHOLD: u32 = 120_960;

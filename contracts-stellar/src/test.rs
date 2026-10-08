@@ -54,10 +54,10 @@ impl MockAccessRegistry {
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
-fn setup<'a>() -> (Env, SpooVaultStellarClient<'a>) {
+fn setup<'a>() -> (Env, HeirlyStellarClient<'a>) {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
     env.mock_all_auths();
     (env, client)
 }
@@ -66,7 +66,7 @@ fn setup<'a>() -> (Env, SpooVaultStellarClient<'a>) {
 /// Returns (env, client, creator, guardian1, guardian2, vault_id).
 fn create_test_vault<'a>() -> (
     Env,
-    SpooVaultStellarClient<'a>,
+    HeirlyStellarClient<'a>,
     Address,
     Address,
     Address,
@@ -87,7 +87,7 @@ fn create_test_vault<'a>() -> (
 
 /// Helper: add a document to an active vault and return its id.
 fn add_test_document(
-    client: &SpooVaultStellarClient<'_>,
+    client: &HeirlyStellarClient<'_>,
     env: &Env,
     uploader: Address,
     vault_id: u64,
@@ -107,7 +107,7 @@ fn add_test_document(
 }
 
 /// Helper: set up g1 as an accepted guardian for the vault.
-fn accept_guardian(client: &SpooVaultStellarClient<'_>, _env: &Env, g1: &Address, vault_id: u64) {
+fn accept_guardian(client: &HeirlyStellarClient<'_>, _env: &Env, g1: &Address, vault_id: u64) {
     client.accept_guardian_invite(g1, &vault_id);
 }
 
@@ -130,8 +130,8 @@ fn test_register_public_key() {
 #[test]
 fn test_cross_chain_identity_registration_and_resolution() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
 
     let stellar_user = Address::generate(&env);
     env.mock_all_auths();
@@ -162,8 +162,8 @@ fn test_cross_chain_identity_registration_and_resolution() {
 #[test]
 fn test_cross_chain_identity_fallback_resolution() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
 
     let stellar_user = Address::generate(&env);
     env.mock_all_auths();
@@ -185,8 +185,8 @@ fn test_cross_chain_identity_fallback_resolution() {
 #[test]
 fn test_create_vault_and_get_vault() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
 
     let creator = Address::generate(&env);
     let g1 = Address::generate(&env);
@@ -214,8 +214,8 @@ fn test_create_vault_and_get_vault() {
 #[test]
 fn test_accept_guardian_invite() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
 
     let creator = Address::generate(&env);
     let g1 = Address::generate(&env);
@@ -239,8 +239,8 @@ fn test_accept_guardian_invite() {
 #[test]
 fn test_add_document_and_access_flow() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
 
     let creator = Address::generate(&env);
     let g1 = Address::generate(&env);
@@ -291,8 +291,8 @@ fn test_add_document_and_access_flow() {
 #[test]
 fn test_ttl_extensions() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
 
     let creator = Address::generate(&env);
     let g1 = Address::generate(&env);
@@ -326,8 +326,8 @@ fn test_ttl_extensions() {
 #[test]
 fn test_prove_life_and_emergency_mode() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
 
     let creator = Address::generate(&env);
     let g1 = Address::generate(&env);
@@ -353,8 +353,8 @@ fn test_prove_life_and_emergency_mode() {
 #[should_panic(expected = "Release condition locked")]
 fn test_emergency_only_stays_locked_while_prng_pending() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
 
     let creator = Address::generate(&env);
     let g1 = Address::generate(&env);
@@ -389,8 +389,8 @@ fn test_emergency_only_stays_locked_while_prng_pending() {
 #[test]
 fn test_emergency_prng_fulfillment_unlocks_with_dual_bounds() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
 
     let creator = Address::generate(&env);
     let g1 = Address::generate(&env);
@@ -443,8 +443,8 @@ fn test_emergency_prng_fulfillment_unlocks_with_dual_bounds() {
 #[should_panic(expected = "Release condition locked")]
 fn test_emergency_prng_timestamp_alone_stays_locked() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
 
     let creator = Address::generate(&env);
     let g1 = Address::generate(&env);
@@ -489,8 +489,8 @@ fn test_emergency_prng_timestamp_alone_stays_locked() {
 #[should_panic(expected = "Emergency unlock confirmations not met")]
 fn test_emergency_prng_fulfillment_requires_confirmations() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
 
     let creator = Address::generate(&env);
     let g1 = Address::generate(&env);
@@ -511,8 +511,8 @@ fn test_emergency_prng_fulfillment_requires_confirmations() {
 #[should_panic(expected = "Emergency unlock delay already pending")]
 fn test_emergency_prng_rejects_second_enable_while_pending() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
 
     let creator = Address::generate(&env);
     let g1 = Address::generate(&env);
@@ -533,8 +533,8 @@ fn test_emergency_prng_rejects_second_enable_while_pending() {
 #[should_panic(expected = "Emergency unlock already fulfilled")]
 fn test_emergency_prng_rejects_duplicate_fulfillment() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
     let creator = Address::generate(&env);
     let g1 = Address::generate(&env);
     env.mock_all_auths();
@@ -559,8 +559,8 @@ fn test_emergency_prng_rejects_duplicate_fulfillment() {
 #[should_panic(expected = "Emergency mode is not enabled")]
 fn test_emergency_prng_rejects_fulfillment_after_disable() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
     let creator = Address::generate(&env);
     let g1 = Address::generate(&env);
     env.mock_all_auths();
@@ -584,8 +584,8 @@ fn test_emergency_prng_rejects_fulfillment_after_disable() {
 #[test]
 fn test_emergency_prng_new_cycle_does_not_reuse_old_bounds() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
     let creator = Address::generate(&env);
     let g1 = Address::generate(&env);
     env.mock_all_auths();
@@ -619,8 +619,8 @@ fn test_emergency_prng_new_cycle_does_not_reuse_old_bounds() {
 #[should_panic(expected = "Release condition locked")]
 fn test_emergency_prng_ledger_alone_stays_locked() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
     let creator = Address::generate(&env);
     let g1 = Address::generate(&env);
     let requester = Address::generate(&env);
@@ -659,8 +659,8 @@ fn test_emergency_prng_ledger_alone_stays_locked() {
 #[test]
 fn test_authorize_keeper_and_relay_heartbeat() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
 
     let creator = Address::generate(&env);
     let g1 = Address::generate(&env);
@@ -699,8 +699,8 @@ fn test_authorize_keeper_and_relay_heartbeat() {
 #[test]
 fn test_contract_account_guardian_approves_via_custom_auth() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
 
     let creator = Address::generate(&env);
     // A deployed contract acting as a guardian - a custom account abstraction
@@ -757,8 +757,8 @@ fn test_contract_account_guardian_approves_via_custom_auth() {
 #[test]
 fn test_deep_auth_invocation_notifies_access_registry() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
     let registry_addr = env.register_contract(None, MockAccessRegistry);
 
     let creator = Address::generate(&env);
@@ -806,8 +806,8 @@ fn test_deep_auth_invocation_notifies_access_registry() {
 #[test]
 fn test_prove_life_by_keeper_fails_when_unauthorized() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
 
     let creator = Address::generate(&env);
     let g1 = Address::generate(&env);
@@ -832,8 +832,8 @@ fn test_prove_life_by_keeper_fails_when_unauthorized() {
 #[test]
 fn test_prove_life_by_keeper_fails_for_wrong_keeper() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
 
     let creator = Address::generate(&env);
     let g1 = Address::generate(&env);
@@ -862,8 +862,8 @@ fn test_prove_life_by_keeper_fails_for_wrong_keeper() {
 #[test]
 fn test_prove_life_by_keeper_fails_when_expired() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
 
     let creator = Address::generate(&env);
     let g1 = Address::generate(&env);
@@ -889,8 +889,8 @@ fn test_prove_life_by_keeper_fails_when_expired() {
 #[test]
 fn test_revoke_keeper_blocks_future_relays() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
 
     let creator = Address::generate(&env);
     let g1 = Address::generate(&env);
@@ -918,8 +918,8 @@ fn test_revoke_keeper_blocks_future_relays() {
 #[test]
 fn test_authorize_keeper_rejects_non_creator() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
 
     let creator = Address::generate(&env);
     let g1 = Address::generate(&env);
@@ -950,8 +950,8 @@ fn test_authorize_keeper_rejects_non_creator() {
 #[test]
 fn test_revoke_key_rotates_and_blacklists_old_key() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
 
     let user = Address::generate(&env);
     env.mock_all_auths();
@@ -976,8 +976,8 @@ fn test_revoke_key_rotates_and_blacklists_old_key() {
 #[should_panic(expected = "Public key has been revoked as compromised")]
 fn test_revoked_key_cannot_be_re_registered() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
 
     let user = Address::generate(&env);
     env.mock_all_auths();
@@ -996,8 +996,8 @@ fn test_revoked_key_cannot_be_re_registered() {
 #[should_panic(expected = "Caller does not own the old public key")]
 fn test_revoke_key_requires_proof_of_possession() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
 
     let user = Address::generate(&env);
     let attacker = Address::generate(&env);
@@ -1017,8 +1017,8 @@ fn test_revoke_key_requires_proof_of_possession() {
 #[should_panic(expected = "Cannot rotate to a revoked public key")]
 fn test_revoke_key_rejects_rotation_to_revoked_key() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
 
     let user = Address::generate(&env);
     env.mock_all_auths();
@@ -1039,8 +1039,8 @@ fn test_revoke_key_rejects_rotation_to_revoked_key() {
 #[should_panic(expected = "New key must differ from old key")]
 fn test_revoke_key_rejects_same_key_rotation() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
 
     let user = Address::generate(&env);
     env.mock_all_auths();
@@ -1054,8 +1054,8 @@ fn test_revoke_key_rejects_same_key_rotation() {
 #[should_panic(expected = "No registered public key for caller")]
 fn test_revoke_key_requires_registered_key() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
 
     let user = Address::generate(&env);
     env.mock_all_auths();
@@ -1346,8 +1346,8 @@ fn test_approve_access_full_flow_grants_access() {
 #[test]
 fn test_guardian_revoke_access() {
     let env = Env::default();
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
 
     let creator = Address::generate(&env);
     let requester = Address::generate(&env);
@@ -1472,15 +1472,15 @@ mod cross_chain_revocation {
     fn setup_linked_vault(
         env: &Env,
     ) -> (
-        SpooVaultStellarClient<'static>,
+        HeirlyStellarClient<'static>,
         Address,
         u64,
         u64,
         EvmKeypair,
         BytesN<32>,
     ) {
-        let contract_id = env.register_contract(None, SpooVaultStellar);
-        let client = SpooVaultStellarClient::new(env, &contract_id);
+        let contract_id = env.register_contract(None, HeirlyStellar);
+        let client = HeirlyStellarClient::new(env, &contract_id);
 
         let creator = Address::generate(env);
         let requester = Address::generate(env);
@@ -1639,7 +1639,7 @@ mod upgrade_governance {
     /// `contracts-stellar/upgrade_fixture/README.md` to build it locally.
     mod new_contract {
         soroban_sdk::contractimport!(
-            file = "upgrade_fixture/target/wasm32-unknown-unknown/release/spoovault_stellar_upgrade_fixture.wasm"
+            file = "upgrade_fixture/target/wasm32-unknown-unknown/release/heirly_stellar_upgrade_fixture.wasm"
         );
     }
 
@@ -1651,8 +1651,8 @@ mod upgrade_governance {
     fn test_init_admins_records_configured_set_and_threshold() {
         let env = Env::default();
         env.mock_all_auths();
-        let contract_id = env.register_contract(None, SpooVaultStellar);
-        let client = SpooVaultStellarClient::new(&env, &contract_id);
+        let contract_id = env.register_contract(None, HeirlyStellar);
+        let client = HeirlyStellarClient::new(&env, &contract_id);
 
         let admin_a = Address::generate(&env);
         let admin_b = Address::generate(&env);
@@ -1667,8 +1667,8 @@ mod upgrade_governance {
     fn test_init_admins_rejects_reinitialization() {
         let env = Env::default();
         env.mock_all_auths();
-        let contract_id = env.register_contract(None, SpooVaultStellar);
-        let client = SpooVaultStellarClient::new(&env, &contract_id);
+        let contract_id = env.register_contract(None, HeirlyStellar);
+        let client = HeirlyStellarClient::new(&env, &contract_id);
 
         let admin = Address::generate(&env);
         client.init_admins(&vec![&env, admin.clone()], &1);
@@ -1680,8 +1680,8 @@ mod upgrade_governance {
     fn test_init_admins_rejects_threshold_above_admin_count() {
         let env = Env::default();
         env.mock_all_auths();
-        let contract_id = env.register_contract(None, SpooVaultStellar);
-        let client = SpooVaultStellarClient::new(&env, &contract_id);
+        let contract_id = env.register_contract(None, HeirlyStellar);
+        let client = HeirlyStellarClient::new(&env, &contract_id);
 
         let admin = Address::generate(&env);
         client.init_admins(&vec![&env, admin], &2);
@@ -1692,8 +1692,8 @@ mod upgrade_governance {
     fn test_init_admins_rejects_duplicate_admin() {
         let env = Env::default();
         env.mock_all_auths();
-        let contract_id = env.register_contract(None, SpooVaultStellar);
-        let client = SpooVaultStellarClient::new(&env, &contract_id);
+        let contract_id = env.register_contract(None, HeirlyStellar);
+        let client = HeirlyStellarClient::new(&env, &contract_id);
 
         let admin = Address::generate(&env);
         client.init_admins(&vec![&env, admin.clone(), admin], &1);
@@ -1703,8 +1703,8 @@ mod upgrade_governance {
     fn test_upgrade_contract_rejects_non_admin() {
         let env = Env::default();
         env.mock_all_auths();
-        let contract_id = env.register_contract(None, SpooVaultStellar);
-        let client = SpooVaultStellarClient::new(&env, &contract_id);
+        let contract_id = env.register_contract(None, HeirlyStellar);
+        let client = HeirlyStellarClient::new(&env, &contract_id);
 
         let admin = Address::generate(&env);
         client.init_admins(&vec![&env, admin], &1);
@@ -1724,8 +1724,8 @@ mod upgrade_governance {
     fn test_upgrade_contract_rejects_before_admins_initialized() {
         let env = Env::default();
         env.mock_all_auths();
-        let contract_id = env.register_contract(None, SpooVaultStellar);
-        let client = SpooVaultStellarClient::new(&env, &contract_id);
+        let contract_id = env.register_contract(None, HeirlyStellar);
+        let client = HeirlyStellarClient::new(&env, &contract_id);
 
         let caller = Address::generate(&env);
         let some_hash = BytesN::from_array(&env, &[7u8; 32]);
@@ -1742,8 +1742,8 @@ mod upgrade_governance {
     fn test_upgrade_contract_does_not_swap_before_threshold_is_met() {
         let env = Env::default();
         env.mock_all_auths();
-        let contract_id = env.register_contract(None, SpooVaultStellar);
-        let client = SpooVaultStellarClient::new(&env, &contract_id);
+        let contract_id = env.register_contract(None, HeirlyStellar);
+        let client = HeirlyStellarClient::new(&env, &contract_id);
 
         let admin_a = Address::generate(&env);
         let admin_b = Address::generate(&env);
@@ -1762,8 +1762,8 @@ mod upgrade_governance {
     fn test_upgrade_contract_rejects_duplicate_approval_from_same_admin() {
         let env = Env::default();
         env.mock_all_auths();
-        let contract_id = env.register_contract(None, SpooVaultStellar);
-        let client = SpooVaultStellarClient::new(&env, &contract_id);
+        let contract_id = env.register_contract(None, HeirlyStellar);
+        let client = HeirlyStellarClient::new(&env, &contract_id);
 
         let admin_a = Address::generate(&env);
         let admin_b = Address::generate(&env);
@@ -1785,8 +1785,8 @@ mod upgrade_governance {
     fn test_upgrade_contract_swaps_wasm_and_preserves_existing_state_once_threshold_met() {
         let env = Env::default();
         env.mock_all_auths();
-        let contract_id = env.register_contract(None, SpooVaultStellar);
-        let client = SpooVaultStellarClient::new(&env, &contract_id);
+        let contract_id = env.register_contract(None, HeirlyStellar);
+        let client = HeirlyStellarClient::new(&env, &contract_id);
 
         // Existing state created under the v1 code, which must survive the
         // upgrade untouched (Soroban storage is keyed by contract ID, not
@@ -1836,8 +1836,8 @@ mod upgrade_governance {
     fn test_migrate_rejects_non_admin() {
         let env = Env::default();
         env.mock_all_auths();
-        let contract_id = env.register_contract(None, SpooVaultStellar);
-        let client = SpooVaultStellarClient::new(&env, &contract_id);
+        let contract_id = env.register_contract(None, HeirlyStellar);
+        let client = HeirlyStellarClient::new(&env, &contract_id);
 
         let admin = Address::generate(&env);
         client.init_admins(&vec![&env, admin], &1);
@@ -1856,8 +1856,8 @@ mod upgrade_governance {
     fn test_migrate_is_idempotent_for_admin_at_current_schema_version() {
         let env = Env::default();
         env.mock_all_auths();
-        let contract_id = env.register_contract(None, SpooVaultStellar);
-        let client = SpooVaultStellarClient::new(&env, &contract_id);
+        let contract_id = env.register_contract(None, HeirlyStellar);
+        let client = HeirlyStellarClient::new(&env, &contract_id);
 
         let admin = Address::generate(&env);
         client.init_admins(&vec![&env, admin.clone()], &1);
@@ -2112,7 +2112,7 @@ mod fhe_aggregation {
         let ct1 = create_mock_fhe_ciphertext(&env, 100);
         let ct2 = create_mock_fhe_ciphertext(&env, 250);
 
-        let sum = SpooVaultStellar::fhe_add(&env, &ct1, &ct2);
+        let sum = HeirlyStellar::fhe_add(&env, &ct1, &ct2);
         assert_eq!(sum.len(), 128); // 4 words * 32 bytes
 
         // Check b component (last 32 bytes) = 100 + 250 = 350
@@ -2345,8 +2345,8 @@ mod fhe_aggregation {
     fn test_threshold_signature_verification_success_varying_k_of_n() {
         let env = Env::default();
         env.ledger().set_sequence_number(100);
-        let contract_id = env.register_contract(None, SpooVaultStellar);
-        let client = SpooVaultStellarClient::new(&env, &contract_id);
+        let contract_id = env.register_contract(None, HeirlyStellar);
+        let client = HeirlyStellarClient::new(&env, &contract_id);
 
         let message_bytes = b"ApproveReleaseDocument#42";
         let message = Bytes::from_slice(&env, message_bytes);
@@ -2370,8 +2370,8 @@ mod fhe_aggregation {
     fn test_threshold_signature_expired_reverts() {
         let env = Env::default();
         env.ledger().set_sequence_number(600); // Current sequence > expiration
-        let contract_id = env.register_contract(None, SpooVaultStellar);
-        let client = SpooVaultStellarClient::new(&env, &contract_id);
+        let contract_id = env.register_contract(None, HeirlyStellar);
+        let client = HeirlyStellarClient::new(&env, &contract_id);
 
         let message_bytes = b"ExpiredRelease";
         let message = Bytes::from_slice(&env, message_bytes);
@@ -2386,8 +2386,8 @@ mod fhe_aggregation {
     fn test_threshold_signature_reused_nonce_reverts() {
         let env = Env::default();
         env.ledger().set_sequence_number(100);
-        let contract_id = env.register_contract(None, SpooVaultStellar);
-        let client = SpooVaultStellarClient::new(&env, &contract_id);
+        let contract_id = env.register_contract(None, HeirlyStellar);
+        let client = HeirlyStellarClient::new(&env, &contract_id);
 
         let message_bytes = b"ReplayProtectionCheck";
         let message = Bytes::from_slice(&env, message_bytes);
@@ -2406,8 +2406,8 @@ mod fhe_aggregation {
     fn test_threshold_signature_duplicate_signer_reverts() {
         let env = Env::default();
         env.ledger().set_sequence_number(100);
-        let contract_id = env.register_contract(None, SpooVaultStellar);
-        let client = SpooVaultStellarClient::new(&env, &contract_id);
+        let contract_id = env.register_contract(None, HeirlyStellar);
+        let client = HeirlyStellarClient::new(&env, &contract_id);
 
         let message_bytes = b"DuplicateSignerCheck";
         let message = Bytes::from_slice(&env, message_bytes);
@@ -2432,8 +2432,8 @@ mod fhe_aggregation {
     fn test_threshold_signature_insufficient_signatures_reverts() {
         let env = Env::default();
         env.ledger().set_sequence_number(100);
-        let contract_id = env.register_contract(None, SpooVaultStellar);
-        let client = SpooVaultStellarClient::new(&env, &contract_id);
+        let contract_id = env.register_contract(None, HeirlyStellar);
+        let client = HeirlyStellarClient::new(&env, &contract_id);
 
         let message_bytes = b"InsufficientSignatures";
         let message = Bytes::from_slice(&env, message_bytes);
@@ -2448,8 +2448,8 @@ mod fhe_aggregation {
     fn test_approve_access_threshold_flow() {
         let env = Env::default();
         env.ledger().set_sequence_number(100);
-        let contract_id = env.register_contract(None, SpooVaultStellar);
-        let client = SpooVaultStellarClient::new(&env, &contract_id);
+        let contract_id = env.register_contract(None, HeirlyStellar);
+        let client = HeirlyStellarClient::new(&env, &contract_id);
 
         let creator = Address::generate(&env);
         let g1 = Address::generate(&env);

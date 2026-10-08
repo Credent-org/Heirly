@@ -46,7 +46,7 @@ revoked — true unattended automation, not a signature-per-heartbeat scheme.
 
 ## Contract surface
 
-### `contracts/SpooVault.sol`
+### `contracts/Heirly.sol`
 
 - `authorizeKeeperBySig(uint256 vaultId, address keeper, uint256 expiresAt, bytes signature)`
 - `revokeKeeper(uint256 vaultId)`

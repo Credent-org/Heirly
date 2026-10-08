@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 const PUSH_PROXY_URL =
   (import.meta.env.VITE_PUSH_NOTIFICATION_PROXY_URL as string | undefined)?.trim() || "";
 const PROXY_SECRET =
-  (import.meta.env.VITE_SPOOVUALT_PROXY_SECRET as string | undefined)?.trim() || "";
+  (import.meta.env.VITE_HEIRLY_PROXY_SECRET as string | undefined)?.trim() || "";
 
 const EMERGENCY_MODE_PATH = "/api/notifications/emergency-mode";
 

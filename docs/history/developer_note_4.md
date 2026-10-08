@@ -1,6 +1,6 @@
 # Decentralized Guardians & Threshold Signature Logic
 
-Instead of trusting a single custodian, SpooVault distributes key management among a set of user-designated "Guardians."
+Instead of trusting a single custodian, Heirly distributes key management among a set of user-designated "Guardians."
 
 ## Guardian Lifecycle
 

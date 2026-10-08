@@ -2,14 +2,14 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
-import "../ISpooVault.sol";
+import "../IHeirly.sol";
 
 /// @title ReEntrancyAttacker — test-only contract that attempts read-only
 ///        re-entrancy via onERC721Received callback during mintAccessToken.
 contract ReEntrancyAttacker is ERC721Holder {
-    ISpooVault public target;
+    IHeirly public target;
 
-    constructor(ISpooVault _target) {
+    constructor(IHeirly _target) {
         target = _target;
     }
 

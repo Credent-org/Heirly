@@ -1,13 +1,13 @@
 # RFC 9807 OPAQUE keyring PIN verification
 
-SpooVault uses the audited `@serenity-kit/opaque` WebAssembly bindings for
+Heirly uses the audited `@serenity-kit/opaque` WebAssembly bindings for
 Meta's `opaque-ke` implementation. OPAQUE is a two-party protocol: the browser
 holds the PIN, while an independent server holds the OPAQUE registration record
 and long-term server setup key.
 
 ## Security boundary
 
-The browser's `spoovault-keyring` IndexedDB record contains:
+The browser's `heirly-keyring` IndexedDB record contains:
 
 - the account and public ECIES key;
 - timestamps and passkey metadata, when applicable; and

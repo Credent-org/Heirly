@@ -183,7 +183,7 @@ Example backoff sequence:
 
 ### Database Schema
 
-**Database**: `spoovault-soroban-events` (version 2)
+**Database**: `heirly-soroban-events` (version 2)
 
 **Object Stores**:
 1. `events` - Main event storage

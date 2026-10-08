@@ -30,7 +30,7 @@ export const DEFAULT_GATEWAYS: readonly string[] = [
   "https://hardbin.com/ipfs/",
 ] as const;
 
-const STORAGE_KEY = "spoovault-ipfs-gateway-health";
+const STORAGE_KEY = "heirly-ipfs-gateway-health";
 const FAILURE_THRESHOLD = 3; // trips circuit after this many consecutive failures
 const PROBE_TIMEOUT_MS = 5_000; // HEAD probe timeout per gateway
 const FETCH_TIMEOUT_MS = 30_000; // GET fetch timeout

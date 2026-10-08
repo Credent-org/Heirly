@@ -12,7 +12,7 @@ const PINATA_API_SECRET = import.meta.env.VITE_PINATA_API_SECRET;
 const IPFS_PROXY_URL =
   (import.meta.env.VITE_IPFS_PROXY_URL as string | undefined)?.trim() || "";
 const PROXY_SECRET =
-  (import.meta.env.VITE_SPOOVUALT_PROXY_SECRET as string | undefined)?.trim() ||
+  (import.meta.env.VITE_HEIRLY_PROXY_SECRET as string | undefined)?.trim() ||
   "";
 
 const isConfigured = (): boolean => {
@@ -168,7 +168,7 @@ export const createMultipartFileStream = (
 ): { body: ReadableStream<Uint8Array>; contentType: string; boundary: string } => {
   const boundary =
     options.boundary ??
-    `----SpooVaultFormBoundary${cryptoRandomBoundary()}`;
+    `----HeirlyFormBoundary${cryptoRandomBoundary()}`;
   const filename = sanitizeMultipartFilename(options.filename);
   const contentType = options.contentType || "application/octet-stream";
 

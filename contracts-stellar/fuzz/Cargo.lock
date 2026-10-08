@@ -1262,18 +1262,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "spoovault-stellar-fuzz"
+name = "heirly-stellar-fuzz"
 version = "0.0.0"
 dependencies = [
  "arbitrary",
  "ed25519-dalek",
  "libfuzzer-sys",
  "soroban-sdk",
- "spoovault_stellar",
+ "heirly_stellar",
 ]
 
 [[package]]
-name = "spoovault_stellar"
+name = "heirly_stellar"
 version = "0.1.0"
 dependencies = [
  "soroban-sdk",

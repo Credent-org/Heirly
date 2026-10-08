@@ -1,6 +1,6 @@
 # Client-Side Encryption & Security Standards (AES-256)
 
-Security in SpooVault is strictly zero-knowledge. Documents are encrypted directly in the client's browser before transit.
+Security in Heirly is strictly zero-knowledge. Documents are encrypted directly in the client's browser before transit.
 
 ## Encryption Flow
 

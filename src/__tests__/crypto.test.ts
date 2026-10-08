@@ -62,7 +62,7 @@ describe("Web Crypto API ECIES & Encoding Utilities", () => {
 
   describe("String <-> Uint8Array (UTF-8) conversions", () => {
     it("should convert ASCII String to Uint8Array and back", () => {
-      const text = "SpooVault Security";
+      const text = "Heirly Security";
       const bytes = stringToUint8Array(text);
       expect(bytes).toBeInstanceOf(Uint8Array);
       expect(bytes.length).toBe(text.length);
@@ -71,7 +71,7 @@ describe("Web Crypto API ECIES & Encoding Utilities", () => {
 
     it("should correctly encode and decode multi-byte UTF-8 characters and emojis", () => {
       const complexText =
-        "🔐 SpooVault 🚀 ~ Accents: café, naïve, español — Multilingual: 日本語, 中文, العربية, Русский — Special: 🌟✨⚡️🔥";
+        "🔐 Heirly 🚀 ~ Accents: café, naïve, español — Multilingual: 日本語, 中文, العربية, Русский — Special: 🌟✨⚡️🔥";
       const bytes = stringToUint8Array(complexText);
       expect(bytes).toBeInstanceOf(Uint8Array);
       expect(bytes.length).toBeGreaterThan(complexText.length);

@@ -1,7 +1,7 @@
 /**
  * Proactive Secret Sharing (PSS) utilities.
  *
- * Implements the zero-sharing share-refresh protocol used by SpooVault
+ * Implements the zero-sharing share-refresh protocol used by Heirly
  * guardian rotation (see issue #75 and issue #91). Guardians hold Shamir /
  * Feldmann VSS shares of a document master key S. During a refresh, every
  * guardian i publishes commitments to a zero-polynomial h_i(x) with h_i(0) = 0
@@ -15,7 +15,7 @@
  *
  * Supports both:
  * 1. 256-bit safe-prime Feldmann VSS protocol over (VSS_Q, VSS_P, VSS_G) matching
- *    on-chain SpooVault commitments and encrypted guardian shares.
+ *    on-chain Heirly commitments and encrypted guardian shares.
  * 2. Pure GF(2^127 - 1) field arithmetic building blocks.
  */
 

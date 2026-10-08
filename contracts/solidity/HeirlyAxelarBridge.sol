@@ -38,7 +38,7 @@ abstract contract AxelarExecutable {
     ) internal virtual;
 }
 
-contract SpooVaultAxelarBridge is AxelarExecutable {
+contract HeirlyAxelarBridge is AxelarExecutable {
     address public immutable admin;
     mapping(bytes32 => bool) public processedMessages;
     mapping(bytes32 => bytes32) public trustedSourceAddressHash;

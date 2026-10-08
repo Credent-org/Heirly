@@ -282,7 +282,7 @@ const AccessCenter = () => {
         fileContract !== expectedContract
       ) {
         throw new Error(
-          "This key package is for a different SpooVault contract"
+          "This key package is for a different Heirly contract"
         );
       }
       if (

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This PR implements multi-signature admin governance functions to enable dynamic guardian management and approval threshold adjustments in SpooVault. This directly addresses the operational security risks of key compromise and guardian inactivity.
+This PR implements multi-signature admin governance functions to enable dynamic guardian management and approval threshold adjustments in Heirly. This directly addresses the operational security risks of key compromise and guardian inactivity.
 
 **Branch:** `Solidity/Admin]-Implement-guardian-rotation-and-threshold-adjustment-admin-workflows`
 
@@ -166,7 +166,7 @@ mapping(uint256 => mapping(uint256 => mapping(address => bool))) public hasAppro
 ### Test Execution Log
 
 ```
-SpooVault Guardian Rotation & Threshold Adjustment
+Heirly Guardian Rotation & Threshold Adjustment
   Guardian Removal
     ✔ should allow a guardian to propose removal of another guardian (38ms)
     ✔ should revert if non-guardian tries to propose removal (43ms)
@@ -190,7 +190,7 @@ SpooVault Guardian Rotation & Threshold Adjustment
     ✔ should prevent non-guardian from proposing threshold update
     ✔ should prevent non-guardian from approving threshold update
 
-SpooVault EVM Contract Unit Tests
+Heirly EVM Contract Unit Tests
   Public Key Registry
     ✔ should allow a user to register an X25519 public key (41ms)
   Vault Creation & Guardian Thresholds
@@ -303,7 +303,7 @@ event VaultReconfigurationExecuted(
 
 ### Primary Changes
 
-- **`contracts/SpooVault.sol`** (+~450 lines)
+- **`contracts/Heirly.sol`** (+~450 lines)
   - 2 new structs (GuardianRemovalProposal, ThresholdUpdateProposal)
   - 6 new custom errors
   - 4 new mappings for proposal tracking

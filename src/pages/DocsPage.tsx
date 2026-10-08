@@ -71,10 +71,10 @@ export default function DocsPage() {
             <span>Developer & Contributor Hub</span>
           </div>
           <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white font-display">
-            SpooVault Documentation
+            Heirly Documentation
           </h1>
           <p className="text-gray-400 text-sm md:text-base leading-relaxed">
-            Welcome contributors! SpooVault is an open-source decentralized
+            Welcome contributors! Heirly is an open-source decentralized
             document custody protocol supporting dual-chain infrastructure on{" "}
             <span className="text-red-400 font-medium">Avalanche (EVM)</span>{" "}
             and{" "}
@@ -87,7 +87,7 @@ export default function DocsPage() {
 
           <div className="flex flex-wrap items-center gap-3 pt-2">
             <a
-              href="https://github.com/spoo-vault/spoovault"
+              href="https://github.com/heirly/heirly"
               target="_blank"
               rel="noopener noreferrer"
               className={buttonClasses.primarySm}
@@ -204,7 +204,7 @@ export default function DocsPage() {
             <CardBody className="px-6 pb-6">
               <div className="bg-gray-950 p-6 rounded-xl border border-gray-800 font-mono text-xs text-gray-300 overflow-x-auto space-y-2">
                 <p className="text-brand-400 font-semibold">
-                  // SpooVault Technical Component Flow
+                  // Heirly Technical Component Flow
                 </p>
                 <pre>{`
 [ User Browser ]
@@ -259,7 +259,7 @@ export default function DocsPage() {
                   <button
                     onClick={() =>
                       copyToClipboard(
-                        "git clone https://github.com/spoovault/spoovault.git\ncd spoovault\nnpm install",
+                        "git clone https://github.com/heirly/heirly.git\ncd heirly\nnpm install",
                         "Commands"
                       )
                     }
@@ -267,8 +267,8 @@ export default function DocsPage() {
                   >
                     <FiCopy />
                   </button>
-                  <pre>{`git clone https://github.com/spoo-vault/spoovault.git
-cd spoovault
+                  <pre>{`git clone https://github.com/heirly/heirly.git
+cd heirly
 npm install`}</pre>
                 </div>
               </div>
@@ -340,7 +340,7 @@ VITE_TX_WAIT_TIMEOUT_MS=180000`}</pre>
                 <p>
                   <strong>Location</strong>:{" "}
                   <code className="text-brand-400 bg-gray-950 px-1.5 py-0.5 rounded">
-                    contracts/SpooVault.sol
+                    contracts/Heirly.sol
                   </code>
                 </p>
                 <p>
@@ -500,7 +500,7 @@ VITE_TX_WAIT_TIMEOUT_MS=180000`}</pre>
             </CardHeader>
             <CardBody className="px-6 pb-6 space-y-4 text-sm text-gray-300">
               <p className="text-gray-400 text-xs leading-relaxed">
-                Spoovault participates in GrantFox open-source ecosystem
+                Heirly participates in GrantFox open-source ecosystem
                 bounties and milestone-based funding. Follow this checklist when
                 claiming and submitting contributions:
               </p>

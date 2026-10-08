@@ -139,13 +139,13 @@ describe("StorageProviderService", () => {
     it("uploads to Lighthouse with bearer auth and returns the Filecoin CID", async () => {
       const { service, fetchMock } = makeService();
       fetchMock.mockResolvedValueOnce(
-        jsonResponse({ Name: "doc.svsc", Hash: "bafy-filecoin-cid", Size: 42 })
+        jsonResponse({ Name: "doc.hysc", Hash: "bafy-filecoin-cid", Size: 42 })
       );
 
       const result = await service.uploadToProvider(
         "filecoin",
         PLAINTEXT,
-        "doc.svsc"
+        "doc.hysc"
       );
 
       expect(result).toEqual({
@@ -168,7 +168,7 @@ describe("StorageProviderService", () => {
       fetchMock.mockResolvedValueOnce(jsonResponse({ error: "nope" }, 500));
 
       await expect(
-        service.uploadToProvider("filecoin", PLAINTEXT, "doc.svsc")
+        service.uploadToProvider("filecoin", PLAINTEXT, "doc.hysc")
       ).rejects.toThrow(/Filecoin upload failed \(500\)/);
     });
 
@@ -179,7 +179,7 @@ describe("StorageProviderService", () => {
       const result = await service.uploadToProvider(
         "arweave",
         PLAINTEXT,
-        "doc.svsc"
+        "doc.hysc"
       );
 
       expect(result).toEqual({
@@ -201,7 +201,7 @@ describe("StorageProviderService", () => {
       const result = await service.uploadToProvider(
         "arweave",
         PLAINTEXT,
-        "doc.svsc"
+        "doc.hysc"
       );
       expect(result.reference).toBe("plaintext-tx-id");
     });
@@ -211,7 +211,7 @@ describe("StorageProviderService", () => {
       const { service, fetchMock } = makeService();
       fetchMock.mockResolvedValueOnce(jsonResponse({ id: "tx-1" }));
 
-      await service.uploadToProvider("arweave", PLAINTEXT, "doc.svsc");
+      await service.uploadToProvider("arweave", PLAINTEXT, "doc.hysc");
 
       expect(fetchMock.mock.calls[0][0]).toBe("https://custom.irys.node/tx");
     });
@@ -219,7 +219,7 @@ describe("StorageProviderService", () => {
     it("rejects uploads targeting the primary provider via the adapter", async () => {
       const { service } = makeService();
       await expect(
-        service.uploadToProvider("ipfs", PLAINTEXT, "doc.svsc")
+        service.uploadToProvider("ipfs", PLAINTEXT, "doc.hysc")
       ).rejects.toThrow(/primary IPFS pin/);
     });
   });
@@ -236,7 +236,7 @@ describe("StorageProviderService", () => {
       const report = await service.backupDocument({
         ipfsHash: "QmPrimary",
         ciphertext: PLAINTEXT,
-        filename: "doc.svsc",
+        filename: "doc.hysc",
       });
 
       expect(report.backups.map((b) => b.reference)).toEqual([

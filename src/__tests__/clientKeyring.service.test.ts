@@ -165,7 +165,7 @@ describe("ClientKeyringService (IndexedDB & Secure Key Management)", { timeout: 
       );
 
       const parsed = JSON.parse(backupJson);
-      expect(parsed.version).toBe("spoovault-keyring-backup-v1");
+      expect(parsed.version).toBe("heirly-keyring-backup-v1");
       expect(parsed.account).toBe(testAccount.toLowerCase());
       expect(parsed.publicKey).toBe(publicKey);
 

@@ -521,13 +521,13 @@ export const subscribeToWalletChanges = (
 const getMockStorage = <T,>(key: string, defaults: T): T => {
   try {
     if (typeof localStorage !== "undefined" && localStorage !== null) {
-      const raw = localStorage.getItem(`spoovault-stellar-mock-${key}`);
+      const raw = localStorage.getItem(`heirly-stellar-mock-${key}`);
       return raw ? (JSON.parse(raw) as T) : defaults;
     }
   } catch {
     // ignore and fallback
   }
-  const raw = inMemoryMockStorage[`spoovault-stellar-mock-${key}`];
+  const raw = inMemoryMockStorage[`heirly-stellar-mock-${key}`];
   return raw ? (JSON.parse(raw) as T) : defaults;
 };
 
@@ -535,13 +535,13 @@ const saveMockStorage = <T,>(key: string, data: T) => {
   const jsonStr = JSON.stringify(data);
   try {
     if (typeof localStorage !== "undefined" && localStorage !== null) {
-      localStorage.setItem(`spoovault-stellar-mock-${key}`, jsonStr);
+      localStorage.setItem(`heirly-stellar-mock-${key}`, jsonStr);
       return;
     }
   } catch {
     // ignore
   }
-  inMemoryMockStorage[`spoovault-stellar-mock-${key}`] = jsonStr;
+  inMemoryMockStorage[`heirly-stellar-mock-${key}`] = jsonStr;
 };
 
 // Mock structures matching Soroban states

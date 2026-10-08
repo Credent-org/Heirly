@@ -24,7 +24,7 @@ describe("RFC 9807 OPAQUE keyring PIN verification", { timeout: 120_000 }, () =>
       enablePasskey: false,
     });
     const enrolled = await clientKeyringService.getKeyPairRecord(testAccount);
-    expect(enrolled?.opaque?.version).toBe("spoovault-opaque-rfc9807-v1");
+    expect(enrolled?.opaque?.version).toBe("heirly-opaque-rfc9807-v1");
 
     clientKeyringService.clearSessionCache();
     const privateKey = await clientKeyringService.getDecryptedPrivateKey(testAccount, pin);

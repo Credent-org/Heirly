@@ -240,7 +240,7 @@ describe("Guardian relayer integration", () => {
           channels: { email: "guardian@example.com" },
         },
       ];
-      const stateDir = mkdtempSync(join(tmpdir(), "spoovault-relayer-test-"));
+      const stateDir = mkdtempSync(join(tmpdir(), "heirly-relayer-test-"));
       trackClose(() => rmSync(stateDir, { recursive: true, force: true }));
 
       const config: RelayerConfig = {
@@ -330,7 +330,7 @@ describe("Guardian relayer integration", () => {
   );
 
   it("retries failed dispatches automatically and dead-letters after max attempts", async () => {
-    const stateDir = mkdtempSync(join(tmpdir(), "spoovault-relayer-retry-"));
+    const stateDir = mkdtempSync(join(tmpdir(), "heirly-relayer-retry-"));
     trackClose(() => rmSync(stateDir, { recursive: true, force: true }));
 
     const deliveries: number[] = [];
@@ -356,7 +356,7 @@ describe("Guardian relayer integration", () => {
   });
 
   it("persists queue state so restarted workers do not re-dispatch completed jobs", async () => {
-    const stateDir = mkdtempSync(join(tmpdir(), "spoovault-relayer-durable-"));
+    const stateDir = mkdtempSync(join(tmpdir(), "heirly-relayer-durable-"));
     trackClose(() => rmSync(stateDir, { recursive: true, force: true }));
 
     let handled = 0;

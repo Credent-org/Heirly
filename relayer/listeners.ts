@@ -3,7 +3,7 @@
  * @description Multi-chain AccessRequested event listeners.
  *
  * - EvmAccessRequestListener: polls an EVM RPC via ethers queryFilter for
- *   SpooVault's AccessRequested(requestId, documentId, requester) events.
+ *   Heirly's AccessRequested(requestId, documentId, requester) events.
  * - SorobanAccessRequestListener: polls Soroban RPC `getEvents` for
  *   AccessRequested contract events, resuming from an in-memory cursor.
  *

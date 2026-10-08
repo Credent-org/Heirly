@@ -19,7 +19,7 @@ const AppLayout = lazy(() => import("./layouts/AppLayout"));
 function App() {
   useEffect(() => {
     try {
-      const stored = localStorage.getItem("spoovault-profile");
+      const stored = localStorage.getItem("heirly-profile");
       if (stored) {
         const parsed = JSON.parse(stored) as { theme?: string };
         if (parsed.theme) {
@@ -66,7 +66,7 @@ function App() {
         <Suspense
           fallback={
             <div className="min-h-screen flex items-center justify-center bg-[#040306] text-gray-300">
-              <div className="text-sm tracking-wide">Loading SpooVault...</div>
+              <div className="text-sm tracking-wide">Loading Heirly...</div>
             </div>
           }
         >

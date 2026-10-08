@@ -22,7 +22,7 @@ export interface CrossChainHeartbeatResult {
   stellarSynchronized: boolean;
 }
 
-const HEARTBEAT_PREFIX = "SpooVaultProofOfLife";
+const HEARTBEAT_PREFIX = "HeirlyProofOfLife";
 
 export const buildHeartbeatPayload = (
   gid: string,

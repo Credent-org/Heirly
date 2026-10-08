@@ -6,15 +6,15 @@
  * Protocol channel signing key server-side.
  *
  * Usage (local dev):
- *   PUSH_CHANNEL_PRIVATE_KEY=your_channel_or_delegate_key SPOOVUALT_PROXY_SECRET=your_hmac_secret node scripts/push-notification-proxy.mjs
+ *   PUSH_CHANNEL_PRIVATE_KEY=your_channel_or_delegate_key HEIRLY_PROXY_SECRET=your_hmac_secret node scripts/push-notification-proxy.mjs
  *
  * Endpoints:
  *   POST /api/notifications/emergency-mode - Notify a vault's beneficiary that
  *     emergency mode was toggled ({ vaultId, beneficiary, enabled } JSON body).
  *
  * Auth:
- *   Requires `X-SpooVault-Signature: t=<unix>,v1=<hmac-sha256-hex>` (same scheme
- *   as the IPFS proxy). CORS is restricted to SPOOVUALT_ALLOWED_ORIGINS.
+ *   Requires `X-Heirly-Signature: t=<unix>,v1=<hmac-sha256-hex>` (same scheme
+ *   as the IPFS proxy). CORS is restricted to HEIRLY_ALLOWED_ORIGINS.
  *   Unauthorized callers receive 403 Forbidden.
  *
  * Setup prerequisite:
@@ -27,7 +27,7 @@
  * For production:
  *   Deploy this file to a Cloud Run, Render, Railway, or similar service.
  *   Keep PUSH_CHANNEL_PRIVATE_KEY on the server only. Give the app
- *   VITE_SPOOVUALT_PROXY_SECRET (HMAC) plus VITE_PUSH_NOTIFICATION_PROXY_URL=https://your-proxy.example.com.
+ *   VITE_HEIRLY_PROXY_SECRET (HMAC) plus VITE_PUSH_NOTIFICATION_PROXY_URL=https://your-proxy.example.com.
  */
 
 import {
@@ -72,9 +72,9 @@ try {
 const PUSH_CHANNEL_PRIVATE_KEY = process.env.PUSH_CHANNEL_PRIVATE_KEY || "";
 const PUSH_ENV = process.env.PUSH_ENV || "staging";
 const PROXY_SECRET =
-  process.env.SPOOVUALT_PROXY_SECRET || process.env.VITE_SPOOVUALT_PROXY_SECRET || "";
+  process.env.HEIRLY_PROXY_SECRET || process.env.VITE_HEIRLY_PROXY_SECRET || "";
 const ALLOWED_ORIGINS = parseAllowedOrigins(
-  process.env.SPOOVUALT_ALLOWED_ORIGINS || process.env.CORS_ALLOWED_ORIGINS
+  process.env.HEIRLY_ALLOWED_ORIGINS || process.env.CORS_ALLOWED_ORIGINS
 );
 const PORT = Number(process.env.PORT) || 3002;
 
@@ -90,8 +90,8 @@ if (!PUSH_CHANNEL_PRIVATE_KEY) {
 
 if (!PROXY_SECRET) {
   console.error(
-    "❌ SPOOVUALT_PROXY_SECRET is required so the proxy can reject unsigned requests.\n" +
-    "   Set SPOOVUALT_PROXY_SECRET (and VITE_SPOOVUALT_PROXY_SECRET for the frontend).\n"
+    "❌ HEIRLY_PROXY_SECRET is required so the proxy can reject unsigned requests.\n" +
+    "   Set HEIRLY_PROXY_SECRET (and VITE_HEIRLY_PROXY_SECRET for the frontend).\n"
   );
   process.exit(1);
 }
@@ -133,7 +133,7 @@ app.use(
       }
       callback(null, isOriginAllowed(origin, ALLOWED_ORIGINS));
     },
-    allowedHeaders: ["Content-Type", "X-SpooVault-Signature"],
+    allowedHeaders: ["Content-Type", "X-Heirly-Signature"],
     methods: ["POST", "OPTIONS"],
     maxAge: 600,
   })
@@ -153,7 +153,7 @@ app.use("/api/notifications", async (req, res, next) => {
       method: req.method,
       originalUrl: req.originalUrl,
       origin: req.headers.origin,
-      signatureHeader: req.headers["x-spoovault-signature"],
+      signatureHeader: req.headers["x-heirly-signature"],
       contentType: req.headers["content-type"],
       rawBody: req.rawBody,
     },
@@ -204,7 +204,7 @@ app.get("/health", (_req, res) => {
 app.listen(PORT, () => {
   console.log(`\n✅ Push notification proxy running at http://localhost:${PORT}`);
   console.log("   CORS origins:", ALLOWED_ORIGINS.join(", "));
-  console.log("   Auth: X-SpooVault-Signature required on /api/notifications/*");
+  console.log("   Auth: X-Heirly-Signature required on /api/notifications/*");
   console.log("   Endpoints:");
   console.log("   POST /api/notifications/emergency-mode");
   console.log("   GET  /health\n");

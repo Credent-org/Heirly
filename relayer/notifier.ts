@@ -40,7 +40,7 @@ export function buildNotification(
     title: `Guardian approval requested (#${event.requestId})`,
     body:
       `An access request for document ${event.documentId} was filed on ${event.chain}. ` +
-      `Review and approve it in the SpooVault access center.`,
+      `Review and approve it in the Heirly access center.`,
     requestId: event.requestId,
     documentId: event.documentId,
     requester: event.requester,
@@ -143,11 +143,11 @@ export class NotificationService {
   /** Wire-format payload sent to channels: encrypted envelope when available. */
   private envelope(job: DispatchJob): Record<string, unknown> {
     if (!job.encryptedPayload) {
-      return { v: 1, kind: "spoovault.guardian.notification", notification: job.notification };
+      return { v: 1, kind: "heirly.guardian.notification", notification: job.notification };
     }
     return {
       v: 1,
-      kind: "spoovault.guardian.encrypted",
+      kind: "heirly.guardian.encrypted",
       pointer: job.notification.title,
       envelope: job.encryptedPayload,
     };

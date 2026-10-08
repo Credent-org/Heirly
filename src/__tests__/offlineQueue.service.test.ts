@@ -66,7 +66,7 @@ describe("offline queue", () => {
 
     expect(supported).toBe(true);
     expect(syncRegister).toHaveBeenCalledWith(SYNC_TAG);
-    expect(postMessage).toHaveBeenCalledWith({ type: "spoovault/register-sync" });
+    expect(postMessage).toHaveBeenCalledWith({ type: "heirly/register-sync" });
   });
 
   it("resolves false when service workers or background sync are unavailable", async () => {

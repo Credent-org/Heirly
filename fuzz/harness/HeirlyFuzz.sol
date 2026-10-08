@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "../../contracts/SpooVault.sol";
-import "./SpooVaultFuzzBytecode.sol";
+import "../../contracts/Heirly.sol";
+import "./HeirlyFuzzBytecode.sol";
 
 /**
  * @title FuzzGuardian
- * @dev A second on-chain identity distinct from `SpooVaultFuzz` itself.
+ * @dev A second on-chain identity distinct from `HeirlyFuzz` itself.
  *      Solidity's `msg.sender` for a nested call is the immediate caller,
- *      so every `vault.*` call made directly by `SpooVaultFuzz` is seen by
- *      the vault as coming from `address(SpooVaultFuzz)`, no matter which
+ *      so every `vault.*` call made directly by `HeirlyFuzz` is seen by
+ *      the vault as coming from `address(HeirlyFuzz)`, no matter which
  *      externally-owned address the fuzzer used to trigger the wrapper.
  *      Approval flows need a *second* distinct guardian address (the
  *      requester can never approve their own request), so this tiny relay
@@ -17,9 +17,9 @@ import "./SpooVaultFuzzBytecode.sol";
  *      `approveAccess` on the harness's behalf.
  */
 contract FuzzGuardian {
-    SpooVault private immutable vault;
+    Heirly private immutable vault;
 
-    constructor(SpooVault _vault) {
+    constructor(Heirly _vault) {
         vault = _vault;
     }
 
@@ -29,16 +29,16 @@ contract FuzzGuardian {
 }
 
 /**
- * @title SpooVaultFuzz
- * @dev Differential / invariant fuzzing harness for the SpooVault EVM contract.
+ * @title HeirlyFuzz
+ * @dev Differential / invariant fuzzing harness for the Heirly EVM contract.
  *
  *      Consumed by:
  *        - Echidna  (https://github.com/crytic/echidna)  -> checks `echidna_*` properties
  *        - Medusa   (https://github.com/crytic/medusa)   -> checks `invariant_*` properties
  *
  *      Design notes:
- *        * The harness does NOT inherit SpooVault. It composes an internal
- *          `SpooVault` instance, so the fuzzer can only reach the contract's
+ *        * The harness does NOT inherit Heirly. It composes an internal
+ *          `Heirly` instance, so the fuzzer can only reach the contract's
  *          mutating entry points through the `fuzz_*` wrappers defined here.
  *          This keeps the harness's shadow accounting (trackedSupply,
  *          approvalCounts) exact, because there is no way for the fuzzer to
@@ -56,7 +56,7 @@ contract FuzzGuardian {
  *          fuzzing actor for the mint/burn/ownership properties, matching
  *          the harness's original behavior.
  */
-contract SpooVaultFuzz {
+contract HeirlyFuzz {
     // Fixed address that never appears anywhere else in this harness: never
     // passed as a guardian, never minted a token, never a requester. Used by
     // `echidna_unauthorized_user_cannot_access` to prove the vault never
@@ -64,7 +64,7 @@ contract SpooVaultFuzz {
     // authorization flows.
     address private constant UNAUTHORIZED_USER = address(0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF);
 
-    SpooVault private vault;
+    Heirly private vault;
     FuzzGuardian private guardian2;
 
     uint256 public vaultId;
@@ -77,9 +77,9 @@ contract SpooVaultFuzz {
     uint256 private trackedSupply;
 
     constructor() {
-        address vrfLib = SpooVaultFuzzBytecode.deployEmergencyVrfLogic();
-        address adminLib = SpooVaultFuzzBytecode.deploySpooVaultAdminLogic();
-        vault = SpooVault(payable(SpooVaultFuzzBytecode.deployLinkedVault(vrfLib, adminLib)));
+        address vrfLib = HeirlyFuzzBytecode.deployEmergencyVrfLogic();
+        address adminLib = HeirlyFuzzBytecode.deployHeirlyAdminLogic();
+        vault = Heirly(payable(HeirlyFuzzBytecode.deployLinkedVault(vrfLib, adminLib)));
         guardian2 = new FuzzGuardian(vault);
 
         // `address(this)` becomes the vault's first guardian automatically
@@ -104,7 +104,7 @@ contract SpooVaultFuzz {
         trackedSupply += 1;
 
         // Seed one document so request/approve flows have something to act on.
-        uint256 did = vault.addDocument(vaultId, "fuzz-meta", "QmFuzzSeed", SpooVault.AccessLevel.READ);
+        uint256 did = vault.addDocument(vaultId, "fuzz-meta", "QmFuzzSeed", Heirly.AccessLevel.READ);
         documentIds.push(did);
     }
 
@@ -113,7 +113,7 @@ contract SpooVaultFuzz {
     // ------------------------------------------------------------------
 
     function fuzz_addDocument() external {
-        uint256 did = vault.addDocument(vaultId, "fuzz-meta", "QmFuzzHash", SpooVault.AccessLevel.READ);
+        uint256 did = vault.addDocument(vaultId, "fuzz-meta", "QmFuzzHash", Heirly.AccessLevel.READ);
         documentIds.push(did);
     }
 

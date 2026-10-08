@@ -1,4 +1,4 @@
-name: SpooVault CI/CD
+name: Heirly CI/CD
 
 on:
   push:

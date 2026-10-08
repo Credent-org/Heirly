@@ -77,17 +77,17 @@ export interface ZkppEnvelope {
   ciphertext: string;
 }
 
-export const ZKPP_VERSION = "spoovault-zkpp-v1";
+export const ZKPP_VERSION = "heirly-zkpp-v1";
 
 export interface KeyPairBackupPayload {
-  version: "spoovault-keyring-backup-v1";
+  version: "heirly-keyring-backup-v1";
   account: string;
   publicKey: string;
   encryptedPrivateKey: string;
   exportedAt: string;
 }
 
-const DB_NAME = "spoovault-keyring";
+const DB_NAME = "heirly-keyring";
 const DB_VERSION = 1;
 const STORE_NAME = "keypairs";
 
@@ -179,7 +179,7 @@ const getEffectivePassphrase = (account: string, pinOrPassphrase?: string): { pa
     return { passphrase: trimmed, isCustomPin: true };
   }
   // Default account-bound deterministic derivation entropy for seamless zero-prompt mode
-  const defaultSalt = `spoovault:keyring:default:${account.toLowerCase()}`;
+  const defaultSalt = `heirly:keyring:default:${account.toLowerCase()}`;
   return { passphrase: defaultSalt, isCustomPin: false };
 };
 
@@ -216,7 +216,7 @@ async function zkppBlindPin(pin: string): Promise<Uint8Array> {
   const pinKey = await subtle().importKey("raw", encoder.encode(pin), "PBKDF2", false, [
     "deriveBits",
   ]);
-  const contextSalt = encoder.encode("spoovault-zkpp-blind-v1");
+  const contextSalt = encoder.encode("heirly-zkpp-blind-v1");
   return new Uint8Array(
     await subtle().deriveBits(
       { name: "PBKDF2", salt: contextSalt as BufferSource, iterations: PBKDF2_ITERATIONS, hash: "SHA-256" },
@@ -235,7 +235,7 @@ async function zkppEvaluate(
   account: string,
   blinded: Uint8Array
 ): Promise<Uint8Array> {
-  const label = encoder.encode(`spoovault-zkpp-oprf|${account.toLowerCase()}|`);
+  const label = encoder.encode(`heirly-zkpp-oprf|${account.toLowerCase()}|`);
   const input = new Uint8Array(label.length + blinded.length);
   input.set(label, 0);
   input.set(blinded, label.length);
@@ -251,7 +251,7 @@ async function zkppFinalize(oprfOutput: Uint8Array): Promise<CryptoKey> {
     {
       name: "HKDF",
       hash: "SHA-256",
-      salt: encoder.encode("spoovault-zkpp-wrap"),
+      salt: encoder.encode("heirly-zkpp-wrap"),
       info: encoder.encode("aes-256-gcm keyring wrap"),
     },
     hkdf,
@@ -548,7 +548,7 @@ const idbGetAllKeys = async (): Promise<string[]> => {
   }
 };
 
-const PASSKEY_RP_NAME = "SpooVault";
+const PASSKEY_RP_NAME = "Heirly";
 
 /**
  * Base64url helpers (kept local so the service has no dependency on the WebAuthn payload format).
@@ -918,7 +918,7 @@ export const clientKeyringService = {
     );
 
     const backupPayload: KeyPairBackupPayload = {
-      version: "spoovault-keyring-backup-v1",
+      version: "heirly-keyring-backup-v1",
       account: normalized,
       publicKey: publicKey || "",
       encryptedPrivateKey: encryptedForBackup,
@@ -947,7 +947,7 @@ export const clientKeyringService = {
       throw new Error("Invalid backup file: Malformed JSON");
     }
 
-    if (parsed.version !== "spoovault-keyring-backup-v1") {
+    if (parsed.version !== "heirly-keyring-backup-v1") {
       throw new Error(`Unsupported backup format version: ${parsed.version}`);
     }
 

@@ -2,7 +2,7 @@
 
 ## 1. Overview & Architecture
 
-SpooVault integrates Fully Homomorphic Encryption (FHE) based on Zama TFHE and fhEVM principles. Guardians submit encrypted secret shares directly on-chain, where the smart contract homomorphically combines them without ever decrypting intermediate values or exposing plaintext secrets to contract state, memory traces, or event logs.
+Heirly integrates Fully Homomorphic Encryption (FHE) based on Zama TFHE and fhEVM principles. Guardians submit encrypted secret shares directly on-chain, where the smart contract homomorphically combines them without ever decrypting intermediate values or exposing plaintext secrets to contract state, memory traces, or event logs.
 
 ### Cryptographic Parameters
 - **Ciphertext Type**: 256-bit Additive Homomorphic LWE / EUINT256 Ciphertext
@@ -13,7 +13,7 @@ SpooVault integrates Fully Homomorphic Encryption (FHE) based on Zama TFHE and f
 
 ---
 
-## 2. EVM Gas Benchmarks (`SpooVault.sol`)
+## 2. EVM Gas Benchmarks (`Heirly.sol`)
 
 The following benchmarks were measured on the Hardhat local node using the EVM Cancun / Shanghai execution environment with 256-bit word alignment and optimized inlined library calls (`FHEEngine.sol`).
 
@@ -28,7 +28,7 @@ The following benchmarks were measured on the Hardhat local node using the EVM C
 
 ---
 
-## 3. Stellar / Soroban Resource Consumption (`SpooVaultStellar`)
+## 3. Stellar / Soroban Resource Consumption (`HeirlyStellar`)
 
 On the Stellar Soroban VM, computations and storage allocations are metered in CPU instructions and persistent ledger storage bytes:
 

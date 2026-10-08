@@ -4,12 +4,12 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
 /**
- * @title ISpooVault
- * @dev Standardized cross-contract access delegation interface for SpooVault.
+ * @title IHeirly
+ * @dev Standardized cross-contract access delegation interface for Heirly.
  * Allows external DApps, DAOs, and inheritance protocols to programmatically
  * query document access permissions and vault state without hardcoding contract ABIs.
  */
-interface ISpooVault is IERC165 {
+interface IHeirly is IERC165 {
     enum RequestStatus {
         PENDING,
         APPROVED,

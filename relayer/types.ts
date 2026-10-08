@@ -1,6 +1,6 @@
 /**
  * @file relayer/types.ts
- * @description Shared types for the SpooVault guardian notification relayer.
+ * @description Shared types for the Heirly guardian notification relayer.
  */
 
 /** Chain identifier for a normalized access-request event. */

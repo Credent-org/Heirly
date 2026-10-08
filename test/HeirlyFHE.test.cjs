@@ -1,9 +1,9 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { deploySpooVault } = require("./helpers/deploySpooVault.cjs");
+const { deployHeirly } = require("./helpers/deployHeirly.cjs");
 
-describe("SpooVault Fully Homomorphic Encryption (FHE) Share Aggregation", function () {
-  let spooVault;
+describe("Heirly Fully Homomorphic Encryption (FHE) Share Aggregation", function () {
+  let heirly;
   let owner, guardian1, guardian2, guardian3, beneficiary, nonGuardian;
 
   // FHE Prime Modulus q (secp256k1 field prime)
@@ -82,7 +82,7 @@ describe("SpooVault Fully Homomorphic Encryption (FHE) Share Aggregation", funct
     [owner, guardian1, guardian2, guardian3, beneficiary, nonGuardian] =
       await ethers.getSigners();
 
-    spooVault = await deploySpooVault(owner);
+    heirly = await deployHeirly(owner);
   });
 
   describe("FHE Share Storage and Retrieval", function () {
@@ -90,7 +90,7 @@ describe("SpooVault Fully Homomorphic Encryption (FHE) Share Aggregation", funct
 
     beforeEach(async function () {
       // Create vault with 3 guardians and threshold 2
-      const tx = await spooVault.createVault(
+      const tx = await heirly.createVault(
         "Secure FHE Vault",
         "Threshold secret share aggregation via FHE",
         [guardian1.address, guardian2.address, guardian3.address],
@@ -100,12 +100,12 @@ describe("SpooVault Fully Homomorphic Encryption (FHE) Share Aggregation", funct
       vaultId = 1;
 
       // Guardians accept invites
-      await spooVault.connect(guardian1).acceptGuardianInvite(vaultId);
-      await spooVault.connect(guardian2).acceptGuardianInvite(vaultId);
-      await spooVault.connect(guardian3).acceptGuardianInvite(vaultId);
+      await heirly.connect(guardian1).acceptGuardianInvite(vaultId);
+      await heirly.connect(guardian2).acceptGuardianInvite(vaultId);
+      await heirly.connect(guardian3).acceptGuardianInvite(vaultId);
 
       // Add a document
-      const docTx = await spooVault.addDocument(
+      const docTx = await heirly.addDocument(
         vaultId,
         "encryptedMetadataHash",
         "QmIPFSDocumentHashFHE",
@@ -130,15 +130,15 @@ describe("SpooVault Fully Homomorphic Encryption (FHE) Share Aggregation", funct
       const guardiansList = [guardian1.address, guardian2.address, guardian3.address];
 
       await expect(
-        spooVault.saveGuardianSharesFHE(documentId, guardiansList, sharesFHE)
+        heirly.saveGuardianSharesFHE(documentId, guardiansList, sharesFHE)
       )
-        .to.emit(spooVault, "FheGuardianSharesSaved")
+        .to.emit(heirly, "FheGuardianSharesSaved")
         .withArgs(documentId, 3);
 
-      const storedShare1 = await spooVault.getFheGuardianShare(documentId, guardian1.address);
+      const storedShare1 = await heirly.getFheGuardianShare(documentId, guardian1.address);
       expect(storedShare1).to.equal(sharesFHE[0]);
 
-      const storedShare2 = await spooVault.getFheGuardianShare(documentId, guardian2.address);
+      const storedShare2 = await heirly.getFheGuardianShare(documentId, guardian2.address);
       expect(storedShare2).to.equal(sharesFHE[1]);
     });
 
@@ -148,8 +148,8 @@ describe("SpooVault Fully Homomorphic Encryption (FHE) Share Aggregation", funct
       const sharesFHE = [serializeFHE(share1.a, share1.b)];
 
       await expect(
-        spooVault.connect(nonGuardian).saveGuardianSharesFHE(documentId, [guardian1.address], sharesFHE)
-      ).to.be.revertedWithCustomError(spooVault, "OnlyGuardian");
+        heirly.connect(nonGuardian).saveGuardianSharesFHE(documentId, [guardian1.address], sharesFHE)
+      ).to.be.revertedWithCustomError(heirly, "OnlyGuardian");
     });
   });
 
@@ -162,7 +162,7 @@ describe("SpooVault Fully Homomorphic Encryption (FHE) Share Aggregation", funct
       keypair = testFheKeyGen();
 
       // Create vault with 3 guardians and threshold = 2
-      await spooVault.createVault(
+      await heirly.createVault(
         "FHE Aggregator Vault",
         "Homomorphic threshold aggregation",
         [guardian1.address, guardian2.address, guardian3.address],
@@ -171,15 +171,15 @@ describe("SpooVault Fully Homomorphic Encryption (FHE) Share Aggregation", funct
       vaultId = 1;
 
       // Guardians accept
-      await spooVault.connect(guardian1).acceptGuardianInvite(vaultId);
-      await spooVault.connect(guardian2).acceptGuardianInvite(vaultId);
-      await spooVault.connect(guardian3).acceptGuardianInvite(vaultId);
+      await heirly.connect(guardian1).acceptGuardianInvite(vaultId);
+      await heirly.connect(guardian2).acceptGuardianInvite(vaultId);
+      await heirly.connect(guardian3).acceptGuardianInvite(vaultId);
 
       // Mint NFT pass to beneficiary
-      await spooVault.mintAccessToken(vaultId, beneficiary.address, "ipfs://nft-pass-uri");
+      await heirly.mintAccessToken(vaultId, beneficiary.address, "ipfs://nft-pass-uri");
 
       // Add document
-      await spooVault.addDocument(
+      await heirly.addDocument(
         vaultId,
         "metadata",
         "QmDocumentIPFSHash",
@@ -188,7 +188,7 @@ describe("SpooVault Fully Homomorphic Encryption (FHE) Share Aggregation", funct
       documentId = 1;
 
       // Beneficiary requests access
-      const reqTx = await spooVault.connect(beneficiary).requestAccess(documentId);
+      const reqTx = await heirly.connect(beneficiary).requestAccess(documentId);
       const reqReceipt = await reqTx.wait();
       requestId = 1;
     });
@@ -206,33 +206,33 @@ describe("SpooVault Fully Homomorphic Encryption (FHE) Share Aggregation", funct
       const ct2Hex = serializeFHE(ct2.a, ct2.b);
 
       // Guardian 1 approves with FHE share payload
-      await expect(spooVault.connect(guardian1).approveAccessFHE(requestId, ct1Hex))
-        .to.emit(spooVault, "FheShareSubmitted")
+      await expect(heirly.connect(guardian1).approveAccessFHE(requestId, ct1Hex))
+        .to.emit(heirly, "FheShareSubmitted")
         .withArgs(requestId, guardian1.address);
 
-      expect(await spooVault.fheAccumulatorCount(requestId)).to.equal(1);
+      expect(await heirly.fheAccumulatorCount(requestId)).to.equal(1);
 
       // Verify partial accumulation
-      const partialAccHex = await spooVault.getFheAggregate(requestId);
+      const partialAccHex = await heirly.getFheAggregate(requestId);
       const partialCt = deserializeFHE(partialAccHex);
       expect(testFheDecrypt(partialCt, keypair)).to.equal(s1);
 
       // Guardian 2 approves with FHE share payload, reaching threshold = 2
-      const approveTx = await spooVault.connect(guardian2).approveAccessFHE(requestId, ct2Hex);
+      const approveTx = await heirly.connect(guardian2).approveAccessFHE(requestId, ct2Hex);
       await expect(approveTx)
-        .to.emit(spooVault, "FheShareSubmitted")
+        .to.emit(heirly, "FheShareSubmitted")
         .withArgs(requestId, guardian2.address)
-        .and.to.emit(spooVault, "AccessApproved")
+        .and.to.emit(heirly, "AccessApproved")
         .withArgs(requestId, guardian2.address)
-        .and.to.emit(spooVault, "FheSharesAggregated");
+        .and.to.emit(heirly, "FheSharesAggregated");
 
       // Verify request is APPROVED and access is granted
-      const request = await spooVault.accessRequests(requestId);
+      const request = await heirly.accessRequests(requestId);
       expect(request.status).to.equal(1); // APPROVED
-      expect(await spooVault.hasActiveAccess(documentId, beneficiary.address)).to.equal(true);
+      expect(await heirly.hasActiveAccess(documentId, beneficiary.address)).to.equal(true);
 
       // Verify that beneficiary decrypts aggregate ciphertext to exact master secret!
-      const finalAggregateHex = await spooVault.getFheAggregate(requestId);
+      const finalAggregateHex = await heirly.getFheAggregate(requestId);
       const finalCt = deserializeFHE(finalAggregateHex);
       const recoveredSecret = testFheDecrypt(finalCt, keypair);
 
@@ -270,11 +270,11 @@ describe("SpooVault Fully Homomorphic Encryption (FHE) Share Aggregation", funct
       const payload1 = serializeFHE(ct1Weighted.a, ct1Weighted.b);
       const payload2 = serializeFHE(ct2Weighted.a, ct2Weighted.b);
 
-      await spooVault.connect(guardian1).approveAccessFHE(requestId, payload1);
-      await spooVault.connect(guardian2).approveAccessFHE(requestId, payload2);
+      await heirly.connect(guardian1).approveAccessFHE(requestId, payload1);
+      await heirly.connect(guardian2).approveAccessFHE(requestId, payload2);
 
       // Decrypt on-chain aggregate
-      const aggregateHex = await spooVault.getFheAggregate(requestId);
+      const aggregateHex = await heirly.getFheAggregate(requestId);
       const aggregateCt = deserializeFHE(aggregateHex);
       const recoveredSecret = testFheDecrypt(aggregateCt, keypair);
 
@@ -291,10 +291,10 @@ describe("SpooVault Fully Homomorphic Encryption (FHE) Share Aggregation", funct
       const ct1Hex = serializeFHE(ct1.a, ct1.b);
       const ct2Hex = serializeFHE(ct2.a, ct2.b);
 
-      const tx1 = await spooVault.connect(guardian1).approveAccessFHE(requestId, ct1Hex);
+      const tx1 = await heirly.connect(guardian1).approveAccessFHE(requestId, ct1Hex);
       const receipt1 = await tx1.wait();
 
-      const tx2 = await spooVault.connect(guardian2).approveAccessFHE(requestId, ct2Hex);
+      const tx2 = await heirly.connect(guardian2).approveAccessFHE(requestId, ct2Hex);
       const receipt2 = await tx2.wait();
 
       // Check event logs

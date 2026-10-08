@@ -7,7 +7,7 @@ import {
 
 describe("ipfsProxySignature utility re-exports", () => {
   it("exports expected constants and functions", () => {
-    expect(SIGNATURE_HEADER).toBe("X-SpooVault-Signature");
+    expect(SIGNATURE_HEADER).toBe("X-Heirly-Signature");
     expect(UNSIGNED_PAYLOAD).toBe("UNSIGNED-PAYLOAD");
     expect(typeof signProxyRequest).toBe("function");
   });

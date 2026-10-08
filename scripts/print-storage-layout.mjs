@@ -7,7 +7,7 @@
  * compile`.
  *
  * Usage: node scripts/print-storage-layout.mjs [ContractName] [source/path.sol]
- * Defaults to SpooVault / contracts/SpooVault.sol.
+ * Defaults to Heirly / contracts/Heirly.sol.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -16,8 +16,8 @@ import process from "node:process";
 const ROOT = process.cwd();
 const BUILD_INFO_DIR = path.join(ROOT, "artifacts", "build-info");
 
-const contractName = process.argv[2] || "SpooVault";
-const sourcePath = process.argv[3] || "contracts/SpooVault.sol";
+const contractName = process.argv[2] || "Heirly";
+const sourcePath = process.argv[3] || "contracts/Heirly.sol";
 
 const buildInfoFiles = fs
   .readdirSync(BUILD_INFO_DIR)

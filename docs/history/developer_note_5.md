@@ -1,6 +1,6 @@
 # EVM Contract Specifications (Solidity + Hardhat)
 
-The EVM smart contract logic is implemented in Solidity (`contracts/SpooVault.sol`).
+The EVM smart contract logic is implemented in Solidity (`contracts/Heirly.sol`).
 
 ## Core Functions
 

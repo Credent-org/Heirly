@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 /// @dev Patches linked-library placeholders in unlinked creation bytecode and
 ///      deploys the result. Used by the Echidna/Medusa harness because
-///      SpooVault pulls in external libraries for EIP-170 size.
+///      Heirly pulls in external libraries for EIP-170 size.
 library BytecodeLibraryLinker {
     error DeployFailed();
 

@@ -1,5 +1,5 @@
 /**
- * SpooVault Web3 Keeper Heartbeat Relay (EVM / Avalanche)
+ * Heirly Web3 Keeper Heartbeat Relay (EVM / Avalanche)
  *
  * Reference implementation of the off-chain half of the EIP-712 keeper
  * delegation flow added for the proof-of-life relay feature: a Chainlink
@@ -20,7 +20,7 @@
  * Prerequisites:
  *   Set in .env:
  *     KEEPER_PRIVATE_KEY=0x<keeper wallet private key>
- *     VITE_CONTRACT_ADDRESS=<deployed SpooVault address>
+ *     VITE_CONTRACT_ADDRESS=<deployed Heirly address>
  *     VITE_AVALANCHE_RPC=<RPC url> (optional, defaults to Fuji testnet)
  *
  * Usage:
@@ -59,7 +59,7 @@ const KEEPER_PRIVATE_KEY = process.env.KEEPER_PRIVATE_KEY;
 const CONTRACT_ADDRESS = process.env.VITE_CONTRACT_ADDRESS;
 const RPC_URL = process.env.VITE_AVALANCHE_RPC || "https://api.avax-test.network/ext/bc/C/rpc";
 
-// Only the heartbeat-relay surface of SpooVault.sol is needed here.
+// Only the heartbeat-relay surface of Heirly.sol is needed here.
 const RELAY_ABI = [
   "function proveLifeByKeeper(uint256 vaultId) external",
   "function keeperAuthorizations(uint256 vaultId) external view returns (address keeper, uint256 expiresAt)",

@@ -266,7 +266,7 @@ const Documents = () => {
   const downloadKeyBackupFile = (docId: number, key: string) => {
     const payload = {
       version: 1,
-      app: "SpooVault",
+      app: "Heirly",
       contract: import.meta.env.VITE_CONTRACT_ADDRESS || "",
       documentId: docId,
       key,
@@ -279,7 +279,7 @@ const Documents = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `spoovault-doc-${docId}-key-backup.json`;
+    link.download = `heirly-doc-${docId}-key-backup.json`;
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -320,7 +320,7 @@ const Documents = () => {
         }
       }
       if (fileContract && expectedContract && fileContract !== expectedContract) {
-        throw new Error("This key package is for a different SpooVault contract");
+        throw new Error("This key package is for a different Heirly contract");
       }
       if (
         Number.isFinite(fileChainId) &&
@@ -406,7 +406,7 @@ const Documents = () => {
       const payload = {
         version: 1,
         type: "beneficiary_key_package",
-        app: "SpooVault",
+        app: "Heirly",
         contract: import.meta.env.VITE_CONTRACT_ADDRESS || "",
         chainId: Number(import.meta.env.VITE_CHAIN_ID) || 0,
         vaultId: selectedDoc.vaultId,
@@ -423,15 +423,15 @@ const Documents = () => {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `spoovault-doc-${shareTargetDocId}-beneficiary-key.json`;
+      link.download = `heirly-doc-${shareTargetDocId}-beneficiary-key.json`;
       link.click();
       URL.revokeObjectURL(url);
 
       if (account) {
         try {
-          const flagKey = `spoovault-beneficiary-package-exported-${account.toLowerCase()}`;
+          const flagKey = `heirly-beneficiary-package-exported-${account.toLowerCase()}`;
           localStorage.setItem(flagKey, "1");
-          window.dispatchEvent(new Event("spoovault-beneficiary-package-exported"));
+          window.dispatchEvent(new Event("heirly-beneficiary-package-exported"));
         } catch {
           // ignore localStorage errors
         }
@@ -491,7 +491,7 @@ const Documents = () => {
       await keyInboxService.sendKeyEnvelope({
         version: 1,
         type: "beneficiary_key_envelope",
-        app: "SpooVault",
+        app: "Heirly",
         contract: import.meta.env.VITE_CONTRACT_ADDRESS || "",
         chainId: Number(import.meta.env.VITE_CHAIN_ID) || 0,
         vaultId: selectedDoc.vaultId,
@@ -503,9 +503,9 @@ const Documents = () => {
       });
 
       try {
-        const flagKey = `spoovault-beneficiary-package-exported-${account.toLowerCase()}`;
+        const flagKey = `heirly-beneficiary-package-exported-${account.toLowerCase()}`;
         localStorage.setItem(flagKey, "1");
-        window.dispatchEvent(new Event("spoovault-beneficiary-package-exported"));
+        window.dispatchEvent(new Event("heirly-beneficiary-package-exported"));
       } catch {
         // ignore localStorage errors
       }
@@ -747,7 +747,7 @@ const Documents = () => {
       setUploadStage("uploading_ipfs");
       // Stream AES-GCM chunked ciphertext directly to Pinata/IPFS (O(chunk) RAM).
       const ipfsResult = await encryptAndUploadFile(selectedFile, key, {
-        filename: `${selectedFile.name}.svsc`,
+        filename: `${selectedFile.name}.hysc`,
         metadata: { name: selectedFile.name },
         signal: abortController.signal,
       });
@@ -759,7 +759,7 @@ const Documents = () => {
           ipfsHash: ipfsResult.hash,
           plaintext: selectedFile,
           keyHex: key,
-          filename: `${selectedFile.name}.svsc`,
+          filename: `${selectedFile.name}.hysc`,
           signal: abortController.signal,
         })
         .then((report) => {

@@ -1,6 +1,6 @@
-# SpooVault Architecture & Multi-Chain Design
+# Heirly Architecture & Multi-Chain Design
 
-SpooVault is built as a zero-knowledge document custody platform that leverages both EVM-compatible networks (like Avalanche Fuji) and Stellar Soroban.
+Heirly is built as a zero-knowledge document custody platform that leverages both EVM-compatible networks (like Avalanche Fuji) and Stellar Soroban.
 
 ## Architectural Layering
 

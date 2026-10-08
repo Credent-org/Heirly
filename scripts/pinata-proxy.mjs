@@ -5,9 +5,9 @@
  * while keeping the API credentials server-side.
  *
  * Usage (local dev):
- *   PINATA_JWT=your_jwt SPOOVUALT_PROXY_SECRET=your_hmac_secret node scripts/pinata-proxy.mjs
+ *   PINATA_JWT=your_jwt HEIRLY_PROXY_SECRET=your_hmac_secret node scripts/pinata-proxy.mjs
  *   or
- *   PINATA_API_KEY=x PINATA_API_SECRET=y SPOOVUALT_PROXY_SECRET=your_hmac_secret node scripts/pinata-proxy.mjs
+ *   PINATA_API_KEY=x PINATA_API_SECRET=y HEIRLY_PROXY_SECRET=your_hmac_secret node scripts/pinata-proxy.mjs
  *
  * Endpoints:
  *   POST /api/ipfs/pin-file   - Pin a file to IPFS (multipart/form-data with "file" field)
@@ -15,13 +15,13 @@
  *   GET  /api/ipfs/pin-list   - List pinned files
  *
  * Auth:
- *   Pin/list routes require `X-SpooVault-Signature: t=<unix>,v1=<hmac-sha256-hex>`.
- *   CORS is restricted to SPOOVUALT_ALLOWED_ORIGINS (defaults to local Vite URLs).
+ *   Pin/list routes require `X-Heirly-Signature: t=<unix>,v1=<hmac-sha256-hex>`.
+ *   CORS is restricted to HEIRLY_ALLOWED_ORIGINS (defaults to local Vite URLs).
  *   Unauthorized callers receive 403 Forbidden.
  *
  * For production:
  *   Deploy this file to a Cloud Run, Render, Railway, or similar service.
- *   Keep PINATA_JWT on the server only. Give the app VITE_SPOOVUALT_PROXY_SECRET
+ *   Keep PINATA_JWT on the server only. Give the app VITE_HEIRLY_PROXY_SECRET
  *   (HMAC) plus VITE_IPFS_PROXY_URL=https://your-proxy.example.com.
  *
  * Note: For Firebase Functions deployment, see:
@@ -57,11 +57,11 @@ const PINATA_API_KEY =
 const PINATA_API_SECRET =
   process.env.PINATA_API_SECRET || process.env.VITE_PINATA_API_SECRET || "";
 const PROXY_SECRET =
-  process.env.SPOOVUALT_PROXY_SECRET ||
-  process.env.VITE_SPOOVUALT_PROXY_SECRET ||
+  process.env.HEIRLY_PROXY_SECRET ||
+  process.env.VITE_HEIRLY_PROXY_SECRET ||
   "";
 const ALLOWED_ORIGINS = parseAllowedOrigins(
-  process.env.SPOOVUALT_ALLOWED_ORIGINS || process.env.CORS_ALLOWED_ORIGINS
+  process.env.HEIRLY_ALLOWED_ORIGINS || process.env.CORS_ALLOWED_ORIGINS
 );
 const PORT = Number(process.env.PORT) || 3001;
 
@@ -75,8 +75,8 @@ if (!PINATA_JWT && !(PINATA_API_KEY && PINATA_API_SECRET)) {
 
 if (!PROXY_SECRET) {
   console.error(
-    "❌ SPOOVUALT_PROXY_SECRET is required so the proxy can reject unsigned pin requests.\n" +
-      "   Set SPOOVUALT_PROXY_SECRET (and VITE_SPOOVUALT_PROXY_SECRET for the frontend).\n"
+    "❌ HEIRLY_PROXY_SECRET is required so the proxy can reject unsigned pin requests.\n" +
+      "   Set HEIRLY_PROXY_SECRET (and VITE_HEIRLY_PROXY_SECRET for the frontend).\n"
   );
   process.exit(1);
 }
@@ -105,7 +105,7 @@ app.use(
       }
       callback(null, isOriginAllowed(origin, ALLOWED_ORIGINS));
     },
-    allowedHeaders: ["Content-Type", "X-SpooVault-Signature"],
+    allowedHeaders: ["Content-Type", "X-Heirly-Signature"],
     methods: ["GET", "POST", "DELETE", "OPTIONS"],
     maxAge: 600,
   })
@@ -125,7 +125,7 @@ app.use("/api/ipfs", async (req, res, next) => {
       method: req.method,
       originalUrl: req.originalUrl,
       origin: req.headers.origin,
-      signatureHeader: req.headers["x-spoovault-signature"],
+      signatureHeader: req.headers["x-heirly-signature"],
       contentType: req.headers["content-type"],
       rawBody: req.rawBody,
     },
@@ -297,7 +297,7 @@ app.get("/health", (_req, res) => {
 app.listen(PORT, () => {
   console.log(`\n✅ Pinata proxy running at http://localhost:${PORT}`);
   console.log("   CORS origins:", ALLOWED_ORIGINS.join(", "));
-  console.log("   Auth: X-SpooVault-Signature required on /api/ipfs/*");
+  console.log("   Auth: X-Heirly-Signature required on /api/ipfs/*");
   console.log("   Endpoints:");
   console.log("   POST   /api/ipfs/pin-file (streaming passthrough)");
   console.log("   POST   /api/ipfs/pin-json");

@@ -1,6 +1,6 @@
-# SpooVault System Architecture
+# Heirly System Architecture
 
-SpooVault is an enterprise-grade document custody and secret sharing application supporting dual-chain operation across **Avalanche (EVM)** and **Stellar (Soroban)** networks.
+Heirly is an enterprise-grade document custody and secret sharing application supporting dual-chain operation across **Avalanche (EVM)** and **Stellar (Soroban)** networks.
 
 ---
 
@@ -8,7 +8,7 @@ SpooVault is an enterprise-grade document custody and secret sharing application
 
 ```
 +-----------------------------------------------------------------------------------+
-|                                  SpooVault React DApp                             |
+|                                  Heirly React DApp                             |
 |    +-----------------------+   +------------------------+   +-------------------+ |
 |    | Client-Side AES-256   |   | Shamir Secret Sharing  |   | TweetNaCl Box     | |
 |    +-----------------------+   +------------------------+   +-------------------+ |
@@ -19,7 +19,7 @@ SpooVault is an enterprise-grade document custody and secret sharing application
                     v                                             v
      +------------------------------+             +-------------------------------+
      |   Avalanche C-Chain (EVM)    |             |    Stellar Network (Soroban)  |
-     |   - SpooVault.sol            |             |    - SpooVault Soroban Contract|
+     |   - Heirly.sol            |             |    - Heirly Soroban Contract|
      |   - Document Metadata Registry|             |    - Guardian Thresholds      |
      |   - Guardian Consensus Vaults|             |    - Key Release Requests     |
      |   - Access Pass NFTs         |             |                               |
@@ -49,7 +49,7 @@ SpooVault is an enterprise-grade document custody and secret sharing application
 
 ## 3. Dual-Chain Smart Contract Layer
 
-### Avalanche (Solidity `SpooVault.sol`)
+### Avalanche (Solidity `Heirly.sol`)
 
 - Manages document metadata records, vault configurations, guardian thresholds, and NFT access pass minting on Avalanche Fuji testnet (Chain ID `43113`).
 - Optional Chainlink VRF v2.5 consumer: emergency mode requests verifiable randomness and stores dual timestamp + block-height unlock bounds.
@@ -66,13 +66,13 @@ SpooVault is an enterprise-grade document custody and secret sharing application
 To prevent client-side leaks of Pinata API credentials:
 
 - Production pin and unpin requests route through `scripts/pinata-proxy.mjs`. The Pinata JWT stays on the server.
-- CORS is restricted to `SPOOVUALT_ALLOWED_ORIGINS` (local Vite URLs by default). Wildcard `Access-Control-Allow-Origin: *` is not used.
-- Every `/api/ipfs/*` pin, unpin, or list call must present `X-SpooVault-Signature: t=<unix>,v1=<hmac-sha256-hex>`. The HMAC covers timestamp, method, path, and body hash. Unsigned or cross-origin callers receive **403 Forbidden**.
-- The frontend signs with `VITE_SPOOVUALT_PROXY_SECRET` (a dedicated HMAC key, not the Pinata JWT). See `scripts/lib/ipfsProxyGuard.mjs`.
+- CORS is restricted to `HEIRLY_ALLOWED_ORIGINS` (local Vite URLs by default). Wildcard `Access-Control-Allow-Origin: *` is not used.
+- Every `/api/ipfs/*` pin, unpin, or list call must present `X-Heirly-Signature: t=<unix>,v1=<hmac-sha256-hex>`. The HMAC covers timestamp, method, path, and body hash. Unsigned or cross-origin callers receive **403 Forbidden**.
+- The frontend signs with `VITE_HEIRLY_PROXY_SECRET` (a dedicated HMAC key, not the Pinata JWT). See `scripts/lib/ipfsProxyGuard.mjs`.
 
 ### Key Envelope Unpinning & Garbage Collection Lifecycle
 
-When access requests expire or are rejected, key envelope JSON blobs pinned on Pinata consume unnecessary storage quota. SpooVault implements automated garbage collection for key envelopes:
+When access requests expire or are rejected, key envelope JSON blobs pinned on Pinata consume unnecessary storage quota. Heirly implements automated garbage collection for key envelopes:
 
 - **Proxy Unpin Endpoint**: `DELETE /api/ipfs/unpin/:hash` forwards authenticated deletion requests directly to Pinata's unpin API (`https://api.pinata.cloud/pinning/unpin/:hash`).
 - **Unpinning Service (`ipfsService.unpin` & `keyInboxService.unpinKeyEnvelope`)**: Routes unpin calls through the HMAC-guarded proxy in production/configured environments, with direct Pinata API fallback in development.
@@ -96,7 +96,7 @@ Callers use `ipfsService.fetchFile` / `fetchFromIPFS` (Documents, Access Center,
 
 ## 5. Private Information Retrieval (PIR)
 
-To prevent IPFS gateway surveillance (where gateways log requester IP addresses and requested CIDs, allowing correlation of beneficiary identities with specific vault documents), SpooVault implements Private Information Retrieval (PIR) principles:
+To prevent IPFS gateway surveillance (where gateways log requester IP addresses and requested CIDs, allowing correlation of beneficiary identities with specific vault documents), Heirly implements Private Information Retrieval (PIR) principles:
 
 ### PIR Components (`src/services/pir.service.ts`)
 
@@ -136,7 +136,7 @@ See `docs/PIR_ARCHITECTURE.md` for detailed PIR architecture and usage documenta
 
 ## 7. Soroban Event Indexer
 
-To address the latency and RPC payload overhead from polling Soroban RPC `getEvents`, SpooVault implements a high-performance event indexing system:
+To address the latency and RPC payload overhead from polling Soroban RPC `getEvents`, Heirly implements a high-performance event indexing system:
 
 ### Event Indexer Components (`src/services/sorobanEventIndexer.service.ts`)
 
@@ -205,7 +205,7 @@ All three components use `useVirtualizer`'s `measureElement` for dynamic per-row
 
 Beneficiaries are notified via a push notification when a vault's Emergency Mode is toggled (Avalanche path only; Stellar emergency-mode support is not wired into the frontend today).
 
-- Each vault stores a single beneficiary wallet address (`SpooVault.sol`'s `_vaultBeneficiary` mapping, set once via `setBeneficiary` at vault-creation time and never editable afterward). There is no on-chain concept of "beneficiary" prior to this — `creator` and `guardians[]` were the only stored roles.
+- Each vault stores a single beneficiary wallet address (`Heirly.sol`'s `_vaultBeneficiary` mapping, set once via `setBeneficiary` at vault-creation time and never editable afterward). There is no on-chain concept of "beneficiary" prior to this — `creator` and `guardians[]` were the only stored roles.
 - After a successful `setEmergencyMode` transaction, `Vaults.tsx` resolves the vault's beneficiary with `contractService.getBeneficiary` and calls `pushNotificationService.notifyEmergencyModeChange`, which is a soft-fail: a notification error is logged but never blocks or rolls back the on-chain toggle.
-- Sending the actual notification requires signing with a Push Protocol channel (or delegate) private key. That key must never reach the browser bundle, so notifications route through a new serverless proxy, `scripts/push-notification-proxy.mjs`, mirroring the existing `scripts/pinata-proxy.mjs` pattern: same HMAC request signing (`scripts/lib/ipfsProxyGuard.mjs`, `VITE_SPOOVUALT_PROXY_SECRET`), same CORS/origin allowlist, private key held only in the proxy's `PUSH_CHANNEL_PRIVATE_KEY` env var.
+- Sending the actual notification requires signing with a Push Protocol channel (or delegate) private key. That key must never reach the browser bundle, so notifications route through a new serverless proxy, `scripts/push-notification-proxy.mjs`, mirroring the existing `scripts/pinata-proxy.mjs` pattern: same HMAC request signing (`scripts/lib/ipfsProxyGuard.mjs`, `VITE_HEIRLY_PROXY_SECRET`), same CORS/origin allowlist, private key held only in the proxy's `PUSH_CHANNEL_PRIVATE_KEY` env var.
 - This requires a Push Protocol channel to already be provisioned (one-time on-chain setup: 50 $PUSH + gas — see [Push's channel creation guide](https://comms.push.org/docs/notifications/tutorials/create-your-channel/)) before notifications can actually be sent. Without `VITE_PUSH_NOTIFICATION_PROXY_URL` configured, `pushNotificationService` is a no-op.

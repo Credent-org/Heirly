@@ -186,7 +186,7 @@ describe("ipfs multipart streaming helpers", () => {
     const { body, contentType, boundary } = createMultipartFileStream(
       readableFromBytes(payload),
       {
-        filename: "doc.svsc",
+        filename: "doc.hysc",
         metadata: { name: "doc.bin" },
       }
     );
@@ -194,7 +194,7 @@ describe("ipfs multipart streaming helpers", () => {
     expect(contentType).toContain(`boundary=${boundary}`);
     const bytes = await collectStream(body);
     const text = new TextDecoder().decode(bytes);
-    expect(text).toContain(`filename="doc.svsc"`);
+    expect(text).toContain(`filename="doc.hysc"`);
     expect(text).toContain("stream-me");
     expect(text).toContain("pinataMetadata");
     expect(text).toContain(`--${boundary}--`);
@@ -289,7 +289,7 @@ describe("encryptAndUploadFile integration (mocked IPFS)", () => {
       type: "application/octet-stream",
     });
     const result = await encryptAndUploadFile(file, TEST_KEY_HEX, {
-      filename: "large.bin.svsc",
+      filename: "large.bin.hysc",
       metadata: { name: "large.bin" },
     });
 

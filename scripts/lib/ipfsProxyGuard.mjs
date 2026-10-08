@@ -1,14 +1,14 @@
 /**
  * HMAC request authentication and CORS origin checks for the Pinata IPFS proxy.
  *
- * Browser callers send `X-SpooVault-Signature: t=<unix>,v1=<hex>` where v1 is
+ * Browser callers send `X-Heirly-Signature: t=<unix>,v1=<hex>` where v1 is
  * HMAC-SHA256(secret, `${timestamp}.${METHOD}.${path}.${bodyHash}`).
  * Multipart pin-file uploads use the literal body hash UNSIGNED-PAYLOAD because
  * the client cannot canonicalize the browser-generated multipart boundary.
  */
 
 export const UNSIGNED_PAYLOAD = "UNSIGNED-PAYLOAD";
-export const SIGNATURE_HEADER = "X-SpooVault-Signature";
+export const SIGNATURE_HEADER = "X-Heirly-Signature";
 export const DEFAULT_MAX_SKEW_SEC = 300;
 export const DEFAULT_ALLOWED_ORIGINS = [
   "http://localhost:5173",

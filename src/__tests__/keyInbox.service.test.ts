@@ -14,7 +14,7 @@ vi.mock("axios", () => ({
 const BENEFICIARY = "0x71C838936352937A71E976BBE84e941E79409932";
 const ISSUER = "0x2546BcD3c84621e976D8185a91A922aE77ECEc30";
 const CONTRACT = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
-const ENVELOPE_NAME = "spoovault-beneficiary-key-envelope";
+const ENVELOPE_NAME = "heirly-beneficiary-key-envelope";
 const DEFAULT_GATEWAY = "https://gateway.pinata.cloud/ipfs/";
 
 type KeyInboxModule = typeof import("../services/keyInbox.service");
@@ -27,7 +27,7 @@ const resetIpfsEnv = (): void => {
   delete testEnv().VITE_PINATA_API_KEY;
   delete testEnv().VITE_PINATA_API_SECRET;
   delete testEnv().VITE_IPFS_PROXY_URL;
-  delete testEnv().VITE_SPOOVUALT_PROXY_SECRET;
+  delete testEnv().VITE_HEIRLY_PROXY_SECRET;
 };
 
 const loadService = async (): Promise<KeyInboxModule> => {
@@ -40,7 +40,7 @@ const sha256 = (value: string): string => CryptoJS.SHA256(value).toString();
 const makePayload = () => ({
   version: 1,
   type: "beneficiary_key_envelope" as const,
-  app: "SpooVault" as const,
+  app: "Heirly" as const,
   contract: CONTRACT,
   chainId: 11155111,
   vaultId: 7,
@@ -57,7 +57,7 @@ const makeEnvelopePayload = (
 ) => ({
   version: 1,
   type: "beneficiary_key_envelope" as const,
-  app: "SpooVault" as const,
+  app: "Heirly" as const,
   contract: CONTRACT.toLowerCase(),
   chainId: 11155111,
   vaultId: 7,
@@ -142,7 +142,7 @@ describe("KeyInboxService (IPFS key envelope privacy)", () => {
 
     it("is true with a proxy URL and secret", async () => {
       testEnv().VITE_IPFS_PROXY_URL = "https://proxy.example.com";
-      testEnv().VITE_SPOOVUALT_PROXY_SECRET = "test-secret";
+      testEnv().VITE_HEIRLY_PROXY_SECRET = "test-secret";
       const { keyInboxService } = await loadService();
       expect(keyInboxService.isConfigured()).toBe(true);
     });
@@ -223,7 +223,7 @@ describe("KeyInboxService (IPFS key envelope privacy)", () => {
 
     it("posts to the proxy endpoint with signature when configured", async () => {
       testEnv().VITE_IPFS_PROXY_URL = "https://proxy.example.com";
-      testEnv().VITE_SPOOVUALT_PROXY_SECRET = "test-secret";
+      testEnv().VITE_HEIRLY_PROXY_SECRET = "test-secret";
       postMock.mockResolvedValueOnce({ data: { IpfsHash: "QmProxyHash" } });
       const { keyInboxService } = await loadService();
 
@@ -240,7 +240,7 @@ describe("KeyInboxService (IPFS key envelope privacy)", () => {
         sha256(ISSUER.toLowerCase())
       );
       expect(config.headers["Content-Type"]).toBe("application/json");
-      expect(config.headers["X-SpooVault-Signature"]).toBeDefined();
+      expect(config.headers["X-Heirly-Signature"]).toBeDefined();
     });
 
     it("rejects when the pin response has no IpfsHash", async () => {
@@ -552,7 +552,7 @@ describe("KeyInboxService (IPFS key envelope privacy)", () => {
 
     it("lists pins through the proxy endpoint when proxy is configured", async () => {
       testEnv().VITE_IPFS_PROXY_URL = "https://proxy.example.com";
-      testEnv().VITE_SPOOVUALT_PROXY_SECRET = "test-secret";
+      testEnv().VITE_HEIRLY_PROXY_SECRET = "test-secret";
       let listCalls = 0;
       getMock.mockImplementation(async (url: string) => {
         if (isListUrl(url)) {
@@ -575,7 +575,7 @@ describe("KeyInboxService (IPFS key envelope privacy)", () => {
         "https://proxy.example.com/api/ipfs/pin-list?status=pinned&pageLimit=100&pageOffset=0",
         expect.objectContaining({
           headers: expect.objectContaining({
-            "X-SpooVault-Signature": expect.any(String),
+            "X-Heirly-Signature": expect.any(String),
           }),
         })
       );
@@ -625,7 +625,7 @@ describe("KeyInboxService (IPFS key envelope privacy)", () => {
 
     it("lists all key envelopes through proxy when configured", async () => {
       testEnv().VITE_IPFS_PROXY_URL = "https://proxy.example.com";
-      testEnv().VITE_SPOOVUALT_PROXY_SECRET = "test-secret";
+      testEnv().VITE_HEIRLY_PROXY_SECRET = "test-secret";
       getMock.mockResolvedValueOnce({
         data: {
           rows: [makeMatchingRow("QmProxyEnvelope")],
@@ -640,7 +640,7 @@ describe("KeyInboxService (IPFS key envelope privacy)", () => {
         "https://proxy.example.com/api/ipfs/pin-list?status=pinned&pageLimit=100&pageOffset=0",
         expect.objectContaining({
           headers: expect.objectContaining({
-            "X-SpooVault-Signature": expect.any(String),
+            "X-Heirly-Signature": expect.any(String),
           }),
         })
       );

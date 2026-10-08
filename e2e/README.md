@@ -1,12 +1,12 @@
 # Web3 E2E Test Suite (Synpress + Playwright)
 
-Automated end-to-end tests for SpooVault's wallet-connected flows, added for
+Automated end-to-end tests for Heirly's wallet-connected flows, added for
 issue **#161**. The suite exercises the dApp against real local chains:
 
-- **EVM** — Anvil (local, chain-id `43113`) + the deployed `SpooVault.sol`
+- **EVM** — Anvil (local, chain-id `43113`) + the deployed `Heirly.sol`
   contract, driven through the real **MetaMask** extension via **Synpress v4**.
 - **Stellar** — a Soroban standalone network (`stellar/quickstart`) with the
-  `spoovault_stellar` contract built, deployed, and exercised end-to-end through
+  `heirly_stellar` contract built, deployed, and exercised end-to-end through
   the `stellar` CLI.
 
 ## Layout
@@ -14,14 +14,14 @@ issue **#161**. The suite exercises the dApp against real local chains:
 ```
 e2e/
   wallets.ts                     # deterministic Anvil dev wallets (shared seed)
-  wallet-setup/spoovault.setup.ts  # one-time MetaMask onboarding (Synpress cache)
+  wallet-setup/heirly.setup.ts  # one-time MetaMask onboarding (Synpress cache)
   support/test-with-metamask.ts  # shared Synpress + MetaMask test instance
   tests/
     01-connect-wallet.spec.ts    # connect MetaMask -> dApp reflects account
     02-create-vault.spec.ts      # create vault via UI + confirm on-chain tx
     03-guardian-access.spec.ts   # multi-guardian accept/request/approve (contract E2E)
     04-emergency-mode.spec.ts    # emergency mode trigger + post-death release (contract E2E)
-  scripts/deploy-anvil.mjs       # deploy SpooVault to Anvil, write e2e/.env.e2e
+  scripts/deploy-anvil.mjs       # deploy Heirly to Anvil, write e2e/.env.e2e
   soroban/soroban-flow.test.mjs  # Soroban standalone contract E2E (node:test)
 playwright.config.ts             # Playwright/Synpress config (videos + traces)
 .github/workflows/e2e.yml       # CI: e2e-evm + e2e-stellar jobs
@@ -35,7 +35,7 @@ anvil --chain-id 43113 \
   --mnemonic "test test test test test test test test test test test junk" \
   --accounts 10 --balance 10000
 
-# 2. Deploy SpooVault and write e2e/.env.e2e (contract address + RPC).
+# 2. Deploy Heirly and write e2e/.env.e2e (contract address + RPC).
 node e2e/scripts/deploy-anvil.mjs
 
 # 3. Build the app with the E2E env so VITE_CONTRACT_ADDRESS is injected.

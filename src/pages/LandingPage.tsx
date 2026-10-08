@@ -25,7 +25,7 @@ const ecosystemCards = [
     name: "Avalanche",
     badge: "VERIFIED ON AVALANCHE",
     badgeColor: "text-rose-400 border-rose-500/40 bg-rose-500/20",
-    title: "SpooVault",
+    title: "Heirly",
     cardNumber: "#AVAX-43114",
     subtitle: "AVALANCHE C-CHAIN VAULT",
     detailsTag: "AVALANCHE // MULTI-SIG KEY SHARE",
@@ -40,7 +40,7 @@ const ecosystemCards = [
     name: "Stellar",
     badge: "VERIFIED ON STELLAR",
     badgeColor: "text-cyan-300 border-cyan-400/40 bg-cyan-500/20",
-    title: "SpooVault",
+    title: "Heirly",
     cardNumber: "#XLM-1001",
     subtitle: "STELLAR SECRET KEY VAULT",
     detailsTag: "STELLAR // ED25519 ENCRYPTED",
@@ -55,7 +55,7 @@ const ecosystemCards = [
     name: "Soroban",
     badge: "POWERED BY SOROBAN",
     badgeColor: "text-emerald-300 border-emerald-400/40 bg-emerald-500/20",
-    title: "SpooVault",
+    title: "Heirly",
     cardNumber: "#SOROBAN-302",
     subtitle: "SOROBAN SMART CONTRACT VAULT",
     detailsTag: "SOROBAN // WASM AUTO-INHERIT",
@@ -455,7 +455,7 @@ const LandingPage = () => {
               <BrandLogo className="landing-splash__logo" />
             </div>
           </div>
-          <h1 className="landing-splash__title">SpooVault</h1>
+          <h1 className="landing-splash__title">Heirly</h1>
           <p className="landing-splash__subtitle">
             Loading secure access on Avalanche
           </p>
@@ -508,7 +508,7 @@ const LandingPage = () => {
               </div>
               <div className="min-w-0">
                 <h1 className="text-[15px] font-bold leading-none truncate">
-                  SpooVault
+                  Heirly
                 </h1>
               </div>
             </Link>
@@ -590,7 +590,7 @@ const LandingPage = () => {
               </div>
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
-                  SpooVault
+                  Heirly
                 </h1>
                 <p className="text-[11px] text-gray-400">
                   Stellar & Avalanche Access Vault
@@ -725,7 +725,7 @@ const LandingPage = () => {
                           STELLAR // ED25519 PASS
                         </p>
                         <p className="text-lg font-bold text-white mt-1">
-                          SpooVault XLM //
+                          Heirly XLM //
                         </p>
                       </div>
                     </div>
@@ -742,7 +742,7 @@ const LandingPage = () => {
                           SOROBAN // WASM PASS
                         </p>
                         <p className="text-lg font-bold text-white mt-1">
-                          SpooVault Soroban //
+                          Heirly Soroban //
                         </p>
                       </div>
                     </div>
@@ -864,7 +864,7 @@ const LandingPage = () => {
             </div>
 
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight">
-              See How SpooVault Protects Your Digital Legacy
+              See How Heirly Protects Your Digital Legacy
             </h2>
             <p className="mt-4 text-base sm:text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed">
               Watch our step-by-step preview on how encrypted secret shares,
@@ -886,7 +886,7 @@ const LandingPage = () => {
                     <div className="absolute -inset-4 rounded-full bg-rose-500/30 blur-xl group-hover/btn:bg-rose-500/50 transition-all duration-300 animate-pulse" />
                     <button
                       type="button"
-                      aria-label="Play SpooVault protocol overview video"
+                      aria-label="Play Heirly protocol overview video"
                       className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-r from-rose-500 to-purple-600 text-white flex items-center justify-center shadow-2xl transition-all duration-300 group-hover/btn:scale-110"
                     >
                       <FiPlay className="w-8 h-8 sm:w-10 sm:h-10 ml-1 fill-current" />
@@ -894,7 +894,7 @@ const LandingPage = () => {
                   </div>
 
                   <h3 className="mt-6 text-lg sm:text-xl font-bold text-white">
-                    SpooVault Protocol Video Walkthrough
+                    Heirly Protocol Video Walkthrough
                   </h3>
                   <p className="mt-1 text-xs sm:text-sm text-gray-400 font-mono">
                     [ Official Video Demo • Coming Soon ]
@@ -1114,14 +1114,14 @@ const LandingPage = () => {
               <BrandLogo className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-sm font-semibold">SpooVault</p>
+              <p className="text-sm font-semibold">Heirly</p>
               <p className="text-[11px] text-gray-500">
                 Secure access vault on Avalanche
               </p>
             </div>
           </div>
           <p className="text-xs text-gray-500">
-            {getCurrentYear()} SpooVault. Secure by default.
+            {getCurrentYear()} Heirly. Secure by default.
           </p>
         </div>
       </footer>

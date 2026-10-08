@@ -3,7 +3,7 @@ pragma solidity ^0.8.24;
 
 import "fhevm/lib/TFHE.sol";
 
-contract SpooVault {
+contract Heirly {
     mapping(bytes32 => euint256) private encryptedAccumulators;
 
     event ShareSubmitted(bytes32 indexed vaultId, address indexed guardian);

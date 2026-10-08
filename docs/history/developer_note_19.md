@@ -1,6 +1,6 @@
 # Repository Onboarding & Contribution Standards
 
-Welcome to the SpooVault codebase!
+Welcome to the Heirly codebase!
 
 ## Onboarding Checklist
 

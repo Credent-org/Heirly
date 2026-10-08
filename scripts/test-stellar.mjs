@@ -12,7 +12,7 @@ import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const crateDir = join(root, "contracts-stellar");
-const targetDir = process.env.CARGO_TARGET_DIR || join(tmpdir(), "spoovault-stellar-target");
+const targetDir = process.env.CARGO_TARGET_DIR || join(tmpdir(), "heirly-stellar-target");
 
 const extraArgs = process.argv.slice(2);
 const result = spawnSync("cargo", ["test", ...extraArgs], {

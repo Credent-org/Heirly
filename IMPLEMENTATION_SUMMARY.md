@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-Successfully implemented guardian rotation and threshold adjustment admin workflows for SpooVault smart contract. The implementation provides secure, multi-signature governance mechanisms for vault reconfiguration while maintaining backward compatibility with existing functionality.
+Successfully implemented guardian rotation and threshold adjustment admin workflows for Heirly smart contract. The implementation provides secure, multi-signature governance mechanisms for vault reconfiguration while maintaining backward compatibility with existing functionality.
 
 **Status:** ✅ COMPLETE AND TESTED
 
@@ -236,7 +236,7 @@ ApprovalAlreadyGiven
 
 ### Deployment Cost
 
-- **SpooVault:** 4,715,799 gas
+- **Heirly:** 4,715,799 gas
 - **% of block limit:** 7.9% (well within acceptable range)
 
 ---
@@ -309,7 +309,7 @@ npm run test:contracts
 ### Output
 
 ```
-SpooVault Guardian Rotation & Threshold Adjustment
+Heirly Guardian Rotation & Threshold Adjustment
   Guardian Removal
     ✔ should allow a guardian to propose removal of another guardian
     ✔ should revert if non-guardian tries to propose removal
@@ -333,7 +333,7 @@ SpooVault Guardian Rotation & Threshold Adjustment
     ✔ should prevent non-guardian from proposing threshold update
     ✔ should prevent non-guardian from approving threshold update
 
-SpooVault EVM Contract Unit Tests
+Heirly EVM Contract Unit Tests
   Public Key Registry
     ✔ should allow a user to register an X25519 public key
   Vault Creation & Guardian Thresholds
@@ -353,7 +353,7 @@ SpooVault EVM Contract Unit Tests
 
 ### Primary Implementation
 
-- **[contracts/SpooVault.sol](contracts/SpooVault.sol)** (+450 lines)
+- **[contracts/Heirly.sol](contracts/Heirly.sol)** (+450 lines)
   - Guardian rotation logic
   - Threshold adjustment logic
   - Proposal lifecycle management
@@ -413,7 +413,7 @@ These items are intentionally **out of scope** for this PR but represent good ca
 
 ## Conclusion
 
-This implementation successfully delivers guardian rotation and threshold adjustment capabilities to SpooVault while maintaining:
+This implementation successfully delivers guardian rotation and threshold adjustment capabilities to Heirly while maintaining:
 
 - ✅ 100% backward compatibility
 - ✅ 24/24 passing tests (≥90% coverage requirement met)

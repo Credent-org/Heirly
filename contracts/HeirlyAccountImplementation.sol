@@ -22,10 +22,10 @@ interface IERC6551RegistryContext {
 }
 
 /**
- * @title SpooAccountImplementation
- * @dev ERC-6551 Token Bound Account (TBA) logic contract for SpooVault NFTs.
+ * @title HeirlyAccountImplementation
+ * @dev ERC-6551 Token Bound Account (TBA) logic contract for Heirly NFTs.
  *
- *      Each SpooVault Access Token (SPVT) NFT deployed through {SpooVault} can
+ *      Each Heirly Access Token (HRLY) NFT deployed through {Heirly} can
  *      be bound to its own smart-contract wallet via {ERC6551Registry}.  This
  *      contract acts as the *implementation* that every minimal ERC-1167 proxy
  *      delegates to.
@@ -51,7 +51,7 @@ interface IERC6551RegistryContext {
  *      Only the current ERC-721 owner of the bound NFT may call `executeCall`.
  *      A simple boolean re-entrancy guard prevents nested calls.
  */
-contract SpooAccountImplementation is ERC721Holder, ERC1155Holder {
+contract HeirlyAccountImplementation is ERC721Holder, ERC1155Holder {
 
     // ─── Immutables ───────────────────────────────────────────────────────────
 

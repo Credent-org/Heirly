@@ -50,9 +50,9 @@ const getNftColumnsForWidth = (width: number): number => {
 
 const buildDefaultTokenURI = (vaultId: number, recipient: string): string => {
   const metadata = {
-    name: `SpooVault Access Pass - Vault #${vaultId}`,
+    name: `Heirly Access Pass - Vault #${vaultId}`,
     description:
-      "Guardian-issued access pass for protected SpooVault documents.",
+      "Guardian-issued access pass for protected Heirly documents.",
     attributes: [
       { trait_type: "Vault ID", value: vaultId },
       { trait_type: "Recipient", value: recipient.toLowerCase() },
@@ -93,7 +93,7 @@ const decodeInlineJsonTokenURI = (tokenURI: string): TokenMetadata | null => {
 };
 
 const buildFallbackMetadata = (token: TokenData): TokenMetadata => ({
-  name: `SpooVault Access Pass #${token.tokenId}`,
+  name: `Heirly Access Pass #${token.tokenId}`,
   description: "Vault access pass metadata fallback",
   tokenId: token.tokenId,
   owner: token.owner,
@@ -371,7 +371,7 @@ const NFTGallery = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `spoovault-pass-${viewingToken.tokenId}-metadata.json`;
+    link.download = `heirly-pass-${viewingToken.tokenId}-metadata.json`;
     link.click();
     URL.revokeObjectURL(url);
     toast.success(`Downloaded metadata for token #${viewingToken.tokenId}`);

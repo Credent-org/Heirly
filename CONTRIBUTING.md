@@ -1,6 +1,6 @@
-# Contributing to SpooVault
+# Contributing to Heirly
 
-Thank you for your interest in contributing to SpooVault! This project is a **multi-chain encrypted document vault** supporting both **Avalanche (EVM)** and **Stellar (Soroban)** networks. We participate in open-source campaigns on Grantfox.
+Thank you for your interest in contributing to Heirly! This project is a **multi-chain encrypted document vault** supporting both **Avalanche (EVM)** and **Stellar (Soroban)** networks. We participate in open-source campaigns on Grantfox.
 
 ---
 
@@ -80,11 +80,11 @@ CI runs [Slither](https://github.com/crytic/slither) and [Mythril](https://githu
   cargo install cargo-tarpaulin --locked
   npm run test:stellar:coverage
   ```
-  Opens an HTML report at `coverage/tarpaulin-report.html`. CI runs this on every push/PR (see [`coverage.yml`](.github/workflows/coverage.yml)) and uploads the XML/HTML reports as the `soroban-coverage-report` workflow artifact. SpooVault's PR policy targets >=90% line/branch coverage on new or modified contract code.
+  Opens an HTML report at `coverage/tarpaulin-report.html`. CI runs this on every push/PR (see [`coverage.yml`](.github/workflows/coverage.yml)) and uploads the XML/HTML reports as the `soroban-coverage-report` workflow artifact. Heirly's PR policy targets >=90% line/branch coverage on new or modified contract code.
 
 ### 4. Fuzzing & Property Testing (EVM + Stellar)
 
-Echidna/Medusa property fuzzing of `SpooVault.sol` (`fuzz/`) and proptest/cargo-fuzz random state-sequence fuzzing of the Soroban contract (`contracts-stellar/src/fuzz_test.rs`, `contracts-stellar/fuzz/`) run in CI (see [`fuzzing.yml`](.github/workflows/fuzzing.yml)). See [docs/TESTING.md](./docs/TESTING.md) for the full property list, campaign sizes, and how to run each fuzzer locally.
+Echidna/Medusa property fuzzing of `Heirly.sol` (`fuzz/`) and proptest/cargo-fuzz random state-sequence fuzzing of the Soroban contract (`contracts-stellar/src/fuzz_test.rs`, `contracts-stellar/fuzz/`) run in CI (see [`fuzzing.yml`](.github/workflows/fuzzing.yml)). See [docs/TESTING.md](./docs/TESTING.md) for the full property list, campaign sizes, and how to run each fuzzer locally.
 
 ---
 
@@ -96,9 +96,9 @@ Echidna/Medusa property fuzzing of `SpooVault.sol` (`fuzz/`) and proptest/cargo-
    ```
 2. Start the local Pinata proxy (optional, for testing IPFS uploads without exposing Pinata keys):
    ```bash
-   SPOOVUALT_PROXY_SECRET=dev-hmac-secret PINATA_JWT=your_jwt npm run proxy:pinata
+   HEIRLY_PROXY_SECRET=dev-hmac-secret PINATA_JWT=your_jwt npm run proxy:pinata
    ```
-   Set the same value in `VITE_SPOOVUALT_PROXY_SECRET`. Unsigned or cross-origin pin requests are rejected with 403.
+   Set the same value in `VITE_HEIRLY_PROXY_SECRET`. Unsigned or cross-origin pin requests are rejected with 403.
 3. Use the network switcher in the header sidebar to toggle between Avalanche (MetaMask) and Stellar (Freighter).
 4. For PIN-protected keyrings, configure and run the RFC 9807 OPAQUE server as described in `docs/OPAQUE_KEYRING.md`.
 5. Run the frontend unit tests (Vitest):

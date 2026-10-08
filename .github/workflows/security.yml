@@ -34,7 +34,7 @@ jobs:
       - name: Compile Hardhat EVM Contracts
         run: npx hardhat compile --config hardhat.config.cjs
 
-      # contracts/SpooVault.sol and contracts/SpooVaultConsumer.sol have no High
+      # contracts/Heirly.sol and contracts/HeirlyConsumer.sol have no High
       # findings today; Medium/Low findings on the existing contracts are still
       # uploaded to the Security tab via SARIF for review but do not block the
       # PR, since fixing them is a smart-contract change outside the scope of
@@ -89,12 +89,12 @@ jobs:
 
       # Mythril's default policy fails the build on any finding of any severity; there are
       # currently none for these contracts. Keep the compiler version and evmVersion/optimizer
-      # settings below in sync with hardhat.config.cjs. contracts/ISpooVault.sol is a pure
+      # settings below in sync with hardhat.config.cjs. contracts/IHeirly.sol is a pure
       # interface with no bytecode, so it's skipped (nothing to symbolically execute).
       - name: Run Mythril
         continue-on-error: true
         run: |
-          docker run --rm -v "$PWD":/tmp mythril/myth analyze /tmp/contracts/SpooVault.sol --execution-timeout 60
+          docker run --rm -v "$PWD":/tmp mythril/myth analyze /tmp/contracts/Heirly.sol --execution-timeout 60
 
   rust-stellar-security:
     name: Soroban Analysis (Audit, Clippy, Geiger)

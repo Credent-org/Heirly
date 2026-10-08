@@ -27,7 +27,7 @@ const CHAIN_NAME = "Avalanche Fuji Testnet";
 function loadArtifact() {
   const artifactPath = resolve(
     repoRoot,
-    "artifacts/contracts/SpooVault.sol/SpooVault.json"
+    "artifacts/contracts/Heirly.sol/Heirly.json"
   );
   if (!existsSync(artifactPath)) {
     console.log("[deploy-anvil] Hardhat artifact missing, compiling...");
@@ -45,7 +45,7 @@ async function main() {
   const deployer = new Wallet(DEPLOYER_PRIVATE_KEY, provider);
 
   console.log(
-    `[deploy-anvil] Deploying SpooVault to ${RPC_URL} (chainId ${CHAIN_ID})`
+    `[deploy-anvil] Deploying Heirly to ${RPC_URL} (chainId ${CHAIN_ID})`
   );
   console.log(`[deploy-anvil] Deployer: ${deployer.address}`);
 
@@ -58,7 +58,7 @@ async function main() {
   await contract.waitForDeployment();
   const address = await contract.getAddress();
 
-  console.log(`[deploy-anvil] SpooVault deployed at ${address}`);
+  console.log(`[deploy-anvil] Heirly deployed at ${address}`);
 
   const outDir = resolve(repoRoot, "e2e");
   if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });

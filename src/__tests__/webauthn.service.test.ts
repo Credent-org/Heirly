@@ -15,7 +15,7 @@ import {
 import { installWebAuthnMock, uninstallWebAuthnMock } from "./helpers/webauthnMock";
 
 const RP_ID = "localhost";
-const RP_NAME = "SpooVault";
+const RP_NAME = "Heirly";
 const USER = "0x71C838936352937A71E976BBE84e941E79409932";
 
 describe("WebAuthnService (Passkeys / PRF extension)", () => {

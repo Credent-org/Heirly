@@ -53,7 +53,7 @@ type RpcEvent = {
 };
 
 type Listener = (event: IndexedSorobanEvent) => void;
-const DB_NAME = "spoovault-soroban-events";
+const DB_NAME = "heirly-soroban-events";
 const STORE = "events";
 const INDEX_STORE = "events-by-topic";
 const CURSOR_STORE = "cursors";
@@ -454,7 +454,7 @@ export class SorobanEventIndexer {
     });
     
     // Dispatch to window for global listeners
-    window.dispatchEvent(new CustomEvent("spoovault:soroban:event", { detail: event }));
+    window.dispatchEvent(new CustomEvent("heirly:soroban:event", { detail: event }));
     
     // Forward to WebSocket relay if connected
     if (this.socket?.readyState === WebSocket.OPEN) {

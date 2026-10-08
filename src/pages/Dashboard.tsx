@@ -43,7 +43,7 @@ import { verifyShare, parseEncryptedMetadataPayload } from "../services/secrets.
 import { AuditLogTimeline } from "../components/audit/AuditLogTimeline";
 import { getExplorerTxUrl } from "../utils/explorer";
 
-const DASHBOARD_CACHE_PREFIX = "spoovault-dashboard-cache";
+const DASHBOARD_CACHE_PREFIX = "heirly-dashboard-cache";
 const DASHBOARD_CACHE_MAX_AGE_MS = 2 * 60 * 1000;
 
 interface DashboardCachePayload {
@@ -123,7 +123,7 @@ const Dashboard = () => {
       }
 
       try {
-        const key = `spoovault-beneficiary-package-exported-${account.toLowerCase()}`;
+        const key = `heirly-beneficiary-package-exported-${account.toLowerCase()}`;
         const value = localStorage.getItem(key);
         setPackageExported(value === "1");
       } catch {
@@ -132,9 +132,9 @@ const Dashboard = () => {
     };
 
     readPackageFlag();
-    window.addEventListener("spoovault-beneficiary-package-exported", readPackageFlag as EventListener);
+    window.addEventListener("heirly-beneficiary-package-exported", readPackageFlag as EventListener);
     return () => {
-      window.removeEventListener("spoovault-beneficiary-package-exported", readPackageFlag as EventListener);
+      window.removeEventListener("heirly-beneficiary-package-exported", readPackageFlag as EventListener);
     };
   }, [account]);
 
@@ -618,7 +618,7 @@ const Dashboard = () => {
           <div className="w-20 h-20 bg-gradient-to-br from-brand-700 to-brand-900 rounded-2xl flex items-center justify-center mx-auto mb-6">
             <FiZap className="text-white text-3xl" />
           </div>
-          <h1 className="text-3xl font-bold mb-4">Welcome to SpooVault</h1>
+          <h1 className="text-3xl font-bold mb-4">Welcome to Heirly</h1>
           <p className="text-gray-400 mb-8 max-w-2xl mx-auto">
             Connect your wallet to manage secure access vaults and family documents on Avalanche Fuji.
           </p>
@@ -653,7 +653,7 @@ const Dashboard = () => {
           </div>
           <h1 className="text-3xl font-bold mb-4">Wrong Network</h1>
           <p className="text-gray-400 mb-8 max-w-2xl mx-auto">
-            Please switch to Avalanche Fuji Testnet to use SpooVault.
+            Please switch to Avalanche Fuji Testnet to use Heirly.
           </p>
           <Button
             size="lg"

@@ -1,7 +1,7 @@
 import { test, expect } from "../support/test-with-metamask";
 import { E2E_CHAIN_NAME } from "../wallets";
 
-test.describe("SpooVault — wallet connection (EVM / MetaMask)", () => {
+test.describe("Heirly — wallet connection (EVM / MetaMask)", () => {
   test("connects MetaMask to the dApp and reflects the connected account", async ({
     page,
     metamask,

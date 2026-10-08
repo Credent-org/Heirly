@@ -137,8 +137,8 @@ function hash2(a: bigint, b: bigint, domain: string): bigint {
   // Domain-separated HMAC-like construct over BN254 field.
   // Ensures commitments and nullifiers from different contexts do not collide.
   const domainTags: Record<string, bigint> = {
-    spooVaultShareCommitment: 0x73706f6f5661756c745f5368617265436f6d6d69746d656e74n,
-    spooVaultNullifier: 0x73706f6f5661756c745f4e756c6c6966696572n,
+    heirlyShareCommitment: 0x686569726c795f5368617265436f6d6d69746d656e74n,
+    heirlyNullifier: 0x686569726c795f4e756c6c6966696572n,
   };
 
   const tag = domainTags[domain] || 0n;
@@ -155,7 +155,7 @@ function hash2(a: bigint, b: bigint, domain: string): bigint {
  * Computes the vault root commitment: Hash(secretShare, blindingFactor).
  */
 export function computeCommitment(secretShare: bigint, blindingFactor: bigint): bigint {
-  return hash2(secretShare, blindingFactor, "spooVaultShareCommitment");
+  return hash2(secretShare, blindingFactor, "heirlyShareCommitment");
 }
 
 /**
@@ -166,7 +166,7 @@ export function computeNullifierHash(
   beneficiaryPrivateKey: bigint,
   documentId: bigint
 ): bigint {
-  return hash2(beneficiaryPrivateKey, documentId, "spooVaultNullifier");
+  return hash2(beneficiaryPrivateKey, documentId, "heirlyNullifier");
 }
 
 /**

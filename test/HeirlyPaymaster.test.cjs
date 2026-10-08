@@ -1,5 +1,5 @@
 /**
- * SpooPaymaster.test.cjs
+ * HeirlyPaymaster.test.cjs
  *
  * Hardhat tests for Issue #78:
  * [EVM/AA] EIP-4337 Account Abstraction Paymaster for Gasless Guardian Approvals.
@@ -20,10 +20,10 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const { time } = require("@nomicfoundation/hardhat-network-helpers");
-const { deploySpooVault } = require("./helpers/deploySpooVault.cjs");
+const { deployHeirly } = require("./helpers/deployHeirly.cjs");
 
-describe("SpooPaymaster - EIP-4337 Gasless Guardian Approvals", function () {
-  let spooVault;
+describe("HeirlyPaymaster - EIP-4337 Gasless Guardian Approvals", function () {
+  let heirly;
   let entryPoint;
   let paymaster;
   let guardianAccount;
@@ -43,19 +43,19 @@ describe("SpooPaymaster - EIP-4337 Gasless Guardian Approvals", function () {
     [owner, vaultCreator, guardianSigner, beneficiary, bundler, other] =
       await ethers.getSigners();
 
-    // 1. Deploy SpooVault (with VRF/admin libraries linked)
-    spooVault = await deploySpooVault(owner);
+    // 1. Deploy Heirly (with VRF/admin libraries linked)
+    heirly = await deployHeirly(owner);
 
     // 2. Deploy Mock EntryPoint
     const MockEntryPoint = await ethers.getContractFactory("MockEntryPoint");
     entryPoint = await MockEntryPoint.deploy();
     await entryPoint.waitForDeployment();
 
-    // 3. Deploy SpooPaymaster
-    const SpooPaymaster = await ethers.getContractFactory("SpooPaymaster");
-    paymaster = await SpooPaymaster.deploy(
+    // 3. Deploy HeirlyPaymaster
+    const HeirlyPaymaster = await ethers.getContractFactory("HeirlyPaymaster");
+    paymaster = await HeirlyPaymaster.deploy(
       await entryPoint.getAddress(),
-      await spooVault.getAddress(),
+      await heirly.getAddress(),
       owner.address
     );
     await paymaster.waitForDeployment();
@@ -80,9 +80,9 @@ describe("SpooPaymaster - EIP-4337 Gasless Guardian Approvals", function () {
   });
 
   describe("Deployment and Initial Setup", function () {
-    it("should set entryPoint, spooVault, and owner correctly", async function () {
+    it("should set entryPoint, heirly, and owner correctly", async function () {
       expect(await paymaster.entryPoint()).to.equal(await entryPoint.getAddress());
-      expect(await paymaster.spooVault()).to.equal(await spooVault.getAddress());
+      expect(await paymaster.heirly()).to.equal(await heirly.getAddress());
       expect(await paymaster.owner()).to.equal(owner.address);
     });
 
@@ -92,14 +92,14 @@ describe("SpooPaymaster - EIP-4337 Gasless Guardian Approvals", function () {
       expect(await paymaster.maxVaultOpsPerWindow()).to.equal(50n);
     });
 
-    it("allows owner to update rate limits and spooVault address", async function () {
+    it("allows owner to update rate limits and heirly address", async function () {
       await paymaster.connect(owner).setRateLimits(20, 7200, 100);
       expect(await paymaster.maxOpsPerWindow()).to.equal(20n);
       expect(await paymaster.rateLimitWindow()).to.equal(7200n);
       expect(await paymaster.maxVaultOpsPerWindow()).to.equal(100n);
 
-      await paymaster.connect(owner).setSpooVault(other.address);
-      expect(await paymaster.spooVault()).to.equal(other.address);
+      await paymaster.connect(owner).setHeirly(other.address);
+      expect(await paymaster.heirly()).to.equal(other.address);
     });
 
     it("reverts if non-owner attempts to update configuration", async function () {
@@ -108,7 +108,7 @@ describe("SpooPaymaster - EIP-4337 Gasless Guardian Approvals", function () {
       ).to.be.revertedWithCustomError(paymaster, "OwnableUnauthorizedAccount");
 
       await expect(
-        paymaster.connect(other).setSpooVault(other.address)
+        paymaster.connect(other).setHeirly(other.address)
       ).to.be.revertedWithCustomError(paymaster, "OwnableUnauthorizedAccount");
     });
   });
@@ -209,7 +209,7 @@ describe("SpooPaymaster - EIP-4337 Gasless Guardian Approvals", function () {
       const guardianAccAddr = await guardianAccount.getAddress();
 
       // 1. Vault creator creates vault with guardianAccount as initial guardian
-      await spooVault
+      await heirly
         .connect(vaultCreator)
         .createVault(
           "Personal Records",
@@ -219,17 +219,17 @@ describe("SpooPaymaster - EIP-4337 Gasless Guardian Approvals", function () {
         );
 
       // 2. Guardian accepts invitation directly
-      await spooVault.connect(guardianSigner);
+      await heirly.connect(guardianSigner);
       await guardianAccount
         .connect(guardianSigner)
         .execute(
-          await spooVault.getAddress(),
+          await heirly.getAddress(),
           0n,
-          spooVault.interface.encodeFunctionData("acceptGuardianInvite", [VAULT_ID])
+          heirly.interface.encodeFunctionData("acceptGuardianInvite", [VAULT_ID])
         );
 
       // 3. Vault creator adds document
-      await spooVault
+      await heirly
         .connect(vaultCreator)
         .addDocument(VAULT_ID, "meta", "ipfs-hash", 0);
 
@@ -237,29 +237,29 @@ describe("SpooPaymaster - EIP-4337 Gasless Guardian Approvals", function () {
       await guardianAccount
         .connect(guardianSigner)
         .execute(
-          await spooVault.getAddress(),
+          await heirly.getAddress(),
           0n,
-          spooVault.interface.encodeFunctionData("mintAccessToken", [
+          heirly.interface.encodeFunctionData("mintAccessToken", [
             VAULT_ID,
             beneficiary.address,
             "uri",
           ])
         );
 
-      // 5. Vault creator deposits sponsorship funds in SpooPaymaster
+      // 5. Vault creator deposits sponsorship funds in HeirlyPaymaster
       await paymaster
         .connect(vaultCreator)
         .depositForVault(VAULT_ID, { value: ONE_AVAX });
 
       // 6. Beneficiary requests access to the document
-      const reqTx = await spooVault
+      const reqTx = await heirly
         .connect(beneficiary)
         .requestAccess(DOCUMENT_ID);
       const reqRc = await reqTx.wait();
       const event = reqRc.logs.find(
-        (l) => spooVault.interface.parseLog(l)?.name === "AccessRequested"
+        (l) => heirly.interface.parseLog(l)?.name === "AccessRequested"
       );
-      const parsed = spooVault.interface.parseLog(event);
+      const parsed = heirly.interface.parseLog(event);
       requestId = parsed.args.requestId;
     });
 
@@ -269,13 +269,13 @@ describe("SpooPaymaster - EIP-4337 Gasless Guardian Approvals", function () {
       expect(guardianBalance).to.equal(0n);
 
       // Encode approveAccess callData
-      const approveInnerData = spooVault.interface.encodeFunctionData(
+      const approveInnerData = heirly.interface.encodeFunctionData(
         "approveAccess(uint256)",
         [requestId]
       );
       const accountCallData = guardianAccount.interface.encodeFunctionData(
         "execute",
-        [await spooVault.getAddress(), 0n, approveInnerData]
+        [await heirly.getAddress(), 0n, approveInnerData]
       );
 
       const paymasterAddress = await paymaster.getAddress();
@@ -315,11 +315,11 @@ describe("SpooPaymaster - EIP-4337 Gasless Guardian Approvals", function () {
       );
       expect(guardianBalanceAfter).to.equal(0n);
 
-      // SpooVault recorded the approval
-      expect(await spooVault.hasApprovedRequest(requestId, guardianAccAddr)).to.equal(
+      // Heirly recorded the approval
+      expect(await heirly.hasApprovedRequest(requestId, guardianAccAddr)).to.equal(
         true
       );
-      const req = await spooVault.accessRequests(requestId);
+      const req = await heirly.accessRequests(requestId);
       expect(req.status).to.equal(1); // APPROVED
 
       // Paymaster deducted actual gas cost from vault sponsor balance
@@ -332,13 +332,13 @@ describe("SpooPaymaster - EIP-4337 Gasless Guardian Approvals", function () {
       const guardianAccAddr = await guardianAccount.getAddress();
 
       const encryptedShare = "ENCRYPTED_SHARE_FOR_BENEFICIARY";
-      const approveInnerData = spooVault.interface.encodeFunctionData(
+      const approveInnerData = heirly.interface.encodeFunctionData(
         "approveAccess(uint256,string)",
         [requestId, encryptedShare]
       );
       const accountCallData = guardianAccount.interface.encodeFunctionData(
         "execute",
-        [await spooVault.getAddress(), 0n, approveInnerData]
+        [await heirly.getAddress(), 0n, approveInnerData]
       );
 
       const paymasterAddress = await paymaster.getAddress();
@@ -367,11 +367,11 @@ describe("SpooPaymaster - EIP-4337 Gasless Guardian Approvals", function () {
 
       await entryPoint.connect(bundler).handleOps([userOp], bundler.address);
 
-      expect(await spooVault.hasApprovedRequest(requestId, guardianAccAddr)).to.equal(
+      expect(await heirly.hasApprovedRequest(requestId, guardianAccAddr)).to.equal(
         true
       );
       expect(
-        await spooVault.beneficiaryKeyShares(requestId, guardianAccAddr)
+        await heirly.beneficiaryKeyShares(requestId, guardianAccAddr)
       ).to.equal(encryptedShare);
     });
 
@@ -386,7 +386,7 @@ describe("SpooPaymaster - EIP-4337 Gasless Guardian Approvals", function () {
       const newGuardianAddr = await newGuardianAccount.getAddress();
 
       // Creator creates a vault with newGuardianAddr invited
-      const createTx = await spooVault
+      const createTx = await heirly
         .connect(vaultCreator)
         .createVault(
           "Invite Vault",
@@ -396,9 +396,9 @@ describe("SpooPaymaster - EIP-4337 Gasless Guardian Approvals", function () {
         );
       const createRc = await createTx.wait();
       const createEvent = createRc.logs.find(
-        (l) => spooVault.interface.parseLog(l)?.name === "VaultCreated"
+        (l) => heirly.interface.parseLog(l)?.name === "VaultCreated"
       );
-      const inviteVaultId = spooVault.interface.parseLog(createEvent).args.vaultId;
+      const inviteVaultId = heirly.interface.parseLog(createEvent).args.vaultId;
 
       // Creator deposits sponsorship for inviteVaultId
       await paymaster
@@ -406,13 +406,13 @@ describe("SpooPaymaster - EIP-4337 Gasless Guardian Approvals", function () {
         .depositForVault(inviteVaultId, { value: ONE_AVAX });
 
       // Encode acceptGuardianInvite callData
-      const acceptInnerData = spooVault.interface.encodeFunctionData(
+      const acceptInnerData = heirly.interface.encodeFunctionData(
         "acceptGuardianInvite",
         [inviteVaultId]
       );
       const accountCallData = newGuardianAccount.interface.encodeFunctionData(
         "execute",
-        [await spooVault.getAddress(), 0n, acceptInnerData]
+        [await heirly.getAddress(), 0n, acceptInnerData]
       );
 
       const paymasterAddress = await paymaster.getAddress();
@@ -435,14 +435,14 @@ describe("SpooPaymaster - EIP-4337 Gasless Guardian Approvals", function () {
 
       await entryPoint.connect(bundler).handleOps([userOp], bundler.address);
 
-      expect(await spooVault.isGuardian(inviteVaultId, newGuardianAddr)).to.equal(
+      expect(await heirly.isGuardian(inviteVaultId, newGuardianAddr)).to.equal(
         true
       );
     });
 
     it("reverts UserOp if vault sponsor balance is 0", async function () {
       // Deploy new vault with 0 deposit
-      const tx = await spooVault
+      const tx = await heirly
         .connect(vaultCreator)
         .createVault(
           "Unfunded Vault",
@@ -452,17 +452,17 @@ describe("SpooPaymaster - EIP-4337 Gasless Guardian Approvals", function () {
         );
       const rc = await tx.wait();
       const event = rc.logs.find(
-        (l) => spooVault.interface.parseLog(l)?.name === "VaultCreated"
+        (l) => heirly.interface.parseLog(l)?.name === "VaultCreated"
       );
-      const unfundedVaultId = spooVault.interface.parseLog(event).args.vaultId;
+      const unfundedVaultId = heirly.interface.parseLog(event).args.vaultId;
 
-      const acceptInnerData = spooVault.interface.encodeFunctionData(
+      const acceptInnerData = heirly.interface.encodeFunctionData(
         "acceptGuardianInvite",
         [unfundedVaultId]
       );
       const accountCallData = guardianAccount.interface.encodeFunctionData(
         "execute",
-        [await spooVault.getAddress(), 0n, acceptInnerData]
+        [await heirly.getAddress(), 0n, acceptInnerData]
       );
 
       const paymasterAddress = await paymaster.getAddress();
@@ -496,28 +496,28 @@ describe("SpooPaymaster - EIP-4337 Gasless Guardian Approvals", function () {
 
     beforeEach(async function () {
       const guardianAccAddr = await guardianAccount.getAddress();
-      await spooVault
+      await heirly
         .connect(vaultCreator)
         .createVault("Rate Limited Vault", "Desc", [guardianAccAddr], 1);
 
       await guardianAccount
         .connect(guardianSigner)
         .execute(
-          await spooVault.getAddress(),
+          await heirly.getAddress(),
           0n,
-          spooVault.interface.encodeFunctionData("acceptGuardianInvite", [VAULT_ID])
+          heirly.interface.encodeFunctionData("acceptGuardianInvite", [VAULT_ID])
         );
 
-      await spooVault
+      await heirly
         .connect(vaultCreator)
         .addDocument(VAULT_ID, "meta", "ipfs", 0);
 
       await guardianAccount
         .connect(guardianSigner)
         .execute(
-          await spooVault.getAddress(),
+          await heirly.getAddress(),
           0n,
-          spooVault.interface.encodeFunctionData("mintAccessToken", [
+          heirly.interface.encodeFunctionData("mintAccessToken", [
             VAULT_ID,
             beneficiary.address,
             "uri",
@@ -528,12 +528,12 @@ describe("SpooPaymaster - EIP-4337 Gasless Guardian Approvals", function () {
         .connect(vaultCreator)
         .depositForVault(VAULT_ID, { value: ONE_AVAX });
 
-      const reqTx = await spooVault.connect(beneficiary).requestAccess(DOCUMENT_ID);
+      const reqTx = await heirly.connect(beneficiary).requestAccess(DOCUMENT_ID);
       const reqRc = await reqTx.wait();
       const event = reqRc.logs.find(
-        (l) => spooVault.interface.parseLog(l)?.name === "AccessRequested"
+        (l) => heirly.interface.parseLog(l)?.name === "AccessRequested"
       );
-      requestId = spooVault.interface.parseLog(event).args.requestId;
+      requestId = heirly.interface.parseLog(event).args.requestId;
 
       // Set strict rate limit: max 2 ops per window
       await paymaster.connect(owner).setRateLimits(2, 3600, 50);
@@ -544,12 +544,12 @@ describe("SpooPaymaster - EIP-4337 Gasless Guardian Approvals", function () {
       const paymasterAddress = await paymaster.getAddress();
 
       const buildOp = async (nonce) => {
-        const inner = spooVault.interface.encodeFunctionData(
+        const inner = heirly.interface.encodeFunctionData(
           "acceptGuardianInvite",
           [VAULT_ID]
         );
         const callData = guardianAccount.interface.encodeFunctionData("execute", [
-          await spooVault.getAddress(),
+          await heirly.getAddress(),
           0n,
           inner,
         ]);
@@ -596,10 +596,10 @@ describe("SpooPaymaster - EIP-4337 Gasless Guardian Approvals", function () {
         .depositForVault(VAULT_ID, { value: ONE_AVAX });
     });
 
-    it("reverts if target contract is not SpooVault", async function () {
+    it("reverts if target contract is not Heirly", async function () {
       const guardianAccAddr = await guardianAccount.getAddress();
       const unauthorizedInner = "0x12345678";
-      // Target is `other` address instead of `spooVault`
+      // Target is `other` address instead of `heirly`
       const callData = guardianAccount.interface.encodeFunctionData("execute", [
         other.address,
         0n,
@@ -633,12 +633,12 @@ describe("SpooPaymaster - EIP-4337 Gasless Guardian Approvals", function () {
     it("reverts if inner function selector is not an allowed guardian action", async function () {
       const guardianAccAddr = await guardianAccount.getAddress();
       // Calling mintAccessToken instead of approveAccess
-      const unauthorizedInner = spooVault.interface.encodeFunctionData(
+      const unauthorizedInner = heirly.interface.encodeFunctionData(
         "mintAccessToken",
         [VAULT_ID, guardianAccAddr, "uri"]
       );
       const callData = guardianAccount.interface.encodeFunctionData("execute", [
-        await spooVault.getAddress(),
+        await heirly.getAddress(),
         0n,
         unauthorizedInner,
       ]);

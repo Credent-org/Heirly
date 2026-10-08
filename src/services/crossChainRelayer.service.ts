@@ -33,7 +33,7 @@ export class CrossChainRelayerService {
     payload: CrossChainPayload
   ): Record<string, string | number> {
     return {
-      type: "SpooVaultCrossChainApproval",
+      type: "HeirlyCrossChainApproval",
       vaultGID: payload.vaultGID.toLowerCase(),
       guardian: payload.guardian.toLowerCase(),
       approvalType: payload.approvalType,

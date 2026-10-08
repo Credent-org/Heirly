@@ -71,7 +71,7 @@ const Profile = () => {
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem("spoovault-profile");
+      const stored = localStorage.getItem("heirly-profile");
       if (stored) {
         const parsed = JSON.parse(stored) as {
           nickname?: string;
@@ -208,11 +208,11 @@ const Profile = () => {
     const trimmedNickname = nickname.trim();
     try {
       localStorage.setItem(
-        "spoovault-profile",
+        "heirly-profile",
         JSON.stringify({ nickname: trimmedNickname, theme })
       );
       window.dispatchEvent(
-        new CustomEvent("spoovault-profile-updated", {
+        new CustomEvent("heirly-profile-updated", {
           detail: { nickname: trimmedNickname, theme },
         })
       );
@@ -318,7 +318,7 @@ const Profile = () => {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `spoovault-keyring-backup-${shortenAddress(
+      link.download = `heirly-keyring-backup-${shortenAddress(
         account,
         4
       )}.json`;

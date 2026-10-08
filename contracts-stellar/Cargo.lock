@@ -1398,7 +1398,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "spoovault_stellar"
+name = "heirly_stellar"
 version = "0.1.0"
 dependencies = [
  "ed25519-dalek",

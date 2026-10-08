@@ -6,27 +6,27 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "./interfaces/IPaymaster.sol";
 import "./interfaces/IEntryPoint.sol";
 
-interface ISpooVaultForPaymaster {
+interface IHeirlyForPaymaster {
     function getVaultCreator(uint256 vaultId) external view returns (address);
 }
 
 /**
- * @title SpooPaymaster
- * @notice EIP-4337 Account Abstraction Paymaster sponsoring gas fees for SpooVault
+ * @title HeirlyPaymaster
+ * @notice EIP-4337 Account Abstraction Paymaster sponsoring gas fees for Heirly
  *         guardians executing `approveAccess` and `acceptGuardianInvite`.
  *
  * Sponsorship Architecture:
- * - Vault creators deposit native AVAX into SpooPaymaster (allocated per vault or per creator).
- * - SpooPaymaster forwards deposited native AVAX directly to the EIP-4337 EntryPoint.
+ * - Vault creators deposit native AVAX into HeirlyPaymaster (allocated per vault or per creator).
+ * - HeirlyPaymaster forwards deposited native AVAX directly to the EIP-4337 EntryPoint.
  * - During UserOp validation (`validatePaymasterUserOp`):
- *     1. Validates that target is SpooVault and inner method is `approveAccess` or `acceptGuardianInvite`.
+ *     1. Validates that target is Heirly and inner method is `approveAccess` or `acceptGuardianInvite`.
  *     2. Enforces per-guardian and per-vault rate limits to prevent gas drainage.
  *     3. Resolves the vault creator and validates that the vault/creator has sufficient balance >= maxCost.
  * - During `postOp`:
  *     Deducts the actual gas cost incurred (`actualGasCost`), automatically refunding/preserving
  *     any unused gas from `maxCost`.
  */
-contract SpooPaymaster is IPaymaster, Ownable, ReentrancyGuard {
+contract HeirlyPaymaster is IPaymaster, Ownable, ReentrancyGuard {
     // ─── Function Selectors ──────────────────────────────────────────────────
     bytes4 private constant EXECUTE_SELECTOR = 0xb61d27f6; // execute(address,uint256,bytes)
     bytes4 private constant EXECUTE_CALL_SELECTOR = 0x9e5d4c49; // executeCall(address,uint256,bytes)
@@ -36,7 +36,7 @@ contract SpooPaymaster is IPaymaster, Ownable, ReentrancyGuard {
 
     // ─── Immutables & State ──────────────────────────────────────────────────
     IEntryPoint public immutable entryPoint;
-    address public spooVault;
+    address public heirly;
 
     // Sponsorship accounting
     mapping(uint256 => uint256) public vaultSponsorBalances;
@@ -66,7 +66,7 @@ contract SpooPaymaster is IPaymaster, Ownable, ReentrancyGuard {
         PostOpMode mode
     );
     event RateLimitsUpdated(uint256 maxOpsPerWindow, uint256 rateLimitWindow, uint256 maxVaultOpsPerWindow);
-    event SpooVaultUpdated(address newSpooVault);
+    event HeirlyUpdated(address newHeirly);
 
     // ─── Custom Errors ───────────────────────────────────────────────────────
     error OnlyEntryPoint();
@@ -86,14 +86,14 @@ contract SpooPaymaster is IPaymaster, Ownable, ReentrancyGuard {
     // ─── Constructor ─────────────────────────────────────────────────────────
     constructor(
         IEntryPoint _entryPoint,
-        address _spooVault,
+        address _heirly,
         address initialOwner
     ) Ownable(initialOwner) {
-        if (address(_entryPoint) == address(0) || _spooVault == address(0)) {
+        if (address(_entryPoint) == address(0) || _heirly == address(0)) {
             revert ZeroAddress();
         }
         entryPoint = _entryPoint;
-        spooVault = _spooVault;
+        heirly = _heirly;
     }
 
     // ─── Receive & Deposits ──────────────────────────────────────────────────
@@ -135,7 +135,7 @@ contract SpooPaymaster is IPaymaster, Ownable, ReentrancyGuard {
      */
     function withdrawVaultDeposit(uint256 vaultId, uint256 amount) external nonReentrant {
         if (amount == 0) revert ZeroAmount();
-        address creator = ISpooVaultForPaymaster(spooVault).getVaultCreator(vaultId);
+        address creator = IHeirlyForPaymaster(heirly).getVaultCreator(vaultId);
         if (msg.sender != creator) revert Unauthorized();
         if (vaultSponsorBalances[vaultId] < amount) revert InsufficientBalance();
 
@@ -171,7 +171,7 @@ contract SpooPaymaster is IPaymaster, Ownable, ReentrancyGuard {
 
         (address target, bytes4 selector, uint256 param) = _parseCallData(userOp.callData);
 
-        if (target != spooVault) revert InvalidTarget(target);
+        if (target != heirly) revert InvalidTarget(target);
 
         if (
             selector != ACCEPT_INVITE_SELECTOR &&
@@ -182,7 +182,7 @@ contract SpooPaymaster is IPaymaster, Ownable, ReentrancyGuard {
         }
 
         uint256 vaultId = _resolveVaultId(selector, param, userOp.paymasterAndData);
-        address creator = ISpooVaultForPaymaster(spooVault).getVaultCreator(vaultId);
+        address creator = IHeirlyForPaymaster(heirly).getVaultCreator(vaultId);
         if (creator == address(0)) revert InvalidVault(vaultId);
 
         // Enforce rate limiting
@@ -256,7 +256,7 @@ contract SpooPaymaster is IPaymaster, Ownable, ReentrancyGuard {
                 param = abi.decode(paramBytes, (uint256));
             }
         } else {
-            target = spooVault;
+            target = heirly;
             selector = topSelector;
             if (callData.length >= 36) {
                 param = abi.decode(callData[4:36], (uint256));
@@ -273,13 +273,13 @@ contract SpooPaymaster is IPaymaster, Ownable, ReentrancyGuard {
             vaultId = param;
         } else if (selector == APPROVE_ACCESS_SELECTOR || selector == APPROVE_ACCESS_ENCRYPTED_SELECTOR) {
             uint256 requestId = param;
-            (bool successReq, bytes memory reqData) = spooVault.staticcall(
+            (bool successReq, bytes memory reqData) = heirly.staticcall(
                 abi.encodeWithSignature("accessRequests(uint256)", requestId)
             );
             if (successReq && reqData.length >= 64) {
                 (, uint256 documentId) = abi.decode(reqData, (uint256, uint256));
                 if (documentId > 0) {
-                    (bool successDoc, bytes memory docData) = spooVault.staticcall(
+                    (bool successDoc, bytes memory docData) = heirly.staticcall(
                         abi.encodeWithSignature("documents(uint256)", documentId)
                     );
                     if (successDoc && docData.length >= 64) {
@@ -334,10 +334,10 @@ contract SpooPaymaster is IPaymaster, Ownable, ReentrancyGuard {
         emit RateLimitsUpdated(newMaxOpsPerWindow, newRateLimitWindow, newMaxVaultOpsPerWindow);
     }
 
-    function setSpooVault(address newSpooVault) external onlyOwner {
-        if (newSpooVault == address(0)) revert ZeroAddress();
-        spooVault = newSpooVault;
-        emit SpooVaultUpdated(newSpooVault);
+    function setHeirly(address newHeirly) external onlyOwner {
+        if (newHeirly == address(0)) revert ZeroAddress();
+        heirly = newHeirly;
+        emit HeirlyUpdated(newHeirly);
     }
 
     function addStake(uint32 unstakeDelaySec) external payable onlyOwner {

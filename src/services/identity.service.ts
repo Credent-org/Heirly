@@ -4,7 +4,7 @@ export interface IdentityBinding {
   registeredAt: number;
 }
 
-const STORAGE_KEY = "spoovault-crosschain-identity-registry";
+const STORAGE_KEY = "heirly-crosschain-identity-registry";
 
 export const isValidEVMAddress = (address: string): boolean => {
   if (!address || typeof address !== "string") return false;

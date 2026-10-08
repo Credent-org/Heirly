@@ -1,4 +1,4 @@
-# SpooVault 🔐
+# Heirly 🔐
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Build Status](https://img.shields.io/badge/CI-Passing-brightgreen.svg)]()
@@ -12,7 +12,7 @@ Enterprise-grade document custody app supporting both **Avalanche (EVM)** and **
 
 ## 🌐 Live Demo & Smart Contracts
 
-- **Live Application**: [https://spoovault.web.app](https://spoovault.web.app)
+- **Live Application**: [https://heirly.web.app](https://heirly.web.app)
 - **Avalanche Fuji Contract**: `0x64128680775Ef626379DeF6E5c815AeA8F4707Ef` (Chain ID `43113`)
 - **Stellar Soroban Contract**: Rust Soroban contract in `contracts-stellar` (supported via Freighter Wallet & mock mode)
 
@@ -57,8 +57,8 @@ graph TD
 ### 2. Installation
 
 ```bash
-git clone https://github.com/spoo-vault/spoovault.git
-cd spoovault
+git clone https://github.com/heirly/heirly.git
+cd heirly
 npm install
 ```
 
@@ -73,7 +73,7 @@ VITE_CHAIN_ID=43113
 VITE_CHAIN_NAME=Avalanche Fuji Testnet
 VITE_IPFS_GATEWAY=https://gateway.pinata.cloud/ipfs/
 # VITE_IPFS_PROXY_URL=http://localhost:3001
-# VITE_SPOOVUALT_PROXY_SECRET=
+# VITE_HEIRLY_PROXY_SECRET=
 # Optional: extra download gateways (Pinata, Infura, Cloudflare, ipfs.io are already pooled)
 # VITE_IPFS_FALLBACK_GATEWAYS=
 ```
@@ -94,14 +94,14 @@ npm run dev
 - **Stellar Soroban Tests**: `npm run test:stellar`
 - **TypeScript Verification**: `npx tsc --noEmit`
 - **Production Bundle Check**: `npx vite build` emits named `vendor-react`, `vendor-heroui`, `vendor-ethers`, and lazy `vendor-stellar` chunks so the entry JavaScript bundle stays below the initial-load budget.
-- **Fuzzing & Property Testing**: Echidna/Medusa property fuzzing of `SpooVault.sol` and proptest/cargo-fuzz random state-sequence fuzzing of the Soroban contract — see [docs/TESTING.md](docs/TESTING.md).
+- **Fuzzing & Property Testing**: Echidna/Medusa property fuzzing of `Heirly.sol` and proptest/cargo-fuzz random state-sequence fuzzing of the Soroban contract — see [docs/TESTING.md](docs/TESTING.md).
 
 ---
 
 ## 📂 Project Structure
 
 ```
-spoovault/
+heirly/
 ├── contracts/             # Solidity smart contracts for EVM (Avalanche)
 ├── contracts-stellar/     # Rust smart contracts for Stellar Soroban
 ├── docs/                  # Architectural documentation & manual checklists
@@ -120,6 +120,6 @@ spoovault/
 
 ## 📜 License & Contribution
 
-- **License**: [MIT License](file:///c:/Users/HP/spoovault/LICENSE)
-- **Contributing Guidelines**: See [CONTRIBUTING.md](file:///c:/Users/HP/spoovault/CONTRIBUTING.md)
-- **Security Policy**: See [SECURITY.md](file:///c:/Users/HP/spoovault/SECURITY.md)
+- **License**: [MIT License](file:///c:/Users/HP/heirly/LICENSE)
+- **Contributing Guidelines**: See [CONTRIBUTING.md](file:///c:/Users/HP/heirly/CONTRIBUTING.md)
+- **Security Policy**: See [SECURITY.md](file:///c:/Users/HP/heirly/SECURITY.md)

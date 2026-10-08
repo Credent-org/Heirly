@@ -33,7 +33,7 @@ const makeSyncEvent = (tag: string): { event: SyncEventLike; waitUntilCalls: Pro
 
 describe("service worker background sync bridge", () => {
   it("uses the canonical background sync tag", () => {
-    expect(SYNC_TAG).toBe("spoovault-action-sync");
+    expect(SYNC_TAG).toBe("heirly-action-sync");
   });
 
   it("broadcasts a replay request to every open client on the sync event", async () => {

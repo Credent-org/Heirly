@@ -1,9 +1,9 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { deploySpooVault } = require("./helpers/deploySpooVault.cjs");
+const { deployHeirly } = require("./helpers/deployHeirly.cjs");
 
 describe("BLS Threshold vs ECDSA Gas Benchmark", function () {
-  let spooVault;
+  let heirly;
   let mockVerifier;
   let owner;
   let requester;
@@ -32,7 +32,7 @@ describe("BLS Threshold vs ECDSA Gas Benchmark", function () {
     requester2 = signers[2];
     guardians = signers.slice(3, 13).sort((a, b) => (a.address.toLowerCase() < b.address.toLowerCase() ? -1 : 1)); // K = 10 guardians sorted
 
-    spooVault = await deploySpooVault(owner);
+    heirly = await deployHeirly(owner);
 
     const MockBLSVerifier = await ethers.getContractFactory("MockBLSVerifier");
     mockVerifier = await MockBLSVerifier.deploy();
@@ -40,7 +40,7 @@ describe("BLS Threshold vs ECDSA Gas Benchmark", function () {
 
     // Create vault with 10 guardians, threshold = 10
     const guardianAddresses = guardians.map((g) => g.address);
-    const tx = await spooVault
+    const tx = await heirly
       .connect(owner)
       .createVault("K=10 Gas Benchmark Vault", "Vault for K=10 gas comparison", guardianAddresses, 10);
     await tx.wait();
@@ -48,30 +48,30 @@ describe("BLS Threshold vs ECDSA Gas Benchmark", function () {
 
     // Accept invites and register BLS keys
     for (let i = 0; i < guardians.length; i++) {
-      await spooVault.connect(guardians[i]).acceptGuardianInvite(vaultId);
-      await spooVault
+      await heirly.connect(guardians[i]).acceptGuardianInvite(vaultId);
+      await heirly
         .connect(guardians[i])
         .registerGuardianBLSKey(vaultId, mockG1Key(i + 1), mockG2Sig(i + 1));
     }
 
     // Add documents and mint passes
-    await spooVault.connect(owner).addDocument(vaultId, "meta1", "QmHash1", 0);
+    await heirly.connect(owner).addDocument(vaultId, "meta1", "QmHash1", 0);
     documentId1 = 1;
-    await spooVault.connect(owner).addDocument(vaultId, "meta2", "QmHash2", 0);
+    await heirly.connect(owner).addDocument(vaultId, "meta2", "QmHash2", 0);
     documentId2 = 2;
 
-    await spooVault.connect(owner).mintAccessToken(vaultId, requester.address, "uri1");
-    await spooVault.connect(owner).mintAccessToken(vaultId, requester2.address, "uri2");
+    await heirly.connect(owner).mintAccessToken(vaultId, requester.address, "uri1");
+    await heirly.connect(owner).mintAccessToken(vaultId, requester2.address, "uri2");
   });
 
   it("demonstrates >70% on-chain gas reduction for K=10 guardian approvals using BLS aggregation", async function () {
     // Benchmark 1: Sequential individual approvals (Standard ECDSA flow - 10 separate transactions)
-    await spooVault.connect(requester).requestAccess(documentId1);
+    await heirly.connect(requester).requestAccess(documentId1);
     const ecdsaRequestId = 1;
 
     let totalEcdsaGas = 0n;
     for (let i = 0; i < guardians.length; i++) {
-      const tx = await spooVault
+      const tx = await heirly
         .connect(guardians[i])
         ["approveAccess(uint256)"](ecdsaRequestId);
       const receipt = await tx.wait();
@@ -79,14 +79,14 @@ describe("BLS Threshold vs ECDSA Gas Benchmark", function () {
     }
 
     // Benchmark 2: 1-Tx Aggregated BLS Threshold Approval (1 single transaction)
-    await spooVault.connect(requester2).requestAccess(documentId2);
+    await heirly.connect(requester2).requestAccess(documentId2);
     const blsRequestId = 2;
 
     const guardianAddresses = guardians.map((g) => g.address);
     const aggregatedSig = mockG2Sig(99);
     const aggregatedPk = mockG1Key(99);
 
-    const blsTx = await spooVault.approveAccessBLS(
+    const blsTx = await heirly.approveAccessBLS(
       blsRequestId,
       guardianAddresses,
       aggregatedSig,

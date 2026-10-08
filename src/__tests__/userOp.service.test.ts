@@ -23,7 +23,7 @@ describe("userOp.service", () => {
   const sampleWallet = ethers.Wallet.createRandom();
   const entryPointAddress = "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789";
   const paymasterAddress = "0x0000000000000000000000000000000000001234";
-  const spooVaultAddress = "0x0000000000000000000000000000000000005678";
+  const heirlyAddress = "0x0000000000000000000000000000000000005678";
   const chainId = 43113; // Fuji testnet
 
   it("exports userOpService namespace with all expected methods", () => {
@@ -73,14 +73,14 @@ describe("userOp.service", () => {
 
     it("wraps inner calls into account execute(address,uint256,bytes)", () => {
       const inner = "0x12345678";
-      const callData = buildAccountExecuteCallData(spooVaultAddress, 0n, inner);
+      const callData = buildAccountExecuteCallData(heirlyAddress, 0n, inner);
       expect(callData.startsWith("0xb61d27f6")).toBe(true);
 
       const iface = new ethers.Interface([
         "function execute(address dest, uint256 value, bytes calldata func) external",
       ]);
       const decoded = iface.decodeFunctionData("execute", callData);
-      expect(decoded.dest.toLowerCase()).toBe(spooVaultAddress.toLowerCase());
+      expect(decoded.dest.toLowerCase()).toBe(heirlyAddress.toLowerCase());
       expect(decoded.value).toBe(0n);
       expect(decoded.func).toBe(inner);
     });
@@ -161,7 +161,7 @@ describe("userOp.service", () => {
         guardianAccount: sampleWallet.address,
         requestId: 10,
         paymasterAddress,
-        spooVaultAddress,
+        heirlyAddress,
         entryPointAddress,
         chainId,
         signer: sampleWallet,
@@ -182,7 +182,7 @@ describe("userOp.service", () => {
         guardianAccount: sampleWallet.address,
         vaultId: 5,
         paymasterAddress,
-        spooVaultAddress,
+        heirlyAddress,
         entryPointAddress,
         chainId,
         signer: sampleWallet,
@@ -199,7 +199,7 @@ describe("userOp.service", () => {
     it("formats UserOp as hex strings for JSON-RPC", () => {
       const userOp = buildGaslessUserOp({
         sender: sampleWallet.address,
-        target: spooVaultAddress,
+        target: heirlyAddress,
         innerCallData: "0x1234",
         paymasterAddress,
         nonce: 0n,
@@ -216,7 +216,7 @@ describe("userOp.service", () => {
     it("submits UserOp via eth_sendUserOperation to bundler RPC", async () => {
       const mockUserOp = buildGaslessUserOp({
         sender: sampleWallet.address,
-        target: spooVaultAddress,
+        target: heirlyAddress,
         innerCallData: "0x1234",
         paymasterAddress,
       });
@@ -246,7 +246,7 @@ describe("userOp.service", () => {
     it("throws when bundler returns an RPC error", async () => {
       const mockUserOp = buildGaslessUserOp({
         sender: sampleWallet.address,
-        target: spooVaultAddress,
+        target: heirlyAddress,
         innerCallData: "0x1234",
         paymasterAddress,
       });
@@ -287,7 +287,7 @@ describe("userOp.service", () => {
       const client = createPaymasterClient({
         entryPointAddress,
         paymasterAddress,
-        spooVaultAddress,
+        heirlyAddress,
         chainId,
       });
 

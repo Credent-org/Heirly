@@ -50,11 +50,11 @@ check(
 );
 check(
   "Documents does not read doc keys from localStorage directly",
-  !/localStorage\.getItem\([^)]*spoovault-doc-key/.test(documentsPage)
+  !/localStorage\.getItem\([^)]*heirly-doc-key/.test(documentsPage)
 );
 check(
   "AccessCenter does not read doc keys from localStorage directly",
-  !/localStorage\.getItem\([^)]*spoovault-doc-key/.test(accessCenter)
+  !/localStorage\.getItem\([^)]*heirly-doc-key/.test(accessCenter)
 );
 
 check(

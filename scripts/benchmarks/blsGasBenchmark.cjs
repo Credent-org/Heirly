@@ -8,19 +8,19 @@ async function main() {
   const guardians = signers.slice(3, 13).sort((a, b) => (a.address.toLowerCase() < b.address.toLowerCase() ? -1 : 1)); // K = 10 guardians sorted
 
   console.log("---------------------------------------------------------------");
-  console.log("  SPOOVAULT BLS12-381 THRESHOLD SIGNATURE AGGREGATION BENCHMARK  ");
+  console.log("  HEIRLY BLS12-381 THRESHOLD SIGNATURE AGGREGATION BENCHMARK  ");
   console.log("---------------------------------------------------------------");
 
-  const SpooVault = await ethers.getContractFactory("SpooVault");
-  const spooVault = await SpooVault.deploy();
-  await spooVault.waitForDeployment();
-  const spooVaultAddress = await spooVault.getAddress();
+  const Heirly = await ethers.getContractFactory("Heirly");
+  const heirly = await Heirly.deploy();
+  await heirly.waitForDeployment();
+  const heirlyAddress = await heirly.getAddress();
 
-  console.log(`Deployed SpooVault to: ${spooVaultAddress}`);
+  console.log(`Deployed Heirly to: ${heirlyAddress}`);
 
   // Create vault with 10 guardians, threshold = 10
   const guardianAddresses = guardians.map((g) => g.address);
-  const tx = await spooVault
+  const tx = await heirly
     .connect(owner)
     .createVault("K=10 Gas Benchmark Vault", "Vault for K=10 gas comparison", guardianAddresses, 10);
   await tx.wait();
@@ -40,28 +40,28 @@ async function main() {
 
   // Accept invites and register BLS keys
   for (let i = 0; i < guardians.length; i++) {
-    await spooVault.connect(guardians[i]).acceptGuardianInvite(vaultId);
-    await spooVault
+    await heirly.connect(guardians[i]).acceptGuardianInvite(vaultId);
+    await heirly
       .connect(guardians[i])
       .registerGuardianBLSKey(vaultId, mockG1Key(i + 1), mockG2Sig(i + 1));
   }
 
   // Upload documents and mint passes
-  await spooVault.connect(owner).addDocument(vaultId, "encrypted-metadata-1", "QmBLSBenchmarkHash1", 0);
+  await heirly.connect(owner).addDocument(vaultId, "encrypted-metadata-1", "QmBLSBenchmarkHash1", 0);
   const documentId1 = 1;
-  await spooVault.connect(owner).addDocument(vaultId, "encrypted-metadata-2", "QmBLSBenchmarkHash2", 0);
+  await heirly.connect(owner).addDocument(vaultId, "encrypted-metadata-2", "QmBLSBenchmarkHash2", 0);
   const documentId2 = 2;
 
-  await spooVault.connect(owner).mintAccessToken(vaultId, requester1.address, "ipfs://nft-pass-1");
-  await spooVault.connect(owner).mintAccessToken(vaultId, requester2.address, "ipfs://nft-pass-2");
+  await heirly.connect(owner).mintAccessToken(vaultId, requester1.address, "ipfs://nft-pass-1");
+  await heirly.connect(owner).mintAccessToken(vaultId, requester2.address, "ipfs://nft-pass-2");
 
   // 1. Sequential individual approvals (Standard ECDSA flow - 10 transactions)
-  await spooVault.connect(requester1).requestAccess(documentId1);
+  await heirly.connect(requester1).requestAccess(documentId1);
   const ecdsaRequestId = 1;
 
   let totalEcdsaGas = 0n;
   for (let i = 0; i < guardians.length; i++) {
-    const approveTx = await spooVault
+    const approveTx = await heirly
       .connect(guardians[i])
       ["approveAccess(uint256)"](ecdsaRequestId);
     const receipt = await approveTx.wait();
@@ -69,13 +69,13 @@ async function main() {
   }
 
   // 2. 1-Tx Aggregated BLS Threshold Approval (1 transaction)
-  await spooVault.connect(requester2).requestAccess(documentId2);
+  await heirly.connect(requester2).requestAccess(documentId2);
   const blsRequestId = 2;
 
   const aggregatedSig = mockG2Sig(99);
   const aggregatedPk = mockG1Key(99);
 
-  const blsTx = await spooVault.approveAccessBLS(
+  const blsTx = await heirly.approveAccessBLS(
     blsRequestId,
     guardianAddresses,
     aggregatedSig,

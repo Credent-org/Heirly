@@ -1,7 +1,7 @@
 import { testWithSynpress } from "@synthetixio/synpress";
 import { MetaMask, metaMaskFixtures } from "@synthetixio/synpress/playwright";
 import type { MetaMask as MetaMaskType } from "@synthetixio/synpress/playwright";
-import basicSetup from "../wallet-setup/spoovault.setup";
+import basicSetup from "../wallet-setup/heirly.setup";
 import { WALLET_PASSWORD } from "../wallets";
 
 /**

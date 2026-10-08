@@ -16,7 +16,7 @@ import "./IERC6551Registry.sol";
  *      ───────────────
  *      Instead of appending context to the proxy bytecode (which is unreliable
  *      across compiler versions), the registry stores the binding in a mapping
- *      keyed by the TBA address. The SpooAccountImplementation reads it back
+ *      keyed by the TBA address. The HeirlyAccountImplementation reads it back
  *      via a call to `accountContext(address)` on the registry address stored
  *      in an immutable slot.
  *

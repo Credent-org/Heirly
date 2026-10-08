@@ -1,6 +1,6 @@
 # Shamir's Secret Sharing (SSS) Cryptographic Mechanics
 
-SpooVault splits document decryption keys using Shamir's Secret Sharing over Galois Field 256 ($GF(256)$).
+Heirly splits document decryption keys using Shamir's Secret Sharing over Galois Field 256 ($GF(256)$).
 
 ## mathematical Outline
 

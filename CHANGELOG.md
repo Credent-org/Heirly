@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the SpooVault project will be documented in this file.
+All notable changes to the Heirly project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -9,34 +9,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **VRF / Soroban PRNG Emergency Unlock Jitter (Issue #93)**:
-  - `contracts/SpooVault.sol`: emergency-mode unlocks now require verifiable randomness fulfillment and satisfy both a timestamp bound and a block-height bound of `baseDelayBlocks + 256 + jitterBlocks` before `EMERGENCY_ONLY` documents can be requested. Stale request IDs are bound to an emergency epoch so a previous cycle cannot write the new schedule.
+  - `contracts/Heirly.sol`: emergency-mode unlocks now require verifiable randomness fulfillment and satisfy both a timestamp bound and a block-height bound of `baseDelayBlocks + 256 + jitterBlocks` before `EMERGENCY_ONLY` documents can be requested. Stale request IDs are bound to an emergency epoch so a previous cycle cannot write the new schedule.
   - `contracts/interfaces/IVRFCoordinatorV2Plus.sol` + `contracts/mocks/MockVRFCoordinator.sol`: aligned request API with Chainlink VRF v2.5 `RandomWordsRequest` struct and updated local mock fulfillment path.
   - `contracts-stellar/src/lib.rs`: added Soroban PRNG-backed emergency unlock scheduling (`set_emergency_jitter_window`, `fulfill_emergency_unlock_delay`, `get_emergency_unlock_schedule`) with dual timestamp+ledger-sequence maturity checks.
   - Added/expanded contract tests in `test/VrfEmergencyDelay.test.cjs` and `contracts-stellar/src/test.rs` for request creation, fulfillment validation, stale-request rejection, and unlock-bound verification.
   - Frontend: Vaults shows pending / fulfilled / loading / error unlock status and never claims documents are unlocked from the client. Stellar emergency enable/fulfill is wired through `stellarService`.
-  - Deploy: `scripts/deploy.mjs` deploys and links `EmergencyVrfLogic` + `SpooVaultAdminLogic`, optionally calls `configureVrf` from VRF env vars, and reports runtime size vs EIP-170.
-  - VRF request/fulfillment lives in `EmergencyVrfLogic`; guardian rotation, PSS refresh, invite listing, and GID string formatting live in `SpooVaultAdminLogic` so the vault can be linked under EIP-170.
-  - Optimizer `runs` is 1 (size-biased). Tests deploy via `test/helpers/deploySpooVault.cjs`.
+  - Deploy: `scripts/deploy.mjs` deploys and links `EmergencyVrfLogic` + `HeirlyAdminLogic`, optionally calls `configureVrf` from VRF env vars, and reports runtime size vs EIP-170.
+  - VRF request/fulfillment lives in `EmergencyVrfLogic`; guardian rotation, PSS refresh, invite listing, and GID string formatting live in `HeirlyAdminLogic` so the vault can be linked under EIP-170.
+  - Optimizer `runs` is 1 (size-biased). Tests deploy via `test/helpers/deployHeirly.cjs`.
   - `npm run test:stellar` runs cargo against a temp `CARGO_TARGET_DIR` so Windows Application Control does not block the test binary under Documents.
   - `cargo test` no longer requires the upgrade-fixture Wasm; CI enables `--features upgrade-tests` after building it.
 - **EIP-712 Guardian Approval Delegation (client helpers)**:
   - `contractService`: `signGuardianDelegation`, `approveAccessDelegated`, `revokeDelegation`, and `isDelegationNonceRevoked` for on-chain `GuardianDelegation` grants (`approveAccessDelegated` / `revokedNonces`).
 - **EIP-712 / Soroban Auth Relayer for Automated Proof-of-Life Heartbeats (Issue #32)**:
-  - `SpooVault.sol`: `authorizeKeeperBySig`, `revokeKeeper`, and `proveLifeByKeeper` let a vault owner delegate proof-of-life heartbeats to a Web3 Keeper (Chainlink Automation / Gelato) via a one-time EIP-712 typed signature, so the keeper can relay heartbeats on its own signed transactions until the delegation expires without needing a fresh owner signature each time.
+  - `Heirly.sol`: `authorizeKeeperBySig`, `revokeKeeper`, and `proveLifeByKeeper` let a vault owner delegate proof-of-life heartbeats to a Web3 Keeper (Chainlink Automation / Gelato) via a one-time EIP-712 typed signature, so the keeper can relay heartbeats on its own signed transactions until the delegation expires without needing a fresh owner signature each time.
   - `contracts-stellar/src/lib.rs`: `authorize_keeper`, `revoke_keeper`, and `prove_life_by_keeper` mirror the same delegation model using Soroban's native `require_auth`, which already decouples the authorizing owner from the fee-paying/submitting keeper.
   - `contractService`/`stellarService`: signing and relay helpers (`signKeeperAuthorization`, `relayKeeperAuthorization`, `revokeKeeper`, `relayProofOfLife` / `authorizeKeeper`, `revokeKeeperAuthorization`, `relayProofOfLifeAsKeeper`, `getKeeperAuthorization`) for both chains.
   - Reference keeper jobs: `scripts/keeper-relay-evm.mjs` and `scripts/keeper-relay-soroban.mjs`.
   - Hardhat tests (`test/HeartbeatRelay.test.cjs`) and Soroban `cargo test` coverage (`contracts-stellar/src/test.rs`) for the authorization, expiry, revocation, and replay-protection paths on both chains.
 - **Pinata proxy HMAC auth and CORS lock-down (Issue #27)**:
-  - Restricted `scripts/pinata-proxy.mjs` CORS to `SPOOVUALT_ALLOWED_ORIGINS` instead of `Access-Control-Allow-Origin: *`.
-  - Required `X-SpooVault-Signature` HMAC verification on pin/list routes so unsigned external requests are rejected with 403 Forbidden, keeping the Pinata JWT off the public internet.
+  - Restricted `scripts/pinata-proxy.mjs` CORS to `HEIRLY_ALLOWED_ORIGINS` instead of `Access-Control-Allow-Origin: *`.
+  - Required `X-Heirly-Signature` HMAC verification on pin/list routes so unsigned external requests are rejected with 403 Forbidden, keeping the Pinata JWT off the public internet.
 - **Multi-gateway IPFS download circuit breaker (Issue #26)**:
   - Replaced single-gateway Pinata document fetches with a race across Pinata, Infura IPFS, Cloudflare IPFS, and ipfs.io.
   - Per-gateway circuit breaker skips endpoints that return HTTP 429, time out, or fail with 401/403/5xx until cooldown elapses, so public Pinata rate limits no longer crash document loading.
   - Wired `fetchFromIPFS` into Documents, Access Center, and NFT `ipfs://` metadata loads; uploads remain on Pinata/proxy.
 - **Web Crypto API ECIES Migration (Issue #17)**:
   - Replaced deprecated MetaMask `eth_decrypt` and `eth_getEncryptionPublicKey` RPC methods with browser-native Web Crypto API ECIES (ECDH P-256 + AES-256-GCM).
-  - Built `clientKeyringService` with browser IndexedDB storage (`spoovault-keyring`), encrypting client-side private keys using PBKDF2-SHA256 (600,000 iterations) + AES-256-GCM with optional PIN/passphrase protection and in-memory session caching.
+  - Built `clientKeyringService` with browser IndexedDB storage (`heirly-keyring`), encrypting client-side private keys using PBKDF2-SHA256 (600,000 iterations) + AES-256-GCM with optional PIN/passphrase protection and in-memory session caching.
   - Standardized ECIES payload format (`ecies-p256-aes256gcm-v1`) across Avalanche EVM and Stellar Soroban networks with seamless backward compatibility for legacy `x25519-xsalsa20-poly1305` payloads.
   - Updated Profile, Dashboard, AccessCenter, and Documents flows to perform key generation, guardian share decryption, and beneficiary key package delivery seamlessly across all Web3 wallets without relying on `eth_decrypt`.
 - **Extended Crypto Utility Functions**:
@@ -51,7 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - **UTF-8 Multi-byte Character Encoding in Crypto Utilities**: Fixed character corruption and potential `DOMException: Invalid character` errors when encoding/decoding Base64 payloads containing multi-byte UTF-8 characters (emojis, international characters, and symbols) by refactoring to standard `TextEncoder` and `TextDecoder` APIs.
-- **Timestamp Manipulation Guard on Post-Death Release** (#4): `SpooVault.sol` and `contracts-stellar/src/lib.rs` no longer unlock post-death release conditions from `block.timestamp`/ledger-timestamp comparisons alone. Both contracts now also require a minimum block/ledger-sequence delta (`MIN_POST_DEATH_BLOCK_DELTA` / `MIN_POST_DEATH_SEQUENCE_DELTA`, 256) to have elapsed since the last recorded proof of life, closing the window for miners/validators to trigger an early release via short-range timestamp drift.
+- **Timestamp Manipulation Guard on Post-Death Release** (#4): `Heirly.sol` and `contracts-stellar/src/lib.rs` no longer unlock post-death release conditions from `block.timestamp`/ledger-timestamp comparisons alone. Both contracts now also require a minimum block/ledger-sequence delta (`MIN_POST_DEATH_BLOCK_DELTA` / `MIN_POST_DEATH_SEQUENCE_DELTA`, 256) to have elapsed since the last recorded proof of life, closing the window for miners/validators to trigger an early release via short-range timestamp drift.
 
 ---
 
@@ -64,7 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Automated CI/CD Pipeline**: GitHub Actions workflow (`.github/workflows/ci.yml`) performing automated TypeScript type checks, Vitest test execution, Vite production bundling, and Hardhat EVM contract compilation on pushes and pull requests.
 - **Comprehensive Unit Test Suites**:
   - Vitest test suite covering client-side crypto, TweetNaCl key boxes, Web Workers, audit service, and formatting helpers.
-  - Hardhat test suite (`test/SpooVault.test.js`) testing EVM public key registry, vault creation, signature thresholds, proof of life, and emergency modes.
+  - Hardhat test suite (`test/Heirly.test.js`) testing EVM public key registry, vault creation, signature thresholds, proof of life, and emergency modes.
   - Native Rust unit test file (`contracts-stellar/src/test.rs`) for Stellar Soroban contract logic.
 - **Document Filtering & Search Bar**: Integrated `DocumentFilterBar` supporting live keyword search, category tag pills, network isolation (Avalanche vs. Stellar), and sorting.
 - **Repository Governance Documentation**: Added `ARCHITECTURE.md`, `SECURITY.md`, GitHub issue templates (`bug_report.md`, `feature_request.md`), and pull request template (`PULL_REQUEST_TEMPLATE.md`).
@@ -74,4 +74,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2026-08-01
 
 ### Added
-- Initial release of SpooVault supporting dual Avalanche (EVM) and Stellar (Soroban) document custody, client-side encryption, and IPFS storage.
+- Initial release of Heirly supporting dual Avalanche (EVM) and Stellar (Soroban) document custody, client-side encryption, and IPFS storage.

@@ -3,7 +3,7 @@
  *
  * Replaces polling-based RPC contract reads with a single GraphQL query
  * (dashboard load) plus push-based subscriptions (live updates), against
- * a Goldsky / Envio / Subsquid-style indexer that ingests SpooVault's
+ * a Goldsky / Envio / Subsquid-style indexer that ingests Heirly's
  * on-chain events (Avalanche EVM + Stellar Soroban) into one queryable
  * schema.
  *

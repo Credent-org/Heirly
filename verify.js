@@ -1,8 +1,10 @@
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
-console.log("? SpooVault project structure verified!");
+console.log("? Heirly project structure verified!");
 console.log("\n?? Project Structure:");
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname);
 
 function listFiles(dir, indent = "") {

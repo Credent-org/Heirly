@@ -1,5 +1,5 @@
-const SESSION_PREFIX = "spoovault-doc-key-session-";
-const LEGACY_PREFIX = "spoovault-doc-key-";
+const SESSION_PREFIX = "heirly-doc-key-session-";
+const LEGACY_PREFIX = "heirly-doc-key-";
 
 const getSessionKey = (documentId: number): string =>
   `${SESSION_PREFIX}${documentId}`;

@@ -1,11 +1,11 @@
 /**
- * SpooVault – Soroban Automated Multi-Party State Archival Auto-Bump TTL Relayer
+ * Heirly – Soroban Automated Multi-Party State Archival Auto-Bump TTL Relayer
  *
- * Issue #94: https://github.com/spoo-vault/spoovault/issues/94
+ * Issue #94: https://github.com/heirly/heirly/issues/94
  *
  * WHAT IT DOES
  * ─────────────
- * Monitors every persistent-storage entry in the SpooVault Soroban contract
+ * Monitors every persistent-storage entry in the Heirly Soroban contract
  * (vaults, documents, access-requests) and automatically issues
  * extend_vault_ttl / extend_document_ttl / extend_request_ttl / extend_contract_ttl
  * Soroban transactions whenever an entry's remaining TTL falls below the
@@ -20,7 +20,7 @@
  *
  * REQUIRED ENV VARS
  * ──────────────────
- *   VITE_STELLAR_CONTRACT_ADDRESS   – deployed SpooVault contract ID (C…)
+ *   VITE_STELLAR_CONTRACT_ADDRESS   – deployed Heirly contract ID (C…)
  *   RELAYER_SECRET_KEY               – Stellar secret key (S…) used to sign bump tx
  *
  * OPTIONAL ENV VARS
@@ -251,7 +251,7 @@ const sleep = (ms) =>
 
 /**
  * Build, simulate, sign, and submit a Soroban transaction that calls a
- * TTL-extension function on the SpooVault contract.  Returns the final
+ * TTL-extension function on the Heirly contract.  Returns the final
  * transaction hash on success.
  *
  * @param {import('@stellar/stellar-sdk').rpc.Server} server
@@ -644,7 +644,7 @@ export function validateConfig(cfg) {
   if (!cfg.contractId) {
     throw new Error(
       "VITE_STELLAR_CONTRACT_ADDRESS is not set. " +
-        "Export the deployed SpooVault contract ID before starting the relayer."
+        "Export the deployed Heirly contract ID before starting the relayer."
     );
   }
   if (!cfg.contractId.startsWith("C") || cfg.contractId.length !== 56) {
@@ -669,7 +669,7 @@ export function validateConfig(cfg) {
 // ─── Main entry point ────────────────────────────────────────────────────────
 
 async function main() {
-  info("SpooVault Soroban TTL Relayer starting…", {
+  info("Heirly Soroban TTL Relayer starting…", {
     rpcUrl: CONFIG.rpcUrl,
     contractId: CONFIG.contractId,
     ttlThreshold: CONFIG.ttlThreshold,

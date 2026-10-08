@@ -1,6 +1,6 @@
 # Local Development Workspace & System Prerequisites
 
-Ensure the following tools are installed to run SpooVault locally.
+Ensure the following tools are installed to run Heirly locally.
 
 ## Development Toolkit
 

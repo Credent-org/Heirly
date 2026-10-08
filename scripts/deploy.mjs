@@ -1,7 +1,7 @@
 /**
- * SpooVault Contract Deployment Script
+ * Heirly Contract Deployment Script
  *
- * Deploys the updated SpooVault.sol to Avalanche Fuji Testnet.
+ * Deploys the updated Heirly.sol to Avalanche Fuji Testnet.
  *
  * Prerequisites:
  *   npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox dotenv
@@ -59,7 +59,7 @@ const RPC_URL =
 // Hardhat artifacts path (run `npx hardhat compile` first)
 const ARTIFACT_PATH = resolve(
   __dirname,
-  "../artifacts/contracts/SpooVault.sol/SpooVault.json"
+  "../artifacts/contracts/Heirly.sol/Heirly.json"
 );
 
 if (!existsSync(ARTIFACT_PATH)) {
@@ -88,11 +88,11 @@ if (!existsSync(LIB_ARTIFACT_PATH)) {
 }
 const ADMIN_ARTIFACT_PATH = resolve(
   __dirname,
-  "../artifacts/contracts/libraries/SpooVaultAdminLogic.sol/SpooVaultAdminLogic.json"
+  "../artifacts/contracts/libraries/HeirlyAdminLogic.sol/HeirlyAdminLogic.json"
 );
 if (!existsSync(ADMIN_ARTIFACT_PATH)) {
   console.error(
-    "\n❌ SpooVaultAdminLogic artifact not found.\n   Run: npx hardhat compile\n"
+    "\n❌ HeirlyAdminLogic artifact not found.\n   Run: npx hardhat compile\n"
   );
   process.exit(1);
 }
@@ -124,7 +124,7 @@ function linkBytecode(unlinked, linkReferences, libraries) {
 const { ethers } = await import("ethers");
 
 async function main() {
-  console.log("\n🚀 SpooVault Deployment Script");
+  console.log("\n🚀 Heirly Deployment Script");
   console.log("================================");
   console.log("Network :", RPC_URL);
 
@@ -149,7 +149,7 @@ async function main() {
   const libAddress = await lib.getAddress();
   console.log("Library :", libAddress);
 
-  console.log("\nDeploying SpooVaultAdminLogic library...");
+  console.log("\nDeploying HeirlyAdminLogic library...");
   const adminFactory = new ethers.ContractFactory(adminArtifact.abi, adminArtifact.bytecode, wallet);
   const admin = await adminFactory.deploy();
   await admin.waitForDeployment();
@@ -158,10 +158,10 @@ async function main() {
 
   const bytecode = linkBytecode(artifact.bytecode, artifact.linkReferences, {
     EmergencyVrfLogic: libAddress,
-    SpooVaultAdminLogic: adminAddress,
+    HeirlyAdminLogic: adminAddress,
   });
 
-  console.log("\nDeploying SpooVault...");
+  console.log("\nDeploying Heirly...");
   const factory = new ethers.ContractFactory(abi, bytecode, wallet);
   const contract = await factory.deploy();
 
@@ -209,7 +209,7 @@ async function main() {
     );
   }
 
-  console.log("\n✅ SpooVault deployed at:", address);
+  console.log("\n✅ Heirly deployed at:", address);
   console.log("\n📝 Next steps:");
   console.log("   1. Update your .env file:");
   console.log("      VITE_CONTRACT_ADDRESS=" + address);

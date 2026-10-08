@@ -313,10 +313,10 @@ pub enum DataKey {
 }
 
 #[contract]
-pub struct SpooVaultStellar;
+pub struct HeirlyStellar;
 
 #[contractimpl]
-impl SpooVaultStellar {
+impl HeirlyStellar {
     /// Extend instance storage TTL
     pub fn extend_contract_ttl(env: Env) {
         Self::bump_instance(&env);
@@ -1766,7 +1766,7 @@ impl SpooVaultStellar {
         );
 
         let mut payload = Bytes::new(&env);
-        payload.extend_from_slice(b"SpooVaultProofOfLife");
+        payload.extend_from_slice(b"HeirlyProofOfLife");
         payload.extend_from_array(&gid_hash.to_array());
         payload.extend_from_slice(&evm_vault_id.to_be_bytes());
         payload.extend_from_array(&evm_owner.to_array());

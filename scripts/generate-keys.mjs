@@ -83,7 +83,7 @@ async function main() {
   const ptauFile = join(BUILD_DIR, "pot12_final.ptau");
   if (!existsSync(ptauFile)) {
     run(`npx snarkjs powersoftau new bn128 12 "${ptauFile}.tmp" -v`);
-    run(`npx snarkjs powersoftau contribute "${ptauFile}.tmp" "${ptauFile}" --name="SpooVault Contributor" -v -e="${seedArg || randomBytes(32).toString('hex')}"`);
+    run(`npx snarkjs powersoftau contribute "${ptauFile}.tmp" "${ptauFile}" --name="Heirly Contributor" -v -e="${seedArg || randomBytes(32).toString('hex')}"`);
     // Clean up temp
     try {
       execSync(`rm -f "${ptauFile}.tmp"`);
@@ -110,7 +110,7 @@ async function main() {
   const finalZkey = join(BUILD_DIR, `${CIRCUIT_NAME}_final.zkey`);
   if (!existsSync(finalZkey)) {
     run(
-      `npx snarkjs zkey contribute "${zkeyFile}" "${finalZkey}" --name="SpooVault ZK Contributor" -v -e="${seedArg || randomBytes(32).toString('hex')}"`
+      `npx snarkjs zkey contribute "${zkeyFile}" "${finalZkey}" --name="Heirly ZK Contributor" -v -e="${seedArg || randomBytes(32).toString('hex')}"`
     );
   } else {
     console.log("  ⚠ Final zkey already exists; skipping.");

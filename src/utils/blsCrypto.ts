@@ -6,9 +6,9 @@ import { BLSKeyPair, BLSSignatureShare, BLSAggregatedApprovalPayload } from '../
 
 const bls = bls12_381.longSignatures;
 
-/** Domain separation tag for SpooVault BLS Guardian Approvals */
-export const BLS_APPROVAL_DST = new TextEncoder().encode('BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_SPOOVAULT_APPROVAL_V1');
-export const BLS_POP_DST = new TextEncoder().encode('BLS_POP_BLS12381G2_XMD:SHA-256_SSWU_RO_SPOOVAULT_POP_V1');
+/** Domain separation tag for Heirly BLS Guardian Approvals */
+export const BLS_APPROVAL_DST = new TextEncoder().encode('BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_HEIRLY_APPROVAL_V1');
+export const BLS_POP_DST = new TextEncoder().encode('BLS_POP_BLS12381G2_XMD:SHA-256_SSWU_RO_HEIRLY_POP_V1');
 
 /** Convert Uint8Array to 0x-prefixed hex string */
 export function bytesToHex(bytes: Uint8Array): string {
@@ -109,7 +109,7 @@ export function encodeApprovalMessage(
   const normalizedBeneficiary = ethers.getAddress(beneficiary);
   const encoded = ethers.solidityPacked(
     ['string', 'uint256', 'uint256', 'uint256', 'address', 'uint256'],
-    ['SPOOVAULT_ACCESS_APPROVAL_V1', requestId, vaultId, documentId, normalizedBeneficiary, chainId]
+    ['HEIRLY_ACCESS_APPROVAL_V1', requestId, vaultId, documentId, normalizedBeneficiary, chainId]
   );
   return hexToBytes(encoded);
 }

@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a report to help us improve SpooVault
+about: Create a report to help us improve Heirly
 title: "[BUG] "
 labels: "bug"
 assignees: ""

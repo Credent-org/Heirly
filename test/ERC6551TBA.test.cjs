@@ -2,7 +2,7 @@
  * ERC6551TBA.test.cjs
  *
  * Hardhat / Chai tests for issue #79:
- *   ERC-6551 Token Bound Accounts for SpooVault NFTs.
+ *   ERC-6551 Token Bound Accounts for Heirly NFTs.
  *
  * Covers:
  *  - Deterministic TBA address computation (same inputs → same address)
@@ -16,17 +16,17 @@
  *  - TBA can receive and hold ETH
  *  - TBA can receive ERC-721 tokens (nested document sub-tokens)
  *  - state nonce increments on each execution
- *  - Access delegation via executeCall on SpooVault
+ *  - Access delegation via executeCall on Heirly
  */
 
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { deploySpooVault } = require("./helpers/deploySpooVault.cjs");
+const { deployHeirly } = require("./helpers/deployHeirly.cjs");
 
 describe("ERC-6551 Token Bound Accounts", function () {
   let registry;
   let implementation;
-  let spooVault;
+  let heirly;
 
   let owner;
   let guardian1;
@@ -47,21 +47,21 @@ describe("ERC-6551 Token Bound Accounts", function () {
     registry = await Registry.deploy();
     await registry.waitForDeployment();
 
-    const Impl = await ethers.getContractFactory("SpooAccountImplementation");
+    const Impl = await ethers.getContractFactory("HeirlyAccountImplementation");
     implementation = await Impl.deploy(await registry.getAddress());
     await implementation.waitForDeployment();
 
-    // Deploy SpooVault and create a vault so owner receives a vault NFT
-    spooVault = await deploySpooVault();
-    await spooVault.waitForDeployment();
+    // Deploy Heirly and create a vault so owner receives a vault NFT
+    heirly = await deployHeirly();
+    await heirly.waitForDeployment();
 
     // Create vault: owner + guardian1 → threshold 1
-    await spooVault
+    await heirly
       .connect(owner)
       .createVault("TBA Vault", "ERC-6551 test vault", [guardian1.address], 1);
 
     // Mint vault NFT to owner (tokenId 1). Owner is guardian of vault 1.
-    await spooVault.connect(owner).mintAccessToken(1, owner.address, "ipfs://tba-test");
+    await heirly.connect(owner).mintAccessToken(1, owner.address, "ipfs://tba-test");
   });
 
   // ── Helpers ──────────────────────────────────────────────────────────────
@@ -72,7 +72,7 @@ describe("ERC-6551 Token Bound Accounts", function () {
     return registry.account(
       await implementation.getAddress(),
       chainId,
-      await spooVault.getAddress(),
+      await heirly.getAddress(),
       tokenId,
       SALT
     );
@@ -84,7 +84,7 @@ describe("ERC-6551 Token Bound Accounts", function () {
     const tx = await registry.createAccount(
       await implementation.getAddress(),
       chainId,
-      await spooVault.getAddress(),
+      await heirly.getAddress(),
       tokenId,
       SALT,
       "0x"
@@ -107,7 +107,7 @@ describe("ERC-6551 Token Bound Accounts", function () {
     it("account() returns different addresses for different tokenIds", async function () {
       const chainId = (await ethers.provider.getNetwork()).chainId;
       const implAddr = await implementation.getAddress();
-      const nftAddr = await spooVault.getAddress();
+      const nftAddr = await heirly.getAddress();
 
       const addr1 = await registry.account(implAddr, chainId, nftAddr, 1, SALT);
       const addr2 = await registry.account(implAddr, chainId, nftAddr, 2, SALT);
@@ -117,7 +117,7 @@ describe("ERC-6551 Token Bound Accounts", function () {
     it("account() returns different addresses for different salts", async function () {
       const chainId = (await ethers.provider.getNetwork()).chainId;
       const implAddr = await implementation.getAddress();
-      const nftAddr = await spooVault.getAddress();
+      const nftAddr = await heirly.getAddress();
 
       const addr1 = await registry.account(implAddr, chainId, nftAddr, 1, 0);
       const addr2 = await registry.account(implAddr, chainId, nftAddr, 1, 1);
@@ -142,7 +142,7 @@ describe("ERC-6551 Token Bound Accounts", function () {
         registry.createAccount(
           await implementation.getAddress(),
           chainId,
-          await spooVault.getAddress(),
+          await heirly.getAddress(),
           VAULT_TOKEN_ID,
           SALT,
           "0x"
@@ -153,7 +153,7 @@ describe("ERC-6551 Token Bound Accounts", function () {
     it("is idempotent: second createAccount returns same address, no event", async function () {
       const chainId = (await ethers.provider.getNetwork()).chainId;
       const implAddr = await implementation.getAddress();
-      const nftAddr = await spooVault.getAddress();
+      const nftAddr = await heirly.getAddress();
 
       // First deployment
       await registry.createAccount(implAddr, chainId, nftAddr, VAULT_TOKEN_ID, SALT, "0x");
@@ -166,14 +166,14 @@ describe("ERC-6551 Token Bound Accounts", function () {
   });
 
   // ─────────────────────────────────────────────────────────────────────────
-  // 3. SpooAccountImplementation – token() context decoding
+  // 3. HeirlyAccountImplementation – token() context decoding
   // ─────────────────────────────────────────────────────────────────────────
 
-  describe("SpooAccountImplementation – token()", function () {
+  describe("HeirlyAccountImplementation – token()", function () {
     it("decodes chainId, tokenContract, and tokenId correctly", async function () {
       const tbaAddr = await deployTBA(VAULT_TOKEN_ID);
       const tba = await ethers.getContractAt(
-        "SpooAccountImplementation",
+        "HeirlyAccountImplementation",
         tbaAddr
       );
 
@@ -182,21 +182,21 @@ describe("ERC-6551 Token Bound Accounts", function () {
 
       expect(tbaChainId).to.equal(chainId);
       expect(tbaContract.toLowerCase()).to.equal(
-        (await spooVault.getAddress()).toLowerCase()
+        (await heirly.getAddress()).toLowerCase()
       );
       expect(tbaTokenId).to.equal(VAULT_TOKEN_ID);
     });
   });
 
   // ─────────────────────────────────────────────────────────────────────────
-  // 4. SpooAccountImplementation – owner()
+  // 4. HeirlyAccountImplementation – owner()
   // ─────────────────────────────────────────────────────────────────────────
 
-  describe("SpooAccountImplementation – owner()", function () {
+  describe("HeirlyAccountImplementation – owner()", function () {
     it("returns the current NFT owner", async function () {
       const tbaAddr = await deployTBA(VAULT_TOKEN_ID);
       const tba = await ethers.getContractAt(
-        "SpooAccountImplementation",
+        "HeirlyAccountImplementation",
         tbaAddr
       );
       expect(await tba.owner()).to.equal(owner.address);
@@ -205,12 +205,12 @@ describe("ERC-6551 Token Bound Accounts", function () {
     it("reflects ownership after NFT transfer", async function () {
       const tbaAddr = await deployTBA(VAULT_TOKEN_ID);
       const tba = await ethers.getContractAt(
-        "SpooAccountImplementation",
+        "HeirlyAccountImplementation",
         tbaAddr
       );
 
       // Transfer NFT from owner → beneficiary
-      await spooVault
+      await heirly
         .connect(owner)
         .transferFrom(owner.address, beneficiary.address, VAULT_TOKEN_ID);
 
@@ -219,16 +219,16 @@ describe("ERC-6551 Token Bound Accounts", function () {
   });
 
   // ─────────────────────────────────────────────────────────────────────────
-  // 5. SpooAccountImplementation – executeCall
+  // 5. HeirlyAccountImplementation – executeCall
   // ─────────────────────────────────────────────────────────────────────────
 
-  describe("SpooAccountImplementation – executeCall", function () {
+  describe("HeirlyAccountImplementation – executeCall", function () {
     let tba;
     let tbaAddr;
 
     beforeEach(async function () {
       tbaAddr = await deployTBA(VAULT_TOKEN_ID);
-      tba = await ethers.getContractAt("SpooAccountImplementation", tbaAddr);
+      tba = await ethers.getContractAt("HeirlyAccountImplementation", tbaAddr);
     });
 
     it("allows owner to forward an ETH transfer", async function () {
@@ -276,7 +276,7 @@ describe("ERC-6551 Token Bound Accounts", function () {
 
     it("bubbles up revert reason from callee", async function () {
       // Encode a call to createVault with invalid args (no external guardians)
-      const badData = spooVault.interface.encodeFunctionData("createVault", [
+      const badData = heirly.interface.encodeFunctionData("createVault", [
         "Bad",
         "Bad",
         [],
@@ -285,8 +285,8 @@ describe("ERC-6551 Token Bound Accounts", function () {
       await expect(
         tba
           .connect(owner)
-          .executeCall(await spooVault.getAddress(), 0, badData)
-      ).to.be.revertedWithCustomError(spooVault, "AtLeastOneGuardian");
+          .executeCall(await heirly.getAddress(), 0, badData)
+      ).to.be.revertedWithCustomError(heirly, "AtLeastOneGuardian");
     });
   });
 
@@ -294,7 +294,7 @@ describe("ERC-6551 Token Bound Accounts", function () {
   // 6. TBA as asset holder
   // ─────────────────────────────────────────────────────────────────────────
 
-  describe("SpooAccountImplementation – asset holding", function () {
+  describe("HeirlyAccountImplementation – asset holding", function () {
     it("TBA can receive and hold ETH", async function () {
       const tbaAddr = await deployTBA(VAULT_TOKEN_ID);
 
@@ -309,36 +309,36 @@ describe("ERC-6551 Token Bound Accounts", function () {
 
     it("TBA can receive an ERC-721 token (nested document token)", async function () {
       // Mint a second vault NFT representing a nested document credential
-      await spooVault
+      await heirly
         .connect(owner)
         .createVault("Sub Vault", "Nested", [guardian2.address], 1);
-      await spooVault.connect(owner).mintAccessToken(2, owner.address, "ipfs://sub-vault");
+      await heirly.connect(owner).mintAccessToken(2, owner.address, "ipfs://sub-vault");
 
       const tbaAddr = await deployTBA(VAULT_TOKEN_ID);
 
       // Transfer the second vault NFT into the TBA
-      await spooVault
+      await heirly
         .connect(owner)
         .transferFrom(owner.address, tbaAddr, 2);
 
-      expect(await spooVault.ownerOf(2)).to.equal(tbaAddr);
+      expect(await heirly.ownerOf(2)).to.equal(tbaAddr);
     });
   });
 
   // ─────────────────────────────────────────────────────────────────────────
-  // 7. Access delegation via executeCall on SpooVault
+  // 7. Access delegation via executeCall on Heirly
   // ─────────────────────────────────────────────────────────────────────────
 
   describe("Access delegation through TBA", function () {
-    it("TBA owner can register a public key on SpooVault via executeCall", async function () {
+    it("TBA owner can register a public key on Heirly via executeCall", async function () {
       const tbaAddr = await deployTBA(VAULT_TOKEN_ID);
       const tba = await ethers.getContractAt(
-        "SpooAccountImplementation",
+        "HeirlyAccountImplementation",
         tbaAddr
       );
 
       const pubKey = "TBA_PUBLIC_KEY_BASE64_PLACEHOLDER";
-      const callData = spooVault.interface.encodeFunctionData(
+      const callData = heirly.interface.encodeFunctionData(
         "registerPublicKey",
         [pubKey]
       );
@@ -346,9 +346,9 @@ describe("ERC-6551 Token Bound Accounts", function () {
       await expect(
         tba
           .connect(owner)
-          .executeCall(await spooVault.getAddress(), 0, callData)
+          .executeCall(await heirly.getAddress(), 0, callData)
       )
-        .to.emit(spooVault, "PublicKeyRegistered")
+        .to.emit(heirly, "PublicKeyRegistered")
         .withArgs(tbaAddr, pubKey);
     });
   });

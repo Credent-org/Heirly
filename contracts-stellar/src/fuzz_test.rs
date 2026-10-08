@@ -114,7 +114,7 @@ fn arb_action() -> impl Strategy<Value = Action> {
     ]
 }
 
-fn setup<'a>() -> (Env, SpooVaultStellarClient<'a>) {
+fn setup<'a>() -> (Env, HeirlyStellarClient<'a>) {
     // A property test creates and drops thousands of `Env`s across its
     // cases; committing a `test_snapshots/*.N.json` regression file per drop
     // (soroban-sdk's default for `Env::default()`) would flood the repo, so
@@ -122,8 +122,8 @@ fn setup<'a>() -> (Env, SpooVaultStellarClient<'a>) {
     let env = Env::new_with_config(soroban_sdk::testutils::EnvTestConfig {
         capture_snapshot_at_drop: false,
     });
-    let contract_id = env.register_contract(None, SpooVaultStellar);
-    let client = SpooVaultStellarClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, HeirlyStellar);
+    let client = HeirlyStellarClient::new(&env, &contract_id);
     env.mock_all_auths();
     // A single `Env`'s budget is shared cumulatively across every call made
     // against it, unlike on a real network where each transaction gets a

@@ -1,10 +1,10 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { deploySpooVault } = require("./helpers/deploySpooVault.cjs");
+const { deployHeirly } = require("./helpers/deployHeirly.cjs");
 const { time } = require("@nomicfoundation/hardhat-network-helpers");
 
-describe("SpooVault Proactive Secret Resharing (zero-sharing protocol)", function () {
-  let spooVault;
+describe("Heirly Proactive Secret Resharing (zero-sharing protocol)", function () {
+  let heirly;
   let owner;
   let guardian1;
   let guardian2;
@@ -18,10 +18,10 @@ describe("SpooVault Proactive Secret Resharing (zero-sharing protocol)", functio
   beforeEach(async function () {
     [owner, guardian1, guardian2, guardian3, outsider] = await ethers.getSigners();
 
-    spooVault = await deploySpooVault();
+    heirly = await deployHeirly();
 
     const guardians = [guardian1.address, guardian2.address, guardian3.address];
-    await spooVault.connect(owner).createVault(
+    await heirly.connect(owner).createVault(
       "PSS Test Vault",
       "Proactive secret resharing vault",
       guardians,
@@ -29,12 +29,12 @@ describe("SpooVault Proactive Secret Resharing (zero-sharing protocol)", functio
     );
     vaultId = 1;
 
-    await spooVault.connect(guardian1).acceptGuardianInvite(vaultId);
-    await spooVault.connect(guardian2).acceptGuardianInvite(vaultId);
-    await spooVault.connect(guardian3).acceptGuardianInvite(vaultId);
+    await heirly.connect(guardian1).acceptGuardianInvite(vaultId);
+    await heirly.connect(guardian2).acceptGuardianInvite(vaultId);
+    await heirly.connect(guardian3).acceptGuardianInvite(vaultId);
 
     // Owner uploads a document with per-guardian encrypted shares.
-    const tx = await spooVault
+    const tx = await heirly
       .connect(owner)
       .addDocument(
         vaultId,
@@ -57,74 +57,74 @@ describe("SpooVault Proactive Secret Resharing (zero-sharing protocol)", functio
   };
 
   const submitAll = async () => {
-    await spooVault.connect(owner).submitZeroShareCommitment(documentId, fakeCommitment("owner"));
-    await spooVault.connect(guardian1).submitZeroShareCommitment(documentId, fakeCommitment("g1"));
-    await spooVault.connect(guardian2).submitZeroShareCommitment(documentId, fakeCommitment("g2"));
-    await spooVault.connect(guardian3).submitZeroShareCommitment(documentId, fakeCommitment("g3"));
+    await heirly.connect(owner).submitZeroShareCommitment(documentId, fakeCommitment("owner"));
+    await heirly.connect(guardian1).submitZeroShareCommitment(documentId, fakeCommitment("g1"));
+    await heirly.connect(guardian2).submitZeroShareCommitment(documentId, fakeCommitment("g2"));
+    await heirly.connect(guardian3).submitZeroShareCommitment(documentId, fakeCommitment("g3"));
   };
 
   describe("Session lifecycle", function () {
     it("should let a guardian start a reshare session with correct epoch and deadline", async function () {
-      const tx = await spooVault.connect(guardian1).startShareRefresh(documentId, RESHARE_DURATION);
+      const tx = await heirly.connect(guardian1).startShareRefresh(documentId, RESHARE_DURATION);
       await expect(tx)
-        .to.emit(spooVault, "ShareRefreshStarted")
+        .to.emit(heirly, "ShareRefreshStarted")
         .withArgs(documentId, 1, (await tx.getBlock()).timestamp + RESHARE_DURATION);
 
-      const session = await spooVault.getReshareSession(documentId);
+      const session = await heirly.getReshareSession(documentId);
       expect(session.active).to.equal(true);
       expect(session.submittedCount).to.equal(0);
-      expect(await spooVault.shareEpoch(documentId)).to.equal(0);
+      expect(await heirly.shareEpoch(documentId)).to.equal(0);
     });
 
     it("should revert if a non-guardian starts a session", async function () {
       await expect(
-        spooVault.connect(outsider).startShareRefresh(documentId, RESHARE_DURATION)
-      ).to.be.revertedWithCustomError(spooVault, "OnlyGuardian");
+        heirly.connect(outsider).startShareRefresh(documentId, RESHARE_DURATION)
+      ).to.be.revertedWithCustomError(heirly, "OnlyGuardian");
     });
 
     it("should revert for a non-existent document", async function () {
       await expect(
-        spooVault.connect(owner).startShareRefresh(999, RESHARE_DURATION)
-      ).to.be.revertedWithCustomError(spooVault, "DocumentNotExist");
+        heirly.connect(owner).startShareRefresh(999, RESHARE_DURATION)
+      ).to.be.revertedWithCustomError(heirly, "DocumentNotExist");
     });
 
     it("should reject durations outside the 1 hour .. 7 days bounds", async function () {
       await expect(
-        spooVault.connect(owner).startShareRefresh(documentId, 30 * 60)
-      ).to.be.revertedWithCustomError(spooVault, "InvalidReshareDuration");
+        heirly.connect(owner).startShareRefresh(documentId, 30 * 60)
+      ).to.be.revertedWithCustomError(heirly, "InvalidReshareDuration");
       await expect(
-        spooVault.connect(owner).startShareRefresh(documentId, 8 * 24 * 60 * 60)
-      ).to.be.revertedWithCustomError(spooVault, "InvalidReshareDuration");
+        heirly.connect(owner).startShareRefresh(documentId, 8 * 24 * 60 * 60)
+      ).to.be.revertedWithCustomError(heirly, "InvalidReshareDuration");
     });
 
     it("should not allow two concurrent sessions", async function () {
-      await spooVault.connect(owner).startShareRefresh(documentId, RESHARE_DURATION);
+      await heirly.connect(owner).startShareRefresh(documentId, RESHARE_DURATION);
       await expect(
-        spooVault.connect(guardian1).startShareRefresh(documentId, RESHARE_DURATION)
-      ).to.be.revertedWithCustomError(spooVault, "ReshareSessionAlreadyActive");
+        heirly.connect(guardian1).startShareRefresh(documentId, RESHARE_DURATION)
+      ).to.be.revertedWithCustomError(heirly, "ReshareSessionAlreadyActive");
     });
   });
 
   describe("Zero-share commitment submission", function () {
     beforeEach(async function () {
-      await spooVault.connect(owner).startShareRefresh(documentId, RESHARE_DURATION);
+      await heirly.connect(owner).startShareRefresh(documentId, RESHARE_DURATION);
     });
 
     it("should accept valid commitments and track submission count", async function () {
       const epoch = 1;
-      const tx = await spooVault
+      const tx = await heirly
         .connect(guardian2)
         .submitZeroShareCommitment(documentId, fakeCommitment("g2"));
 
       await expect(tx)
-        .to.emit(spooVault, "ZeroShareCommitmentSubmitted")
+        .to.emit(heirly, "ZeroShareCommitmentSubmitted")
         .withArgs(documentId, epoch, guardian2.address, 2);
 
-      expect((await spooVault.getReshareSession(documentId)).submittedCount).to.equal(1);
-      expect(await spooVault.hasSubmittedZeroShare(documentId, epoch, guardian2.address)).to.equal(true);
-      expect(await spooVault.hasSubmittedZeroShare(documentId, epoch, guardian3.address)).to.equal(false);
+      expect((await heirly.getReshareSession(documentId)).submittedCount).to.equal(1);
+      expect(await heirly.hasSubmittedZeroShare(documentId, epoch, guardian2.address)).to.equal(true);
+      expect(await heirly.hasSubmittedZeroShare(documentId, epoch, guardian3.address)).to.equal(false);
 
-      const stored = await spooVault.getZeroShareCommitments(documentId, epoch, guardian2.address);
+      const stored = await heirly.getZeroShareCommitments(documentId, epoch, guardian2.address);
       expect(stored.length).to.equal(3);
       expect(stored[0]).to.equal(ethers.ZeroHash);
     });
@@ -132,48 +132,48 @@ describe("SpooVault Proactive Secret Resharing (zero-sharing protocol)", functio
     it("should enforce h_i(0) == 0 (non-zero constant term reverts)", async function () {
       const bad = [ethers.id("nonzero"), ethers.id("a1"), ethers.id("a2")];
       await expect(
-        spooVault.connect(guardian1).submitZeroShareCommitment(documentId, bad)
-      ).to.be.revertedWithCustomError(spooVault, "InvalidZeroShareCommitment");
+        heirly.connect(guardian1).submitZeroShareCommitment(documentId, bad)
+      ).to.be.revertedWithCustomError(heirly, "InvalidZeroShareCommitment");
     });
 
     it("should reject degenerate commitments (fewer than 2 coefficients)", async function () {
       await expect(
-        spooVault.connect(guardian1).submitZeroShareCommitment(documentId, [ethers.ZeroHash])
-      ).to.be.revertedWithCustomError(spooVault, "InvalidZeroShareCommitment");
+        heirly.connect(guardian1).submitZeroShareCommitment(documentId, [ethers.ZeroHash])
+      ).to.be.revertedWithCustomError(heirly, "InvalidZeroShareCommitment");
     });
 
     it("should allow each guardian to submit only once per epoch", async function () {
-      await spooVault.connect(guardian1).submitZeroShareCommitment(documentId, fakeCommitment("g1-a"));
+      await heirly.connect(guardian1).submitZeroShareCommitment(documentId, fakeCommitment("g1-a"));
       await expect(
-        spooVault.connect(guardian1).submitZeroShareCommitment(documentId, fakeCommitment("g1-b"))
-      ).to.be.revertedWithCustomError(spooVault, "ZeroShareAlreadySubmitted");
+        heirly.connect(guardian1).submitZeroShareCommitment(documentId, fakeCommitment("g1-b"))
+      ).to.be.revertedWithCustomError(heirly, "ZeroShareAlreadySubmitted");
     });
 
     it("should reject submissions from non-guardians", async function () {
       await expect(
-        spooVault.connect(outsider).submitZeroShareCommitment(documentId, fakeCommitment("evil"))
-      ).to.be.revertedWithCustomError(spooVault, "OnlyGuardian");
+        heirly.connect(outsider).submitZeroShareCommitment(documentId, fakeCommitment("evil"))
+      ).to.be.revertedWithCustomError(heirly, "OnlyGuardian");
     });
 
     it("should reject submissions after the deadline (simulated network delay)", async function () {
       await time.increase(RESHARE_DURATION + 60);
       await expect(
-        spooVault.connect(guardian1).submitZeroShareCommitment(documentId, fakeCommitment("late"))
-      ).to.be.revertedWithCustomError(spooVault, "ReshareDeadlineExceeded");
+        heirly.connect(guardian1).submitZeroShareCommitment(documentId, fakeCommitment("late"))
+      ).to.be.revertedWithCustomError(heirly, "ReshareDeadlineExceeded");
     });
 
     it("should reject submissions when no session is active", async function () {
       // Complete the current session first.
       await submitAll();
-      await spooVault.connect(owner).applyShareRefresh(
+      await heirly.connect(owner).applyShareRefresh(
         documentId,
         [owner.address, guardian1.address, guardian2.address, guardian3.address],
         ["new-share-owner", "new-share-g1", "new-share-g2", "new-share-g3"]
       );
 
       await expect(
-        spooVault.connect(guardian1).submitZeroShareCommitment(documentId, fakeCommitment("x"))
-      ).to.be.revertedWithCustomError(spooVault, "ReshareSessionNotActive");
+        heirly.connect(guardian1).submitZeroShareCommitment(documentId, fakeCommitment("x"))
+      ).to.be.revertedWithCustomError(heirly, "ReshareSessionNotActive");
     });
   });
 
@@ -186,41 +186,41 @@ describe("SpooVault Proactive Secret Resharing (zero-sharing protocol)", functio
     beforeEach(async function () {
       list = [owner.address, guardian1.address, guardian2.address, guardian3.address];
       newShares = ["ns-owner", "ns-g1", "ns-g2", "ns-g3"];
-      await spooVault.connect(owner).startShareRefresh(documentId, RESHARE_DURATION);
+      await heirly.connect(owner).startShareRefresh(documentId, RESHARE_DURATION);
     });
 
     it("should revert before all guardians submitted while window is open", async function () {
-      await spooVault.connect(owner).submitZeroShareCommitment(documentId, fakeCommitment("owner"));
-      await spooVault.connect(guardian1).submitZeroShareCommitment(documentId, fakeCommitment("g1"));
+      await heirly.connect(owner).submitZeroShareCommitment(documentId, fakeCommitment("owner"));
+      await heirly.connect(guardian1).submitZeroShareCommitment(documentId, fakeCommitment("g1"));
 
       await expect(
-        spooVault.connect(owner).applyShareRefresh(documentId, list, newShares)
-      ).to.be.revertedWithCustomError(spooVault, "ReshareDeadlineNotReached");
+        heirly.connect(owner).applyShareRefresh(documentId, list, newShares)
+      ).to.be.revertedWithCustomError(heirly, "ReshareDeadlineNotReached");
     });
 
     it("should report incomplete instead of applying after deadline with missing submissions", async function () {
-      await spooVault.connect(owner).submitZeroShareCommitment(documentId, fakeCommitment("owner"));
+      await heirly.connect(owner).submitZeroShareCommitment(documentId, fakeCommitment("owner"));
       await time.increase(RESHARE_DURATION + 10);
 
       await expect(
-        spooVault.connect(owner).applyShareRefresh(documentId, list, newShares)
-      ).to.be.revertedWithCustomError(spooVault, "ReshareIncomplete");
+        heirly.connect(owner).applyShareRefresh(documentId, list, newShares)
+      ).to.be.revertedWithCustomError(heirly, "ReshareIncomplete");
     });
 
     it("should apply once every guardian submitted: bump epoch, store shares, close session", async function () {
       await submitAll();
 
-      const tx = await spooVault.connect(guardian3).applyShareRefresh(documentId, list, newShares);
-      await expect(tx).to.emit(spooVault, "SharesRefreshed").withArgs(documentId, 1);
+      const tx = await heirly.connect(guardian3).applyShareRefresh(documentId, list, newShares);
+      await expect(tx).to.emit(heirly, "SharesRefreshed").withArgs(documentId, 1);
 
-      expect(await spooVault.shareEpoch(documentId)).to.equal(1);
-      expect((await spooVault.getReshareSession(documentId)).active).to.equal(false);
+      expect(await heirly.shareEpoch(documentId)).to.equal(1);
+      expect((await heirly.getReshareSession(documentId)).active).to.equal(false);
 
-      expect(await spooVault.getEncryptedGuardianShare(documentId, guardian1.address)).to.equal("ns-g1");
-      expect(await spooVault.getEncryptedGuardianShare(documentId, guardian3.address)).to.equal("ns-g3");
+      expect(await heirly.getEncryptedGuardianShare(documentId, guardian1.address)).to.equal("ns-g1");
+      expect(await heirly.getEncryptedGuardianShare(documentId, guardian3.address)).to.equal("ns-g3");
 
       // Commitments remain auditable for the live epoch.
-      const stored = await spooVault.getZeroShareCommitments(documentId, 1, guardian2.address);
+      const stored = await heirly.getZeroShareCommitments(documentId, 1, guardian2.address);
       expect(stored[0]).to.equal(ethers.ZeroHash);
     });
 
@@ -228,53 +228,53 @@ describe("SpooVault Proactive Secret Resharing (zero-sharing protocol)", functio
       await submitAll();
 
       await expect(
-        spooVault.connect(owner).applyShareRefresh(
+        heirly.connect(owner).applyShareRefresh(
           documentId,
           [owner.address, guardian1.address, guardian2.address],
           ["a", "b", "c"]
         )
-      ).to.be.revertedWithCustomError(spooVault, "InvalidShareRefreshInput");
+      ).to.be.revertedWithCustomError(heirly, "InvalidShareRefreshInput");
 
       await expect(
-        spooVault.connect(owner).applyShareRefresh(
+        heirly.connect(owner).applyShareRefresh(
           documentId,
           [owner.address, guardian1.address, guardian2.address, outsider.address],
           ["a", "b", "c", "d"]
         )
-      ).to.be.revertedWithCustomError(spooVault, "InvalidShareRefreshInput");
+      ).to.be.revertedWithCustomError(heirly, "InvalidShareRefreshInput");
 
       await expect(
-        spooVault.connect(owner).applyShareRefresh(
+        heirly.connect(owner).applyShareRefresh(
           documentId,
           [owner.address, owner.address, guardian2.address, guardian3.address],
           ["a", "b", "c", "d"]
         )
-      ).to.be.revertedWithCustomError(spooVault, "InvalidShareRefreshInput");
+      ).to.be.revertedWithCustomError(heirly, "InvalidShareRefreshInput");
     });
 
     it("should require a guardian to trigger the finalization", async function () {
       await submitAll();
       await expect(
-        spooVault.connect(outsider).applyShareRefresh(documentId, list, newShares)
-      ).to.be.revertedWithCustomError(spooVault, "OnlyGuardian");
+        heirly.connect(outsider).applyShareRefresh(documentId, list, newShares)
+      ).to.be.revertedWithCustomError(heirly, "OnlyGuardian");
     });
 
     it("should support repeated refresh rounds with incrementing epochs", async function () {
       await submitAll();
-      await spooVault.connect(owner).applyShareRefresh(documentId, list, newShares);
-      expect(await spooVault.shareEpoch(documentId)).to.equal(1);
+      await heirly.connect(owner).applyShareRefresh(documentId, list, newShares);
+      expect(await heirly.shareEpoch(documentId)).to.equal(1);
 
       // Round 2
-      await spooVault.connect(guardian2).startShareRefresh(documentId, RESHARE_DURATION);
+      await heirly.connect(guardian2).startShareRefresh(documentId, RESHARE_DURATION);
       await submitAll();
       const shares2 = ["n2-owner", "n2-g1", "n2-g2", "n2-g3"];
-      await spooVault.connect(owner).applyShareRefresh(documentId, list, shares2);
+      await heirly.connect(owner).applyShareRefresh(documentId, list, shares2);
 
-      expect(await spooVault.shareEpoch(documentId)).to.equal(2);
-      expect(await spooVault.getEncryptedGuardianShare(documentId, guardian2.address)).to.equal("n2-g2");
+      expect(await heirly.shareEpoch(documentId)).to.equal(2);
+      expect(await heirly.getEncryptedGuardianShare(documentId, guardian2.address)).to.equal("n2-g2");
       // Epoch-1 submission flag must not leak into epoch 2.
-      expect(await spooVault.hasSubmittedZeroShare(documentId, 2, guardian1.address)).to.equal(true);
-      expect(await spooVault.hasSubmittedZeroShare(documentId, 3, guardian1.address)).to.equal(false);
+      expect(await heirly.hasSubmittedZeroShare(documentId, 2, guardian1.address)).to.equal(true);
+      expect(await heirly.hasSubmittedZeroShare(documentId, 3, guardian1.address)).to.equal(false);
     });
 
     it("should allow setting and querying initial document VSS commitments", async function () {
@@ -284,26 +284,26 @@ describe("SpooVault Proactive Secret Resharing (zero-sharing protocol)", functio
         ethers.id("c2"),
       ];
 
-      const tx = await spooVault
+      const tx = await heirly
         .connect(guardian1)
         .setDocumentVSSCommitments(documentId, initialCommitments);
 
       await expect(tx)
-        .to.emit(spooVault, "VSSCommitmentsUpdated")
+        .to.emit(heirly, "VSSCommitmentsUpdated")
         .withArgs(documentId, 0, initialCommitments);
 
-      const stored = await spooVault.getDocumentVSSCommitments(documentId);
+      const stored = await heirly.getDocumentVSSCommitments(documentId);
       expect(stored).to.deep.equal(initialCommitments);
 
       // Revert if non-guardian attempts to set commitments
       await expect(
-        spooVault.connect(outsider).setDocumentVSSCommitments(documentId, initialCommitments)
-      ).to.be.revertedWithCustomError(spooVault, "OnlyGuardian");
+        heirly.connect(outsider).setDocumentVSSCommitments(documentId, initialCommitments)
+      ).to.be.revertedWithCustomError(heirly, "OnlyGuardian");
 
       // Revert if commitment array has length < 2
       await expect(
-        spooVault.connect(guardian1).setDocumentVSSCommitments(documentId, [ethers.id("only-one")])
-      ).to.be.revertedWithCustomError(spooVault, "InvalidVSSCommitmentUpdate");
+        heirly.connect(guardian1).setDocumentVSSCommitments(documentId, [ethers.id("only-one")])
+      ).to.be.revertedWithCustomError(heirly, "InvalidVSSCommitmentUpdate");
     });
 
     it("should update on-chain Feldmann VSS commitments when applyShareRefresh includes newCommitments", async function () {
@@ -312,7 +312,7 @@ describe("SpooVault Proactive Secret Resharing (zero-sharing protocol)", functio
         ethers.id("c1-initial"),
         ethers.id("c2-initial"),
       ];
-      await spooVault
+      await heirly
         .connect(owner)
         .setDocumentVSSCommitments(documentId, initialCommitments);
 
@@ -324,7 +324,7 @@ describe("SpooVault Proactive Secret Resharing (zero-sharing protocol)", functio
         ethers.id("c2-refreshed"),
       ];
 
-      const tx = await spooVault
+      const tx = await heirly
         .connect(guardian2)
         ["applyShareRefresh(uint256,address[],string[],bytes32[])"](
           documentId,
@@ -334,13 +334,13 @@ describe("SpooVault Proactive Secret Resharing (zero-sharing protocol)", functio
         );
 
       await expect(tx)
-        .to.emit(spooVault, "SharesRefreshed")
+        .to.emit(heirly, "SharesRefreshed")
         .withArgs(documentId, 1);
       await expect(tx)
-        .to.emit(spooVault, "VSSCommitmentsUpdated")
+        .to.emit(heirly, "VSSCommitmentsUpdated")
         .withArgs(documentId, 1, updatedCommitments);
 
-      const stored = await spooVault.getDocumentVSSCommitments(documentId);
+      const stored = await heirly.getDocumentVSSCommitments(documentId);
       expect(stored).to.deep.equal(updatedCommitments);
     });
 
@@ -350,7 +350,7 @@ describe("SpooVault Proactive Secret Resharing (zero-sharing protocol)", functio
         ethers.id("c1-initial"),
         ethers.id("c2-initial"),
       ];
-      await spooVault
+      await heirly
         .connect(owner)
         .setDocumentVSSCommitments(documentId, initialCommitments);
 
@@ -363,7 +363,7 @@ describe("SpooVault Proactive Secret Resharing (zero-sharing protocol)", functio
       ];
 
       await expect(
-        spooVault
+        heirly
           .connect(owner)
           ["applyShareRefresh(uint256,address[],string[],bytes32[])"](
             documentId,
@@ -371,7 +371,7 @@ describe("SpooVault Proactive Secret Resharing (zero-sharing protocol)", functio
             newShares,
             corruptedCommitments
           )
-      ).to.be.revertedWithCustomError(spooVault, "InvalidVSSCommitmentUpdate");
+      ).to.be.revertedWithCustomError(heirly, "InvalidVSSCommitmentUpdate");
     });
 
     it("should revert if applyShareRefresh provides a commitment vector of mismatched length", async function () {
@@ -380,7 +380,7 @@ describe("SpooVault Proactive Secret Resharing (zero-sharing protocol)", functio
         ethers.id("c1-initial"),
         ethers.id("c2-initial"),
       ];
-      await spooVault
+      await heirly
         .connect(owner)
         .setDocumentVSSCommitments(documentId, initialCommitments);
 
@@ -392,7 +392,7 @@ describe("SpooVault Proactive Secret Resharing (zero-sharing protocol)", functio
       ];
 
       await expect(
-        spooVault
+        heirly
           .connect(owner)
           ["applyShareRefresh(uint256,address[],string[],bytes32[])"](
             documentId,
@@ -400,7 +400,7 @@ describe("SpooVault Proactive Secret Resharing (zero-sharing protocol)", functio
             newShares,
             shortCommitments
           )
-      ).to.be.revertedWithCustomError(spooVault, "InvalidVSSCommitmentUpdate");
+      ).to.be.revertedWithCustomError(heirly, "InvalidVSSCommitmentUpdate");
     });
   });
 });

@@ -1,7 +1,7 @@
 import { test, expect } from "../support/test-with-metamask";
 import { E2E_CHAIN_NAME, GUARDIAN_ADDRESS } from "../wallets";
 
-test.describe("SpooVault — vault creation flow (EVM / MetaMask)", () => {
+test.describe("Heirly — vault creation flow (EVM / MetaMask)", () => {
   test("creates a vault through the UI and submits the on-chain transaction", async ({
     page,
     metamask,

@@ -1,7 +1,7 @@
 /**
- * SpooVault — Soroban (Stellar) E2E flow.
+ * Heirly — Soroban (Stellar) E2E flow.
  *
- * This exercises the *real* `spoovault_stellar` contract end-to-end against a
+ * This exercises the *real* `heirly_stellar` contract end-to-end against a
  * local Soroban standalone network (e.g. the `stellar/quickstart` standalone
  * service used in .github/workflows/e2e.yml):
  *
@@ -32,7 +32,7 @@ const RPC_URL = process.env.SOROBAN_RPC_URL || "http://localhost:8000";
 const NETWORK_PASSPHRASE =
   process.env.SOROBAN_NETWORK_PASSPHRASE ||
   "Standalone Network ; February 2017";
-const NETWORK = "spoovault-e2e";
+const NETWORK = "heirly-e2e";
 
 function runStellar(args, opts = {}) {
   // Allow the binary location to be overridden (CI pins it to an absolute path
@@ -101,7 +101,7 @@ before(async () => {
   runStellar(["contract", "build"], { cwd: STELLAR_CRATE });
   const wasm = resolve(
     STELLAR_CRATE,
-    "target/wasm32-unknown-unknown/release/spoovault_stellar.wasm"
+    "target/wasm32-unknown-unknown/release/heirly_stellar.wasm"
   );
 
   // Deploy.

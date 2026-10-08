@@ -64,8 +64,8 @@ jobs:
             -v "$PWD":/src -w /src \
             --entrypoint echidna-test \
             trailofbits/echidna:v2.2.3 \
-            /src/fuzz/harness/SpooVaultFuzz.sol \
-            --contract SpooVaultFuzz \
+            /src/fuzz/harness/HeirlyFuzz.sol \
+            --contract HeirlyFuzz \
             --config ${{ steps.config.outputs.path }} \
             --test-mode property
 

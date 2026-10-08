@@ -1,11 +1,11 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { deploySpooVault } = require("./helpers/deploySpooVault.cjs");
+const { deployHeirly } = require("./helpers/deployHeirly.cjs");
 const { time } = require("@nomicfoundation/hardhat-network-helpers");
 const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
 
-describe("SpooVault Web3 Keeper Heartbeat Relay", function () {
-  let spooVault;
+describe("Heirly Web3 Keeper Heartbeat Relay", function () {
+  let heirly;
   let owner;
   let guardian1;
   let keeper;
@@ -35,17 +35,17 @@ describe("SpooVault Web3 Keeper Heartbeat Relay", function () {
   beforeEach(async function () {
     [owner, guardian1, keeper, otherKeeper, relayer] = await ethers.getSigners();
 
-    spooVault = await deploySpooVault();
+    heirly = await deployHeirly();
 
-    await spooVault.connect(owner).createVault("Automated Vault", "Desc", [guardian1.address], 1);
+    await heirly.connect(owner).createVault("Automated Vault", "Desc", [guardian1.address], 1);
     vaultId = 1;
 
     const { chainId } = await ethers.provider.getNetwork();
     domain = {
-      name: "SpooVault",
+      name: "Heirly",
       version: "1",
       chainId,
-      verifyingContract: await spooVault.getAddress(),
+      verifyingContract: await heirly.getAddress(),
     };
   });
 
@@ -59,28 +59,28 @@ describe("SpooVault Web3 Keeper Heartbeat Relay", function () {
     });
 
     await expect(
-      spooVault.connect(relayer).authorizeKeeperBySig(vaultId, keeper.address, expiresAt, signature)
+      heirly.connect(relayer).authorizeKeeperBySig(vaultId, keeper.address, expiresAt, signature)
     )
-      .to.emit(spooVault, "KeeperAuthorized")
+      .to.emit(heirly, "KeeperAuthorized")
       .withArgs(vaultId, owner.address, keeper.address, expiresAt);
 
-    const authorization = await spooVault.keeperAuthorizations(vaultId);
+    const authorization = await heirly.keeperAuthorizations(vaultId);
     expect(authorization.keeper).to.equal(keeper.address);
     expect(authorization.expiresAt).to.equal(expiresAt);
 
-    await expect(spooVault.connect(keeper).proveLifeByKeeper(vaultId))
-      .to.emit(spooVault, "ProofOfLifeRelayed")
+    await expect(heirly.connect(keeper).proveLifeByKeeper(vaultId))
+      .to.emit(heirly, "ProofOfLifeRelayed")
       .withArgs(vaultId, owner.address, keeper.address, anyValue);
 
     // The keeper can heartbeat again later with no further owner signature required.
     await time.increase(60 * 60);
-    await expect(spooVault.connect(keeper).proveLifeByKeeper(vaultId)).to.not.be.reverted;
+    await expect(heirly.connect(keeper).proveLifeByKeeper(vaultId)).to.not.be.reverted;
   });
 
   it("reverts proveLifeByKeeper for an address with no keeper authorization", async function () {
     await expect(
-      spooVault.connect(keeper).proveLifeByKeeper(vaultId)
-    ).to.be.revertedWithCustomError(spooVault, "KeeperNotAuthorized");
+      heirly.connect(keeper).proveLifeByKeeper(vaultId)
+    ).to.be.revertedWithCustomError(heirly, "KeeperNotAuthorized");
   });
 
   it("reverts proveLifeByKeeper for a keeper that isn't the one authorized", async function () {
@@ -91,11 +91,11 @@ describe("SpooVault Web3 Keeper Heartbeat Relay", function () {
       expiresAt,
       nonce: 0,
     });
-    await spooVault.connect(relayer).authorizeKeeperBySig(vaultId, keeper.address, expiresAt, signature);
+    await heirly.connect(relayer).authorizeKeeperBySig(vaultId, keeper.address, expiresAt, signature);
 
     await expect(
-      spooVault.connect(otherKeeper).proveLifeByKeeper(vaultId)
-    ).to.be.revertedWithCustomError(spooVault, "KeeperNotAuthorized");
+      heirly.connect(otherKeeper).proveLifeByKeeper(vaultId)
+    ).to.be.revertedWithCustomError(heirly, "KeeperNotAuthorized");
   });
 
   it("reverts proveLifeByKeeper once the authorization has expired", async function () {
@@ -106,13 +106,13 @@ describe("SpooVault Web3 Keeper Heartbeat Relay", function () {
       expiresAt,
       nonce: 0,
     });
-    await spooVault.connect(relayer).authorizeKeeperBySig(vaultId, keeper.address, expiresAt, signature);
+    await heirly.connect(relayer).authorizeKeeperBySig(vaultId, keeper.address, expiresAt, signature);
 
     await time.increaseTo(expiresAt + 1);
 
     await expect(
-      spooVault.connect(keeper).proveLifeByKeeper(vaultId)
-    ).to.be.revertedWithCustomError(spooVault, "KeeperAuthorizationExpired");
+      heirly.connect(keeper).proveLifeByKeeper(vaultId)
+    ).to.be.revertedWithCustomError(heirly, "KeeperAuthorizationExpired");
   });
 
   it("reverts authorizeKeeperBySig when the signature was not produced by the vault creator", async function () {
@@ -125,8 +125,8 @@ describe("SpooVault Web3 Keeper Heartbeat Relay", function () {
     });
 
     await expect(
-      spooVault.connect(relayer).authorizeKeeperBySig(vaultId, keeper.address, expiresAt, signature)
-    ).to.be.revertedWithCustomError(spooVault, "InvalidSigner");
+      heirly.connect(relayer).authorizeKeeperBySig(vaultId, keeper.address, expiresAt, signature)
+    ).to.be.revertedWithCustomError(heirly, "InvalidSigner");
   });
 
   it("reverts authorizeKeeperBySig with an expiry already in the past", async function () {
@@ -139,8 +139,8 @@ describe("SpooVault Web3 Keeper Heartbeat Relay", function () {
     });
 
     await expect(
-      spooVault.connect(relayer).authorizeKeeperBySig(vaultId, keeper.address, expiresAt, signature)
-    ).to.be.revertedWithCustomError(spooVault, "KeeperExpiryInPast");
+      heirly.connect(relayer).authorizeKeeperBySig(vaultId, keeper.address, expiresAt, signature)
+    ).to.be.revertedWithCustomError(heirly, "KeeperExpiryInPast");
   });
 
   it("rejects replaying a stale signature after the vault's keeper-auth nonce has moved on", async function () {
@@ -151,13 +151,13 @@ describe("SpooVault Web3 Keeper Heartbeat Relay", function () {
       expiresAt,
       nonce: 0,
     });
-    await spooVault.connect(relayer).authorizeKeeperBySig(vaultId, keeper.address, expiresAt, signature);
-    expect(await spooVault.keeperAuthNonces(vaultId)).to.equal(1);
+    await heirly.connect(relayer).authorizeKeeperBySig(vaultId, keeper.address, expiresAt, signature);
+    expect(await heirly.keeperAuthNonces(vaultId)).to.equal(1);
 
     // Replaying the exact same (now stale) signature must fail: it was signed against nonce 0.
     await expect(
-      spooVault.connect(relayer).authorizeKeeperBySig(vaultId, keeper.address, expiresAt, signature)
-    ).to.be.revertedWithCustomError(spooVault, "InvalidSigner");
+      heirly.connect(relayer).authorizeKeeperBySig(vaultId, keeper.address, expiresAt, signature)
+    ).to.be.revertedWithCustomError(heirly, "InvalidSigner");
   });
 
   it("lets the owner revoke an active keeper authorization", async function () {
@@ -168,21 +168,21 @@ describe("SpooVault Web3 Keeper Heartbeat Relay", function () {
       expiresAt,
       nonce: 0,
     });
-    await spooVault.connect(relayer).authorizeKeeperBySig(vaultId, keeper.address, expiresAt, signature);
+    await heirly.connect(relayer).authorizeKeeperBySig(vaultId, keeper.address, expiresAt, signature);
 
-    await expect(spooVault.connect(owner).revokeKeeper(vaultId))
-      .to.emit(spooVault, "KeeperRevoked")
+    await expect(heirly.connect(owner).revokeKeeper(vaultId))
+      .to.emit(heirly, "KeeperRevoked")
       .withArgs(vaultId, owner.address);
 
     await expect(
-      spooVault.connect(keeper).proveLifeByKeeper(vaultId)
-    ).to.be.revertedWithCustomError(spooVault, "KeeperNotAuthorized");
+      heirly.connect(keeper).proveLifeByKeeper(vaultId)
+    ).to.be.revertedWithCustomError(heirly, "KeeperNotAuthorized");
   });
 
   it("reverts revokeKeeper when called by anyone other than the vault creator", async function () {
     await expect(
-      spooVault.connect(guardian1).revokeKeeper(vaultId)
-    ).to.be.revertedWithCustomError(spooVault, "OnlyVaultCreator");
+      heirly.connect(guardian1).revokeKeeper(vaultId)
+    ).to.be.revertedWithCustomError(heirly, "OnlyVaultCreator");
   });
 
   it("reverts authorizeKeeperBySig and proveLifeByKeeper for a non-existent vault", async function () {
@@ -195,12 +195,12 @@ describe("SpooVault Web3 Keeper Heartbeat Relay", function () {
     });
 
     await expect(
-      spooVault.connect(relayer).authorizeKeeperBySig(999, keeper.address, expiresAt, signature)
-    ).to.be.revertedWithCustomError(spooVault, "VaultNotExist");
+      heirly.connect(relayer).authorizeKeeperBySig(999, keeper.address, expiresAt, signature)
+    ).to.be.revertedWithCustomError(heirly, "VaultNotExist");
 
     await expect(
-      spooVault.connect(keeper).proveLifeByKeeper(999)
-    ).to.be.revertedWithCustomError(spooVault, "VaultNotExist");
+      heirly.connect(keeper).proveLifeByKeeper(999)
+    ).to.be.revertedWithCustomError(heirly, "VaultNotExist");
   });
 
   it("still lets the owner heartbeat directly via proveLife regardless of keeper delegation", async function () {
@@ -211,8 +211,8 @@ describe("SpooVault Web3 Keeper Heartbeat Relay", function () {
       expiresAt,
       nonce: 0,
     });
-    await spooVault.connect(relayer).authorizeKeeperBySig(vaultId, keeper.address, expiresAt, signature);
+    await heirly.connect(relayer).authorizeKeeperBySig(vaultId, keeper.address, expiresAt, signature);
 
-    await expect(spooVault.connect(owner).proveLife(vaultId)).to.emit(spooVault, "ProofOfLifeRecorded");
+    await expect(heirly.connect(owner).proveLife(vaultId)).to.emit(heirly, "ProofOfLifeRecorded");
   });
 });

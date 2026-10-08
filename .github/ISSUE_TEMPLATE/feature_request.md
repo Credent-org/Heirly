@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest an idea or enhancement for SpooVault
+about: Suggest an idea or enhancement for Heirly
 title: "[FEATURE] "
 labels: "enhancement"
 assignees: ""

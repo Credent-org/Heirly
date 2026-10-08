@@ -22,7 +22,7 @@ import {
 import { signProxyRequest as signFromClient } from "../utils/ipfsProxySignature";
 
 const SECRET = "test-proxy-hmac-secret";
-const ORIGINS = ["https://app.spoovault.io", "http://localhost:5173"];
+const ORIGINS = ["https://app.heirly.io", "http://localhost:5173"];
 const PATH = "/api/ipfs/pin-json";
 const BODY = JSON.stringify({ pinataContent: { hello: "vault" } });
 
@@ -32,7 +32,7 @@ const authorize = (
   authorizeProxyRequest({
     method: "POST",
     path: PATH,
-    origin: "https://app.spoovault.io",
+    origin: "https://app.heirly.io",
     body: BODY,
     secret: SECRET,
     allowedOrigins: ORIGINS,
@@ -49,13 +49,13 @@ describe("IPFS proxy CORS origin allowlist", () => {
 
   it("parses comma-separated authorized app domains", () => {
     expect(
-      parseAllowedOrigins("https://app.spoovault.io, https://spoovault.io")
-    ).toEqual(["https://app.spoovault.io", "https://spoovault.io"]);
+      parseAllowedOrigins("https://app.heirly.io, https://heirly.io")
+    ).toEqual(["https://app.heirly.io", "https://heirly.io"]);
   });
 
   it("allows missing Origin (non-browser) and exact allowlist matches", () => {
     expect(isOriginAllowed(undefined, ORIGINS)).toBe(true);
-    expect(isOriginAllowed("https://app.spoovault.io", ORIGINS)).toBe(true);
+    expect(isOriginAllowed("https://app.heirly.io", ORIGINS)).toBe(true);
     expect(isOriginAllowed("https://evil.example", ORIGINS)).toBe(false);
     expect(isOriginAllowed("https://evil.example", ["*"])).toBe(true);
   });
@@ -81,7 +81,7 @@ describe("IPFS proxy HMAC signatures", () => {
     expect(toHex(new Uint8Array([0, 15, 255]))).toBe("000fff");
   });
 
-  it("signs requests with X-SpooVault-Signature t=,v1= and verifies them", async () => {
+  it("signs requests with X-Heirly-Signature t=,v1= and verifies them", async () => {
     const signed = await signProxyRequest({
       secret: SECRET,
       method: "POST",
@@ -294,7 +294,7 @@ describe("IPFS proxy HMAC signatures", () => {
       authorizeProxyRequest({
         method: "POST",
         path: PATH,
-        origin: "https://app.spoovault.io",
+        origin: "https://app.heirly.io",
         signatureHeader: signed.signature,
         body: BODY,
         secret: SECRET,
@@ -305,7 +305,7 @@ describe("IPFS proxy HMAC signatures", () => {
       authorizeProxyRequest({
         method: "",
         path: PATH,
-        origin: "https://app.spoovault.io",
+        origin: "https://app.heirly.io",
         allowedOrigins: ORIGINS,
         secret: SECRET,
       })
@@ -318,7 +318,7 @@ describe("IPFS proxy HMAC signatures", () => {
       {
         method: "POST",
         path: PATH,
-        origin: "https://app.spoovault.io",
+        origin: "https://app.heirly.io",
         contentType: "application/json",
         rawBody: BODY,
       },
@@ -373,7 +373,7 @@ describe("IPFS proxy HMAC signatures", () => {
     const result = await authorizeProxyRequest({
       method: "DELETE",
       path: unpinPath,
-      origin: "https://app.spoovault.io",
+      origin: "https://app.heirly.io",
       signatureHeader: signed.signature,
       secret: SECRET,
       allowedOrigins: ORIGINS,
@@ -386,7 +386,7 @@ describe("IPFS proxy HMAC signatures", () => {
       {
         method: "DELETE",
         originalUrl: unpinPath,
-        origin: "https://app.spoovault.io",
+        origin: "https://app.heirly.io",
         signatureHeader: signed.signature,
       },
       {

@@ -6,7 +6,7 @@ The Stellar integration is built using Soroban smart contracts written in Rust (
 
 - **AccessLevel & RequestStatus Enums**: Strong typed access rules.
 - **Vault, Document, and AccessRequest Structs**: Standardized state layouts stored in persistent instance storage.
-- **SpooVaultStellar Contract**: Core entry points matching EVM functionality.
+- **HeirlyStellar Contract**: Core entry points matching EVM functionality.
 
 ## Soroban Storage Pattern
 

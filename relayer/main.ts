@@ -1,6 +1,6 @@
 /**
  * @file relayer/main.ts
- * @description SpooVault guardian notification relayer entrypoint.
+ * @description Heirly guardian notification relayer entrypoint.
  *
  * Listens for AccessRequested events across EVM and Soroban chains, resolves
  * guardian contacts, and dispatches encrypted Push/Email/Telegram

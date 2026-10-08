@@ -7,7 +7,7 @@ import "./styles/globals.css";
 
 initOfflineLayer();
 
-const CHUNK_RELOAD_GUARD_KEY = "spoovault-chunk-reload-once";
+const CHUNK_RELOAD_GUARD_KEY = "heirly-chunk-reload-once";
 
 const shouldRecoverFromChunkError = (message: string) => {
   const normalized = message.toLowerCase();
